@@ -1,3 +1,4 @@
 {
-  "baseUrl": "https://media.local.dev-gutools.co.uk"
+  "baseUrl": "https://media.local.dev-gutools.co.uk",
+  "video": true
 }

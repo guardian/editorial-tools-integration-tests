@@ -4,14 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run cypress:open",
     "cypress:open": "cypress open"
-
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "cypress": "^4.3.0"
+  },
+  "dependencies": {
+    "pan-domain-node": "git://github.com/guardian/pan-domain-node.git"
   }
 }

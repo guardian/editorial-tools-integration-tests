@@ -25,14 +25,32 @@ describe("Grid Integration Tests", function() {
     const imageName = "production monitoring test image DO NOT USE";
 
     cy.get(`[placeholder="${placeholder}"]`).type(imageName);
-    wait(0.5);
+    wait(1);
 
     cy.get(`[alt="${imageName}"]`).click();
     wait(0.5);
+    cy.get("gr-leases > .titip-default > gr-icon > .gr-icon").click();
+    cy.get("#access-select").select("allow-use");
+    cy.get(".lease__form > .ng-pristine")
+      .clear()
+      .type("someNotes");
+    cy.get(
+      ".lease__form__buttons__button-save > gr-icon-label > gr-icon > .gr-icon"
+    ).click();
+    wait(2);
+    cy.get("#it-confirm-delete-lease").click();
+    wait(1);
+    cy.get("#it-confirm-delete-lease").click();
+    wait(1);
 
-    cy.get('button[id="it-photoshoot-edit-button"]').click();
-    cy.get(".editable-has-buttons").type("someChange");
+    cy.get('button[id="it-photoshoot-edit-button"]').click({ force: true });
+    cy.get(".editable-has-buttons")
+      .clear()
+      .type("someChange");
     cy.get(".editable-buttons > .button-save").click();
+    cy.get(
+      ".top-bar-item > gr-icon-label > .icon-label > ng\\:transclude"
+    ).click();
     cy.url().should("include", "/");
   });
 });
