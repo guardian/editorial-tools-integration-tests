@@ -1,4 +1,7 @@
 {
   "baseUrl": "https://media.local.dev-gutools.co.uk",
-  "video": true
+  "video": true,
+  "viewportWidth": 1920,
+  "viewportHeight": 1080
+
 }
