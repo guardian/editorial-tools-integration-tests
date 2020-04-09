@@ -1,4 +1,14 @@
+# IDE
 .idea
+.DS_Store
+
+# Node
 node_modules
+
+# Cypress
 videos
+screenshots
+
+# Config
 cookie.json
+credentials.json

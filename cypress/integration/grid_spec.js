@@ -1,5 +1,3 @@
-const cookie = require("../../cookie.json");
-
 const date = new Date().toString();
 const placeholder = "Search for images... (type + for advanced search)";
 const imageName = "production monitoring test image DO NOT USE";
@@ -13,7 +11,8 @@ function searchAndClickOnTestImage() {
 
 describe("Grid Integration Tests", () => {
   beforeEach(() => {
-    cy.setCookie(cookie.name, cookie.value, {
+    const cookie = Cypress.env("cookie");
+    cy.setCookie("gutoolsAuth-assym", cookie, {
       domain: ".local.dev-gutools.co.uk",
       path: "/",
       secure: true,
@@ -45,20 +44,20 @@ describe("Grid Integration Tests", () => {
     searchAndClickOnTestImage();
 
     // Edit the image description with the current date
-    cy.get("#it-edit-description").click({ force: true });
+    cy.get("#it-edit-description-button").click({ force: true });
     cy.get(".editable-has-buttons")
       .clear()
       .type(date);
     cy.get(".editable-buttons > .button-save").click();
-    wait(1);
+    wait(3);
 
     // Put it back to normal
-    cy.get("#it-edit-description").click({ force: true });
+    cy.get("#it-edit-description-button").click({ force: true });
     cy.get(".editable-has-buttons")
       .clear()
       .type(imageName);
     cy.get(".editable-buttons > .button-save").click();
-    wait(1);
+    wait(3);
 
     // Edit the byline
     cy.get("#it-edit-byline-button").click({ force: true });
