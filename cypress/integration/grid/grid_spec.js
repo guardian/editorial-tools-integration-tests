@@ -11,7 +11,7 @@ function searchAndClickOnTestImage() {
 
 describe("Grid Integration Tests", () => {
   beforeEach(() => {
-    const cookie = require("../../cookie.json").cookie;
+    const cookie = require("../../../cookie.json").cookie;
     cy.setCookie("gutoolsAuth-assym", cookie, {
       domain: ".local.dev-gutools.co.uk",
       path: "/",
