@@ -1,17 +1,17 @@
 const date = new Date().toString();
 const placeholder = "Search for images... (type + for advanced search)";
-const imageName = "production monitoring test image DO NOT USE";
+const imageName = "prodmontestimage12345";
 
 function searchAndClickOnTestImage() {
-  cy.get(`[placeholder="${placeholder}"]`).type(imageName);
+  cy.get("gr-text-chip > .ng-pristine").type(imageName);
   cy.wait(1);
   cy.get(`[alt="${imageName}"]`).click();
-  cy.wait(1);
+  cy.wait(3);
 }
 
 describe("Grid Integration Tests", () => {
   beforeEach(() => {
-    const cookie = Cypress.env("cookie");
+    const cookie = require("../../cookie.json").cookie;
     cy.setCookie("gutoolsAuth-assym", cookie, {
       domain: ".local.dev-gutools.co.uk",
       path: "/",
@@ -95,7 +95,6 @@ describe("Grid Integration Tests", () => {
     cy.get(".gr-add-label__form__buttons__button-save").click();
     wait(1);
     cy.get("#it-remove-label-button").click({ multiple: true });
-    cy.pause();
   });
 
   it("should edit the photoshoot section", () => {
@@ -110,6 +109,15 @@ describe("Grid Integration Tests", () => {
     cy.get(
       ".top-bar-item > gr-icon-label > .icon-label > ng\\:transclude"
     ).click();
+  });
+
+  it("can change the rights", function() {
+    searchAndClickOnTestImage();
+    cy.get("#it-edit-usage-rights-button").click({ force: true });
+    cy.get("#it-rights-select").select("screengrab");
+    cy.get(".it-edit-usage-input").type(date);
+    cy.get(".ure__bar > .button-save").click();
+    wait(3);
   });
 });
 
