@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@guardian/pan-domain-node": "^0.4.2",
     "aws-sdk": "^2.656.0",
     "cypress": "^4.3.0",
     "iniparser": "^1.0.5",

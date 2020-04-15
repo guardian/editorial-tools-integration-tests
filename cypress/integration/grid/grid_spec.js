@@ -1,19 +1,21 @@
 const date = new Date().toString();
 const placeholder = "Search for images... (type + for advanced search)";
 const imageName = "prodmontestimage12345";
+const hash = "0e019da30d5c429a98a3e9aabafe689576a6a4ba";
 
 function searchAndClickOnTestImage() {
   cy.get("gr-text-chip > .ng-pristine").type(imageName);
   cy.wait(1);
-  cy.get(`[alt="${imageName}"]`).click();
+  cy.get(`a.preview__link[href*="${hash}"]`).click();
   cy.wait(3);
 }
 
 describe("Grid Integration Tests", () => {
   beforeEach(() => {
-    const cookie = require("../../../cookie.json").cookie;
+    const { cookie, domain } = require("../../../cookie.json");
+
     cy.setCookie("gutoolsAuth-assym", cookie, {
-      domain: ".local.dev-gutools.co.uk",
+      domain: `.${domain}`,
       path: "/",
       secure: true,
       httpOnly: true
@@ -26,6 +28,7 @@ describe("Grid Integration Tests", () => {
     searchAndClickOnTestImage();
 
     cy.get("#it-add-lease-icon").click();
+    wait(2);
     cy.get("#access-select").select("allow-use");
     cy.get(".lease__form > .ng-pristine")
       .clear()
@@ -43,19 +46,11 @@ describe("Grid Integration Tests", () => {
   it("should be able to edit the image description, byline, credit and copyright", () => {
     searchAndClickOnTestImage();
 
-    // Edit the image description with the current date
+    // Edit the description
     cy.get("#it-edit-description-button").click({ force: true });
     cy.get(".editable-has-buttons")
       .clear()
       .type(date);
-    cy.get(".editable-buttons > .button-save").click();
-    wait(3);
-
-    // Put it back to normal
-    cy.get("#it-edit-description-button").click({ force: true });
-    cy.get(".editable-has-buttons")
-      .clear()
-      .type(imageName);
     cy.get(".editable-buttons > .button-save").click();
     wait(3);
 
@@ -98,8 +93,7 @@ describe("Grid Integration Tests", () => {
   });
 
   it("should edit the photoshoot section", () => {
-    cy.get(`[placeholder="${placeholder}"]`).type(imageName);
-    cy.get(`[alt="${imageName}"]`).click();
+    searchAndClickOnTestImage();
 
     cy.get('button[id="it-photoshoot-edit-button"]').click({ force: true });
     cy.get(".editable-has-buttons")
