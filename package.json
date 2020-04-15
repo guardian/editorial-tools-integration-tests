@@ -13,6 +13,7 @@
   "devDependencies": {
     "aws-sdk": "^2.656.0",
     "cypress": "^4.3.0",
-    "iniparser": "^1.0.5"
+    "iniparser": "^1.0.5",
+    "mocha": "^7.1.1"
   }
 }
