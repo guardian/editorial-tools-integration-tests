@@ -43,7 +43,7 @@ describe("Grid Integration Tests", () => {
     cy.url().should("include", "/");
   });
 
-  it("should be able to edit the image description, byline, credit and copyright", () => {
+  it("edit the image description, byline, credit and copyright", () => {
     searchAndClickOnTestImage();
 
     // Edit the description
@@ -79,9 +79,9 @@ describe("Grid Integration Tests", () => {
     wait(1);
   });
 
-  xit("should be able to add image to and remove image from a collection", () => {});
+  xit("add image to and remove image from a collection", () => {});
 
-  it("should be able to add and remove labels from an image", () => {
+  it("add and remove labels from an image", () => {
     searchAndClickOnTestImage();
     cy.get("#it-add-label-button").click();
     cy.get(".text-input")
@@ -92,7 +92,7 @@ describe("Grid Integration Tests", () => {
     cy.get("#it-remove-label-button").click({ multiple: true });
   });
 
-  it("should edit the photoshoot section", () => {
+  it("edit the photoshoot section", () => {
     searchAndClickOnTestImage();
 
     cy.get('button[id="it-photoshoot-edit-button"]').click({ force: true });
