@@ -1,5 +1,4 @@
 const date = new Date().toString();
-const placeholder = "Search for images... (type + for advanced search)";
 const imageName = "prodmontestimage12345";
 const hash = "0e019da30d5c429a98a3e9aabafe689576a6a4ba";
 
@@ -21,7 +20,7 @@ describe("Grid Integration Tests", () => {
       httpOnly: true
     });
 
-    cy.visit("/");
+    cy.visit(Cypress.env("baseUrl") + "/");
   });
 
   it("Should be able to add and delete a lease", () => {
