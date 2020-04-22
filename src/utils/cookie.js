@@ -9,7 +9,7 @@ const user = { ...env.user, expires: Date.now() + 1800000 };
 async function getCookie(domain, stage) {
   let creds, s3;
 
-  if (stage !== "prod" || stage !== "code" || stage !== "test") {
+  if (stage !== "prod" && stage !== "code" && stage !== "test") {
     creds = new AWS.SharedIniFileCredentials({
       profile: "media-service"
     });
