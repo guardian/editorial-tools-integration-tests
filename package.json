@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "./scripts/setup.sh && cypress run",
+    "test": "./scripts/setup.sh $STAGE && npm run cypress:run",
+    "cypress:run": "cypress run",
     "cypress:open": "cypress open"
   },
   "keywords": [],

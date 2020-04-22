@@ -1,13 +1,6 @@
 const date = new Date().toString();
-const imageName = "prodmontestimage12345";
-const hash = "0e019da30d5c429a98a3e9aabafe689576a6a4ba";
-
-function searchAndClickOnTestImage() {
-  cy.get("gr-text-chip > .ng-pristine").type(imageName);
-  cy.wait(1);
-  cy.get(`a.preview__link[href*="${hash}"]`).click();
-  cy.wait(3);
-}
+const hash = "0e019da30d5c429a98a3e9aabafe689576a6a4ba"; // hash of the image in assets/prodmontestimage12345.png
+const imageURL = `${Cypress.env("baseUrl")}/images/${hash}`;
 
 describe("Grid Integration Tests", () => {
   beforeEach(() => {
@@ -21,13 +14,21 @@ describe("Grid Integration Tests", () => {
     });
 
     cy.visit(Cypress.env("baseUrl") + "/");
+    cy.wait(2);
   });
 
-  it("Should be able to add and delete a lease", () => {
-    searchAndClickOnTestImage();
+  it("Can find an image by ID in search", function() {
+    cy.get("gr-text-chip > .ng-pristine").type(hash);
+    cy.wait(3);
+    cy.get(`a.preview__link[href*="${hash}"]`).click();
+    cy.wait(3);
+    cy.url().should("equal", imageURL);
+  });
 
-    cy.get("#it-add-lease-icon").click();
-    wait(2);
+  xit("Should be able to add and delete a lease", () => {
+    cy.visit(imageURL);
+
+    cy.get("#it-add-lease-icon > .gr-icon").click();
     cy.get("#access-select").select("allow-use");
     cy.get(".lease__form > .ng-pristine")
       .clear()
@@ -43,7 +44,7 @@ describe("Grid Integration Tests", () => {
   });
 
   it("edit the image description, byline, credit and copyright", () => {
-    searchAndClickOnTestImage();
+    cy.visit(imageURL);
 
     // Edit the description
     cy.get("#it-edit-description-button").click({ force: true });
@@ -59,7 +60,7 @@ describe("Grid Integration Tests", () => {
       .clear()
       .type(date);
     cy.get(".editable-buttons > .button-save").click();
-    wait(1);
+    wait(3);
 
     // Edit the credit
     cy.get("#it-edit-credit-button").click({ force: true });
@@ -67,7 +68,7 @@ describe("Grid Integration Tests", () => {
       .clear()
       .type(date);
     cy.get(".editable-buttons > .button-save").click();
-    wait(1);
+    wait(3);
 
     // Edit the copyright
     cy.get("#it-edit-copyright-button").click({ force: true });
@@ -75,13 +76,13 @@ describe("Grid Integration Tests", () => {
       .clear()
       .type(date);
     cy.get(".editable-buttons > .button-save").click();
-    wait(1);
+    wait(3);
   });
 
   xit("add image to and remove image from a collection", () => {});
 
   it("add and remove labels from an image", () => {
-    searchAndClickOnTestImage();
+    cy.visit(imageURL);
     cy.get("#it-add-label-button").click();
     cy.get(".text-input")
       .clear()
@@ -92,7 +93,7 @@ describe("Grid Integration Tests", () => {
   });
 
   it("edit the photoshoot section", () => {
-    searchAndClickOnTestImage();
+    cy.visit(imageURL);
 
     cy.get('button[id="it-photoshoot-edit-button"]').click({ force: true });
     cy.get(".editable-has-buttons")
@@ -105,7 +106,7 @@ describe("Grid Integration Tests", () => {
   });
 
   it("can change the rights", function() {
-    searchAndClickOnTestImage();
+    cy.visit(imageURL);
     cy.get("#it-edit-usage-rights-button").click({ force: true });
     cy.get("#it-rights-select").select("screengrab");
     cy.get(".it-edit-usage-input").type(date);

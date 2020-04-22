@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+STAGE=$1
+
 green='\x1B[0;32m'
 red='\x1B[0;31m'
 plain='\x1B[0m' # No Color
@@ -17,4 +19,9 @@ hasCredentials() {
 
 hasCredentials
 
-node src/utils/cookie.js > cookie.json
+if [[ ! -z "${STAGE}" ]]; then
+    echo "Fetching cookie for stage ${STAGE}"
+    STAGE=${STAGE} node src/utils/cookie.js > cookie.json
+else
+    node src/utils/cookie.js > cookie.json
+fi
