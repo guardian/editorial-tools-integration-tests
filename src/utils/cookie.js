@@ -48,7 +48,7 @@ function getDomain(stage) {
 }
 
 (async function f() {
-  const stage = process.env.STAGE?.toLowerCase();
+  const stage = process.env.STAGE ? process.env.STAGE.toLowerCase() : undefined;
   const domain = getDomain(stage);
   const cookie = await getCookie(domain, stage);
   console.log(JSON.stringify({ cookie, domain }));
