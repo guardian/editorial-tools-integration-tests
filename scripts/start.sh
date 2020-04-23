@@ -2,4 +2,4 @@
 
 ./scripts/setup.sh
 
-npm run cypress:open
+npm run cy:open
