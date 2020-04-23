@@ -28,15 +28,15 @@ describe("Grid Integration Tests", () => {
   xit("Should be able to add and delete a lease", () => {
     cy.visit(imageURL);
 
-    cy.get("#it-add-lease-icon > .gr-icon").click();
+    cy.get("[data-cy=it-add-lease-icon] > .gr-icon").click();
     cy.get("#access-select").select("allow-use");
     cy.get(".lease__form > .ng-pristine")
       .clear()
       .type("someNotes");
-    cy.get("#it-save-lease").click();
+    cy.get("[data-cy=it-save-lease").click();
     wait(1);
-    cy.get("#it-confirm-delete-lease").click();
-    cy.get("#it-confirm-delete-lease").click();
+    cy.get("[data-cy=it-confirm-delete-lease]").click();
+    cy.get("[data-cy=it-confirm-delete-lease]").click();
     wait(1);
 
     // TODO: Add an appropriate assertion here
@@ -47,7 +47,7 @@ describe("Grid Integration Tests", () => {
     cy.visit(imageURL);
 
     // Edit the description
-    cy.get("#it-edit-description-button").click({ force: true });
+    cy.get("[data-cy=it-edit-description-button]").click({ force: true });
     cy.get(".editable-has-buttons")
       .clear()
       .type(date);
@@ -55,7 +55,7 @@ describe("Grid Integration Tests", () => {
     wait(3);
 
     // Edit the byline
-    cy.get("#it-edit-byline-button").click({ force: true });
+    cy.get("[data-cy=it-edit-byline-button]").click({ force: true });
     cy.get(".editable-has-buttons")
       .clear()
       .type(date);
@@ -63,7 +63,7 @@ describe("Grid Integration Tests", () => {
     wait(3);
 
     // Edit the credit
-    cy.get("#it-edit-credit-button").click({ force: true });
+    cy.get("[data-cy=it-edit-credit-button]").click({ force: true });
     cy.get(".editable-has-buttons")
       .clear()
       .type(date);
@@ -71,7 +71,7 @@ describe("Grid Integration Tests", () => {
     wait(3);
 
     // Edit the copyright
-    cy.get("#it-edit-copyright-button").click({ force: true });
+    cy.get("[data-cy=it-edit-copyright-button]").click({ force: true });
     cy.get(".editable-has-buttons")
       .clear()
       .type(date);
@@ -83,19 +83,22 @@ describe("Grid Integration Tests", () => {
 
   it("add and remove labels from an image", () => {
     cy.visit(imageURL);
-    cy.get("#it-add-label-button").click();
+    cy.get("[data-cy=it-add-label-button]").click();
     cy.get(".text-input")
       .clear()
       .type("someLabelHere");
     cy.get(".gr-add-label__form__buttons__button-save").click();
     wait(1);
-    cy.get("#it-remove-label-button").click({ multiple: true });
+    cy.contains("someLabelHere")
+      .parent()
+      .find("[data-cy=it-remove-label-button]")
+      .click();
   });
 
   it("edit the photoshoot section", () => {
     cy.visit(imageURL);
 
-    cy.get('button[id="it-photoshoot-edit-button"]').click({ force: true });
+    cy.get("[data-cy=it-photoshoot-edit-button]").click({ force: true });
     cy.get(".editable-has-buttons")
       .clear()
       .type(date);
@@ -107,9 +110,9 @@ describe("Grid Integration Tests", () => {
 
   it("can change the rights", function() {
     cy.visit(imageURL);
-    cy.get("#it-edit-usage-rights-button").click({ force: true });
-    cy.get("#it-rights-select").select("screengrab");
-    cy.get(".it-edit-usage-input").type(date);
+    cy.get("[data-cy=it-edit-usage-rights-button]").click({ force: true });
+    cy.get("[data-cy=it-rights-select]").select("screengrab");
+    cy.get("[data-cy=it-edit-usage-input]").type(date);
     cy.get(".ure__bar > .button-save").click();
     wait(3);
   });
