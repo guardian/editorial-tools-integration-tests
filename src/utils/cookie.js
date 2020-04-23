@@ -3,13 +3,14 @@ const iniparser = require("iniparser");
 const { base64ToPEM } = require("@guardian/pan-domain-node/dist/src/utils");
 const { createCookie } = require("@guardian/pan-domain-node/dist/src/panda");
 const env = require("../../env.json");
+const { baseUrl } = require("../../cypress.env.json");
 
 const user = { ...env.user, expires: Date.now() + 1800000 };
 
-async function getCookie(domain, stage) {
+async function getCookie(domain, environment) {
   let creds, s3;
 
-  if (stage !== "prod" && stage !== "code" && stage !== "test") {
+  if (environment === "dev") {
     creds = new AWS.SharedIniFileCredentials({
       profile: "media-service"
     });
@@ -38,7 +39,7 @@ async function getCookie(domain, stage) {
 
 function getDomain(stage) {
   switch (stage) {
-    case "prod":
+    case "gutools":
       return "gutools.co.uk";
     case undefined:
       return "local.dev-gutools.co.uk";
@@ -48,8 +49,8 @@ function getDomain(stage) {
 }
 
 (async function f() {
-  const stage = process.env.STAGE ? process.env.STAGE.toLowerCase() : undefined;
+  const stage = baseUrl.split("/")[2].split(".")[1]; // infers env from cypress.env.json URL
   const domain = getDomain(stage);
-  const cookie = await getCookie(domain, stage);
+  const cookie = await getCookie(domain, process.env.ENV || "dev");
   console.log(JSON.stringify({ cookie, domain }));
 })();
