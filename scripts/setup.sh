@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-STAGE=$1
+ENV=$1
 
 green='\x1B[0;32m'
 red='\x1B[0;31m'
@@ -19,9 +19,10 @@ hasCredentials() {
 
 hasCredentials
 
-if [[ ! -z "${STAGE}" ]]; then
-    echo "Fetching cookie for stage ${STAGE}"
-    STAGE=${STAGE} node src/utils/cookie.js > cookie.json
+if [[ ! -z "${ENV}" ]]; then
+    echo "Fetching cookie in env ${ENV}"
+    ENV=${ENV} node src/utils/cookie.js > cookie.json
 else
+    echo "Fetching cookie using local credentials"
     node src/utils/cookie.js > cookie.json
 fi

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "./scripts/setup.sh $STAGE && npm run cy:run-dev",
+    "test": "./scripts/setup.sh $ENV && npm run cy:run-dev",
     "cy:run-dev": "cypress run --reporter spec",
     "cy:run": "cypress run",
     "cy:open": "cypress open"
