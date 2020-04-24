@@ -38,13 +38,10 @@ async function getCookie(domain, environment) {
 }
 
 function getDomain(stage) {
-  switch (stage) {
-    case "gutools":
-      return "gutools.co.uk";
-    case undefined:
-      return "local.dev-gutools.co.uk";
-    default:
-      return `${stage}.dev-gutools.co.uk`;
+  if (stage === "gutools") {
+    return "gutools.co.uk";
+  } else {
+    return `${stage}.dev-gutools.co.uk`;
   }
 }
 

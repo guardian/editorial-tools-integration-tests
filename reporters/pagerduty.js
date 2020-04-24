@@ -12,9 +12,15 @@ function Pagerduty(runner) {
   let passes = 0;
   let failures = 0;
 
+  runner.on("pending", async function(test) {
+    passes++;
+    console.log("Pending:", test.fullTitle());
+    await callPagerduty(test.title, "resolve");
+  });
+
   runner.on("pass", async function(test) {
     passes++;
-    console.error("Pass:", test.fullTitle());
+    console.log("Pass:", test.fullTitle());
     await callPagerduty(test.title, "resolve");
   });
 
