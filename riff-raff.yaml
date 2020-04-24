@@ -1,0 +1,18 @@
+regions: [eu-west-1]
+stacks: [media-service]
+deployments:
+  editorial-tools-integration-tests:
+    type: autoscaling
+    parameters:
+      bucket: editorial-tools-integration-tests-dist
+    dependencies:
+      - update-ami
+  update-ami:
+    type: ami-cloudformation-parameter
+    app: editorial-tools-integration-tests
+    parameters:
+      amiEncrypted: true
+      amiTags:
+        Recipe: investigations-docker
+        AmigoStage: PROD
+        BuiltBy: amigo
