@@ -7,7 +7,7 @@ green='\x1B[0;32m'
 red='\x1B[0;31m'
 plain='\x1B[0m' # No Color
 
-GRID_ENV=$(cat cypress.env.json | jq -r .baseUrl)
+GRID_ENV=$(cat cypress.env.json | grep baseUrl | cut -d ":" -f 2-)
 
 hasCredentials() {
   STATUS=$(aws sts get-caller-identity --profile media-service 2>&1 || true)
