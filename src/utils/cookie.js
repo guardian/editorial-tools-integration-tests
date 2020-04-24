@@ -8,13 +8,13 @@ const { baseUrl } = require("../../cypress.env.json");
 const user = { ...env.user, expires: Date.now() + 1800000 };
 
 async function getCookie(domain, environment) {
-  let creds, s3;
+  let credentials, s3;
 
   if (environment === "dev") {
-    creds = new AWS.SharedIniFileCredentials({
+    credentials = new AWS.SharedIniFileCredentials({
       profile: "media-service"
     });
-    s3 = new AWS.S3({ credentials: creds });
+    s3 = new AWS.S3({ credentials });
   } else {
     //  Authenticate via EC2 instance permissions, rather than shared credentials
     s3 = new AWS.S3();
@@ -25,7 +25,11 @@ async function getCookie(domain, environment) {
       Bucket: env.s3.bucket,
       Key: `${domain}.settings`
     })
-    .promise();
+    .promise()
+    .catch(err => {
+      console.error(err);
+      process.exit(1);
+    });
 
   const { privateKey } = iniparser.parseString(settings.Body.toString());
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 ENV=$1
 
 bold='\x1B[0;1m'
@@ -9,7 +11,7 @@ plain='\x1B[0m' # No Color
 
 GRID_ENV=$(cat cypress.env.json | grep baseUrl | cut -d ":" -f 2-)
 
-hasCredentials() {
+checkIfAbleToTalkToAWS() {
   STATUS=$(aws sts get-caller-identity --profile media-service 2>&1 || true)
   if [[ ${STATUS} =~ (ExpiredToken) ]]; then
     echo -e "${red}Credentials for the media-service profile are expired. Please fetch new credentials and run this again.${plain}"
@@ -20,20 +22,8 @@ hasCredentials() {
   fi
 }
 
-hasCredentials
-
-if [[ ! -z "${ENV}" ]]; then
-    echo -e "Fetching cookie in env ${ENV} for environment: ${bold}${GRID_ENV}${plain}"
-    ENV=${ENV} node src/utils/cookie.js > cookie.json
-else
-    echo -e "Fetching cookie using local credentials for environment: ${bold}${GRID_ENV}${plain}"
-    node src/utils/cookie.js > cookie.json
-fi
-
-if [[ ! -s cookie.json ]]; then
-    echo -e "${red}Cookie unsuccessfully fetched.${plain}"
-    exit 1
-fi
-
+checkIfAbleToTalkToAWS
+echo -e "Fetching cookie using local credentials for environment: ${bold}${GRID_ENV}${plain}"
+ENV=${ENV} node src/utils/cookie.js > cookie.json
 
 echo -e "${green}Cookie fetched!${plain}"
