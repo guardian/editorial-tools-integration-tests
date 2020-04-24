@@ -2,12 +2,12 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-STAGE=$1
+ENV=$1
 
 set -e
 
-if [[ ! -z "${STAGE}" ]]; then
-    ${DIR}/setup.sh "${STAGE}"
+if [[ ! -z "${ENV}" ]]; then
+    ${DIR}/setup.sh "${ENV}"
 else
     ${DIR}/setup.sh
 fi
