@@ -1,0 +1,168 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Integration tests for the Editorial Tools services
+Parameters:
+  Stack:
+    Type: String
+    Description: Name of this stack
+    Default: media-service
+  Stage:
+    Description: Stage name
+    Type: String
+    AllowedValues:
+      - CODE
+      - PROD
+    Default: CODE
+  AMI:
+    Description: AMI ID
+    Type: String
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t3.small
+  VpcId:
+    Description: ID of the VPC onto which to launch the application eg. vpc-1234abcd
+    Type: AWS::EC2::VPC::Id
+  PrivateVpcSubnets:
+    Description: Subnets to use in VPC for private EC2 instances eg. subnet-abcd1234
+    Type: List<AWS::EC2::Subnet::Id>
+  KinesisStreamName:
+    Type: String
+    Description: The name (NOT arn) of the Kinesis stream that logs should be shipped to
+Resources:
+  EditorialToolsIntegrationTestsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+  ServerInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref 'EditorialToolsIntegrationTestsRole'
+  UserDataPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: download-artifacts-from-s3
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource:
+              - arn:aws:s3::*:editorial-tools-integration-tests-dist/*
+      Roles:
+        - !Ref EditorialToolsIntegrationTestsRole
+    DependsOn: EditorialToolsIntegrationTestsRole
+
+  SSMRunCommandPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: ssm-run-command-policy
+      PolicyDocument:
+        Statement:
+          # minimal policy to allow running commands via ssm
+          - Effect: Allow
+            Resource: "*"
+            Action:
+              - ec2messages:AcknowledgeMessage
+              - ec2messages:DeleteMessage
+              - ec2messages:FailMessage
+              - ec2messages:GetEndpoint
+              - ec2messages:GetMessages
+              - ec2messages:SendReply
+              - ssm:UpdateInstanceInformation
+              - ssm:ListInstanceAssociations
+              - ssm:DescribeInstanceProperties
+              - ssm:DescribeDocumentParameters
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+      Roles:
+        - !Ref "EditorialToolsIntegrationTestsRole"
+
+  LogShippingPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: log-shipping-policy
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:Describe*
+              - kinesis:Put*
+            Resource:
+              - !Sub arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${KinesisStreamName}
+      Roles:
+        - !Ref "EditorialToolsIntegrationTestsRole"
+
+  EditorialToolsIntegrationTestsTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VpcId
+      Port: 3000
+      Protocol: HTTP
+      HealthCheckIntervalSeconds: 60
+      HealthCheckPath: /api/health
+      HealthCheckPort: 3000
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 3
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 5
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 30
+
+  AutoscalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier: !Ref 'PrivateVpcSubnets'
+      LaunchConfigurationName: !Ref 'LaunchConfig'
+      MinSize: '1'
+      MaxSize: '2'
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 300
+      TargetGroupARNs:
+        - !Ref EditorialToolsIntegrationTestsTargetGroup
+      Tags:
+        - Key: Stage
+          PropagateAtLaunch: 'true'
+          Value: !Ref 'Stage'
+        - Key: Stack
+          PropagateAtLaunch: 'true'
+          Value: !Ref Stack
+        - Key: App
+          PropagateAtLaunch: 'true'
+          Value: editorial-tools-integration-tests
+  LaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref 'AMI'
+      AssociatePublicIpAddress: false
+      SecurityGroups:
+        - !Ref 'ApplicationSecurityGroup'
+      InstanceType: !Ref 'InstanceType'
+      IamInstanceProfile: !Ref 'ServerInstanceProfile'
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -ev
+
+#          git clone https://github.com/guardian/editorial-tools-integration-tests.git
+#          docker pull cypress/included:4.3.0
+#          cd editorial-tools-integration-tests
+#          aws s3 cp s3://editorial-tools-integration-tests-dist/env.json ./env.json
+#          ./scripts/start.sh PROD
+
+  ApplicationSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: HTTP
+      VpcId: !Ref 'VpcId'
