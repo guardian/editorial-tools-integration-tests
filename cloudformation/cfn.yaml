@@ -168,7 +168,7 @@ Resources:
           aws s3 cp s3://editorial-tools-integration-tests-dist/env.json ./env.json
 
           # set up crontab
-          (crontab -l | echo '*/10 * * * * cd /editorial-tools-integration-tests && ./scripts/start.sh PROD >> /var/log/tests.log 2>&1') | sort - | uniq - | crontab -
+          (crontab -l | echo '*/5 * * * * cd /editorial-tools-integration-tests && ./scripts/start.sh PROD >> /var/log/tests.log 2>&1') | sort - | uniq - | crontab -
 
           # Run the tests
           ./scripts/start.sh PROD
