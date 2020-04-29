@@ -146,7 +146,7 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       ImageId: !Ref 'AMI'
-      AssociatePublicIpAddress: false
+      AssociatePublicIpAddress: true
       SecurityGroups:
         - !Ref 'ApplicationSecurityGroup'
       InstanceType: !Ref 'InstanceType'
@@ -155,11 +155,14 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash -ev
 
-#          git clone https://github.com/guardian/editorial-tools-integration-tests.git
-#          docker pull cypress/included:4.3.0
-#          cd editorial-tools-integration-tests
-#          aws s3 cp s3://editorial-tools-integration-tests-dist/env.json ./env.json
-#          ./scripts/start.sh PROD
+          git clone https://github.com/guardian/editorial-tools-integration-tests.git
+          cd editorial-tools-integration-tests
+          git checkout sg-jgj/setup-production-environment
+
+          docker pull cypress/included:4.3.0
+          aws s3 cp s3://editorial-tools-integration-tests-dist/env.json ./env.json
+          apt install npm -y
+          ./scripts/start.sh PROD
 
   ApplicationSecurityGroup:
     Type: AWS::EC2::SecurityGroup
