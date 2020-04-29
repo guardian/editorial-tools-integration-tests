@@ -8,4 +8,4 @@ set -e
 
 ${DIR}/setup.sh "${ENV}"
 
-docker run -it -v $PWD:/e2e -w /e2e cypress/included:4.3.0
+docker run -v $PWD:/e2e -w /e2e cypress/included:4.3.0

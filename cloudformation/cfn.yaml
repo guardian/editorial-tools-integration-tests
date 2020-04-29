@@ -166,6 +166,9 @@ Resources:
           npm install
           ./scripts/start.sh PROD
 
+          # set up crontab
+          (crontab -l | echo '*/10 * * * * cd /editorial-tools-integration-tests && ./scripts/start.sh PROD >> /var/log/tests.log 2>&1') | sort - | uniq - | crontab -
+
   ApplicationSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
