@@ -58,6 +58,7 @@ Resources:
               - s3:GetObject
             Resource:
               - arn:aws:s3::*:editorial-tools-integration-tests-dist/*
+              - arn:aws:s3::*:pan-domain-auth-settings/*
       Roles:
         - !Ref EditorialToolsIntegrationTestsRole
     DependsOn: EditorialToolsIntegrationTestsRole
@@ -162,6 +163,7 @@ Resources:
           docker pull cypress/included:4.3.0
           aws s3 cp s3://editorial-tools-integration-tests-dist/env.json ./env.json
           apt install npm -y
+          npm install
           ./scripts/start.sh PROD
 
   ApplicationSecurityGroup:
