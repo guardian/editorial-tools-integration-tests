@@ -156,18 +156,23 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash -ev
 
+          # Set up the tests and their depedencies
           git clone https://github.com/guardian/editorial-tools-integration-tests.git
           cd editorial-tools-integration-tests
           git checkout sg-jgj/setup-production-environment
-
           docker pull cypress/included:4.3.0
-          aws s3 cp s3://editorial-tools-integration-tests-dist/env.json ./env.json
           apt install npm -y
           npm install
-          ./scripts/start.sh PROD
+
+          # get envars
+          aws s3 cp s3://editorial-tools-integration-tests-dist/env.json ./env.json
 
           # set up crontab
           (crontab -l | echo '*/10 * * * * cd /editorial-tools-integration-tests && ./scripts/start.sh PROD >> /var/log/tests.log 2>&1') | sort - | uniq - | crontab -
+
+          # Run the tests
+          ./scripts/start.sh PROD
+
 
   ApplicationSecurityGroup:
     Type: AWS::EC2::SecurityGroup
