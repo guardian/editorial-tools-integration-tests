@@ -159,7 +159,6 @@ Resources:
           # Set up the tests and their depedencies
           git clone https://github.com/guardian/editorial-tools-integration-tests.git
           cd editorial-tools-integration-tests
-          git checkout sg-jgj/setup-production-environment
           docker pull cypress/included:4.3.0
           apt install npm -y
           npm install
