@@ -170,7 +170,7 @@ Resources:
           (crontab -l | echo '*/5 * * * * cd /editorial-tools-integration-tests && ./scripts/start.sh PROD >> /var/log/tests.log 2>&1') | sort - | uniq - | crontab -
 
           # Run the tests
-          ./scripts/start.sh PROD
+          ./scripts/start.sh PROD >> /var/log/tests.log 2>&1
 
 
   ApplicationSecurityGroup:
