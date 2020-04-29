@@ -29,7 +29,7 @@ checkIfAbleToTalkToAWS() {
 }
 
 checkIfAbleToTalkToAWS
-echo -e "Fetching cookie using local credentials for environment: ${bold}${GRID_ENV}${plain}"
+echo -e "Fetching cookie for environment: ${bold}${GRID_ENV}${plain}"
 ENV=${ENV} node src/utils/cookie.js > cookie.json
 
 echo -e "${green}Cookie fetched!${plain}"
