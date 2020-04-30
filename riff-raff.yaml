@@ -13,6 +13,6 @@ deployments:
     parameters:
       amiEncrypted: true
       amiTags:
-        Recipe: investigations-docker
+        Recipe: editorial-tools-cypress-integration-tests
         AmigoStage: PROD
         BuiltBy: amigo

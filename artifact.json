@@ -1,0 +1,16 @@
+{
+  "projectName": "Editorial Tools::Integration Tests",
+  "vcsURL": "https://github.com/guardian/editorial-tools-integration-tests",
+  "actions": [
+    {
+      "action": "editorial-tools-integration-tests",
+      "path": "./",
+      "compress": "zip"
+    },
+    {
+      "action": "cloudformation",
+      "path": "cloudformation/cfn.yaml",
+      "compress": false
+    }
+  ]
+}

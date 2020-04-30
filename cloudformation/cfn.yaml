@@ -104,24 +104,6 @@ Resources:
               - !Sub arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${KinesisStreamName}
       Roles:
         - !Ref "EditorialToolsIntegrationTestsRole"
-
-  EditorialToolsIntegrationTestsTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      VpcId: !Ref VpcId
-      Port: 3000
-      Protocol: HTTP
-      HealthCheckIntervalSeconds: 60
-      HealthCheckPath: /api/health
-      HealthCheckPort: 3000
-      HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 3
-      HealthyThresholdCount: 2
-      UnhealthyThresholdCount: 5
-      TargetGroupAttributes:
-        - Key: deregistration_delay.timeout_seconds
-          Value: 30
-
   AutoscalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -129,10 +111,6 @@ Resources:
       LaunchConfigurationName: !Ref 'LaunchConfig'
       MinSize: '1'
       MaxSize: '2'
-      HealthCheckType: ELB
-      HealthCheckGracePeriod: 300
-      TargetGroupARNs:
-        - !Ref EditorialToolsIntegrationTestsTargetGroup
       Tags:
         - Key: Stage
           PropagateAtLaunch: 'true'
@@ -157,20 +135,19 @@ Resources:
           #!/bin/bash -ev
 
           # Set up the tests and their depedencies
-          git clone https://github.com/guardian/editorial-tools-integration-tests.git
-          cd editorial-tools-integration-tests
+          aws s3 cp s3://editorial-tools-integration-tests-dist/media-service/${Stage}/editorial-tools-integration-tests/editorial-tools-integration-tests.zip /tmp/editorial-tools-integration-tests.zip
+          unzip -q /tmp/editorial-tools-integration-tests.zip -d /editorial-tools-integration-tests
           docker pull cypress/included:4.3.0
-          apt install npm -y
-          npm install
 
           # get envars
-          aws s3 cp s3://editorial-tools-integration-tests-dist/env.json ./env.json
+          aws s3 cp s3://editorial-tools-integration-tests-dist/env.json /editorial-tools-integration-tests/env.json
 
           # set up crontab
-          (crontab -l | echo '*/5 * * * * cd /editorial-tools-integration-tests && ./scripts/start.sh PROD >> /var/log/tests.log 2>&1') | sort - | uniq - | crontab -
+          (crontab -l | echo '*/5 * * * * cd /editorial-tools-integration-tests && ./scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1') | sort - | uniq - | crontab -
 
           # Run the tests
-          ./scripts/start.sh PROD >> /var/log/tests.log 2>&1
+          cd /editorial-tools-integration-tests
+          ./scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1
 
 
   ApplicationSecurityGroup:

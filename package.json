@@ -1,5 +1,5 @@
 {
-  "name": "prodmon-cypress",
+  "name": "editorial-tools-integration-tests",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,9 @@
     "test": "./scripts/setup.sh $ENV && npm run cy:run-dev",
     "cy:run-dev": "cypress run --reporter spec",
     "cy:run": "cypress run",
-    "cy:open": "cypress open"
+    "cy:open": "cypress open",
+    "lint": "eslint cypress/integration/* src/*",
+    "riffraff": "node-riffraff-artifact"
   },
   "keywords": [],
   "author": "",
@@ -16,10 +18,13 @@
     "@guardian/pan-domain-node": "^0.4.2",
     "@types/node-fetch": "^2.5.6",
     "cypress": "^4.3.0",
-    "iniparser": "^1.0.5",
-    "mocha": "^7.1.1"
+    "eslint": "^6.8.0",
+    "eslint-config-google": "^0.14.0",
+    "mocha": "^7.1.1",
+    "@guardian/node-riffraff-artifact": "^0.1.8"
   },
   "dependencies": {
+    "iniparser": "^1.0.5",
     "aws-sdk": "^2.656.0",
     "node-fetch": "^2.6.0"
   }
