@@ -8,7 +8,8 @@
     "cy:run-dev": "cypress run --reporter spec",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
-    "lint": "eslint cypress/integration/* src/*"
+    "lint": "eslint cypress/integration/* src/*",
+    "riffraff": "node-riffraff-artifact"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +21,8 @@
     "eslint": "^6.8.0",
     "eslint-config-google": "^0.14.0",
     "iniparser": "^1.0.5",
-    "mocha": "^7.1.1"
+    "mocha": "^7.1.1",
+    "@guardian/node-riffraff-artifact": "^0.1.8"
   },
   "dependencies": {
     "aws-sdk": "^2.656.0",
