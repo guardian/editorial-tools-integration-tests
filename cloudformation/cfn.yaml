@@ -136,7 +136,7 @@ Resources:
 
           # Set up the tests and their depedencies
           aws s3 cp s3://editorial-tools-integration-tests-dist/media-service/${Stage}/editorial-tools-integration-tests/editorial-tools-integration-tests.zip /tmp/editorial-tools-integration-tests.zip
-          unzip /tmp/editorial-tools-integration-tests.zip -d /editorial-tools-integration-tests
+          unzip -q /tmp/editorial-tools-integration-tests.zip -d /editorial-tools-integration-tests
           docker pull cypress/included:4.3.0
 
           # get envars
