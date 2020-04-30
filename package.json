@@ -20,11 +20,11 @@
     "cypress": "^4.3.0",
     "eslint": "^6.8.0",
     "eslint-config-google": "^0.14.0",
-    "iniparser": "^1.0.5",
     "mocha": "^7.1.1",
     "@guardian/node-riffraff-artifact": "^0.1.8"
   },
   "dependencies": {
+    "iniparser": "^1.0.5",
     "aws-sdk": "^2.656.0",
     "node-fetch": "^2.6.0"
   }

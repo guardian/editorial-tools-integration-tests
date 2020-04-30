@@ -157,20 +157,19 @@ Resources:
           #!/bin/bash -ev
 
           # Set up the tests and their depedencies
-          git clone https://github.com/guardian/editorial-tools-integration-tests.git
-          cd editorial-tools-integration-tests
+          aws s3 cp s3://editorial-tools-integration-tests-dist/media-service/${Stage}/editorial-tools-integration-tests/editorial-tools-integration-tests.zip /tmp/editorial-tools-integration-tests.zip
+          unzip /tmp/editorial-tools-integration-tests.zip -d /editorial-tools-integration-tests
           docker pull cypress/included:4.3.0
-          apt install npm -y
-          npm install
 
           # get envars
-          aws s3 cp s3://editorial-tools-integration-tests-dist/env.json ./env.json
+          aws s3 cp s3://editorial-tools-integration-tests-dist/env.json /editorial-tools-integration-tests/env.json
 
           # set up crontab
-          (crontab -l | echo '*/5 * * * * cd /editorial-tools-integration-tests && ./scripts/start.sh PROD >> /var/log/tests.log 2>&1') | sort - | uniq - | crontab -
+          (crontab -l | echo '*/5 * * * * cd /editorial-tools-integration-tests && ./scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1') | sort - | uniq - | crontab -
 
           # Run the tests
-          ./scripts/start.sh PROD >> /var/log/tests.log 2>&1
+          cd /editorial-tools-integration-tests
+          ./scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1
 
 
   ApplicationSecurityGroup:
