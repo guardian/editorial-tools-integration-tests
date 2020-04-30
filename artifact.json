@@ -1,5 +1,5 @@
 {
-  "projectName": "google-chat-bots::editorial-tools-integration-tests",
+  "projectName": "editorial-tools-integration-tests",
   "vcsURL": "https://github.com/guardian/editorial-tools-integration-tests",
   "actions": [
     {
