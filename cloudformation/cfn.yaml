@@ -104,24 +104,6 @@ Resources:
               - !Sub arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${KinesisStreamName}
       Roles:
         - !Ref "EditorialToolsIntegrationTestsRole"
-
-  EditorialToolsIntegrationTestsTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      VpcId: !Ref VpcId
-      Port: 3000
-      Protocol: HTTP
-      HealthCheckIntervalSeconds: 60
-      HealthCheckPath: /api/health
-      HealthCheckPort: 3000
-      HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 3
-      HealthyThresholdCount: 2
-      UnhealthyThresholdCount: 5
-      TargetGroupAttributes:
-        - Key: deregistration_delay.timeout_seconds
-          Value: 30
-
   AutoscalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -129,10 +111,6 @@ Resources:
       LaunchConfigurationName: !Ref 'LaunchConfig'
       MinSize: '1'
       MaxSize: '2'
-      HealthCheckType: ELB
-      HealthCheckGracePeriod: 300
-      TargetGroupARNs:
-        - !Ref EditorialToolsIntegrationTestsTargetGroup
       Tags:
         - Key: Stage
           PropagateAtLaunch: 'true'
