@@ -1,7 +1,7 @@
-const mocha = require("mocha");
-const fetch = require("node-fetch");
-const config = require("../cypress.env.json");
-const env = require("../env.json");
+const mocha = require('mocha');
+const fetch = require('node-fetch');
+const config = require('../cypress.env.json');
+const env = require('../env.json');
 
 const routingKey = env.pagerduty.routingKey;
 
@@ -12,34 +12,34 @@ function Pagerduty(runner) {
   let passes = 0;
   let failures = 0;
 
-  runner.on("pending", async function(test) {
+  runner.on('pending', async function(test) {
     passes++;
-    console.log("Pending:", test.fullTitle());
-    await callPagerduty(test.title, "resolve");
+    console.log('Pending:', test.fullTitle());
+    await callPagerduty(test.title, 'resolve');
   });
 
-  runner.on("pass", async function(test) {
+  runner.on('pass', async function(test) {
     passes++;
-    console.log("Pass:", test.fullTitle());
-    await callPagerduty(test.title, "resolve");
+    console.log('Pass:', test.fullTitle());
+    await callPagerduty(test.title, 'resolve');
   });
 
-  runner.on("fail", async function(test, err) {
+  runner.on('fail', async function(test, err) {
     failures++;
-    console.error("Failure:", test.fullTitle(), err.message, "\n");
-    await callPagerduty(test.title, "trigger", {
+    console.error('Failure:', test.fullTitle(), err.message, '\n');
+    await callPagerduty(test.title, 'trigger', {
       error: err.message,
-      errorTitle: err.title
+      errorTitle: err.title,
     });
   });
 
-  runner.on("end", function() {
-    console.log("end: %d/%d", passes, passes + failures);
+  runner.on('end', function() {
+    console.log('end: %d/%d', passes, passes + failures);
   });
 }
 
 async function callPagerduty(incidentKey, action, details = {}) {
-  const url = "https://events.pagerduty.com/v2/enqueue";
+  const url = 'https://events.pagerduty.com/v2/enqueue';
 
   const data = {
     routing_key: routingKey,
@@ -48,26 +48,25 @@ async function callPagerduty(incidentKey, action, details = {}) {
     payload: {
       summary: incidentKey,
       source: config.baseUrl,
-      severity: "critical",
+      severity: 'critical',
       timestamp: new Date().toISOString(),
-      component: "gridmon",
-      links: "https://gu.com",
-      custom_details: details
-    }
+      component: 'gridmon',
+      links: 'https://gu.com',
+      custom_details: details,
+    },
   };
 
   const params = {
-    method: "POST",
-    headers: { Accept: "application/json", "Content-Type": "application/json" },
-    body: JSON.stringify(data)
+    method: 'POST',
+    headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+    body: JSON.stringify(data),
   };
 
   const response = await fetch(url, params);
   const json = await response.json();
   if (!response.ok) {
-    console.error("PagerdutyReportError:", JSON.stringify(json));
+    console.error('PagerdutyReportError:', JSON.stringify(json));
   }
 }
 
-// To have this reporter "extend" a built-in reporter uncomment the following line:
 mocha.utils.inherits(Pagerduty, mocha.reporters.Spec);

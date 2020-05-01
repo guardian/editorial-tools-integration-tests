@@ -8,7 +8,7 @@
     "cy:run-dev": "cypress run --reporter spec",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
-    "lint": "eslint cypress/integration/* src/*",
+    "lint": "eslint cypress/integration/* src/* reporters",
     "riffraff": "node-riffraff-artifact"
   },
   "keywords": [],
