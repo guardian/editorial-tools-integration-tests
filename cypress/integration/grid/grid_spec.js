@@ -1,7 +1,15 @@
 const date = new Date().toString();
-// hash of the image in assets/prodmontestimage12345.png
-const hash = '0e019da30d5c429a98a3e9aabafe689576a6a4ba';
-const imageURL = `${Cypress.env('baseUrl')}/images/${hash}`;
+// details of the image in assets/prodmontestimage12345.png
+const testImage = {
+  hash: '133fa319db2e156852fac65b812daceaf1f69557',
+  metadata: {title: 'GridmonTestImage'},
+};
+
+const imageURL = `${Cypress.env('baseUrl')}/images/${testImage.hash}`;
+
+function typeInSearchBox(contents) {
+  cy.get('[data-cy=image-search-input]').type(contents);
+}
 
 describe('Grid Integration Tests', () => {
   beforeEach(() => {
@@ -18,13 +26,34 @@ describe('Grid Integration Tests', () => {
     cy.wait(2);
   });
 
-  it('Can find an image by ID in search', function() {
-    cy.get('gr-text-chip > .ng-pristine').type(hash);
+  it.only('Can find an image by ID in search', function() {
+    typeInSearchBox(testImage.hash);
     cy.wait(3);
-    cy.get(`a.preview__link[href*="${hash}"]`).click();
+    cy.get(`a.preview__link[href*="${testImage.hash}"]`).click();
     cy.wait(3);
+    // Assert no "image not found"
     cy.url().should('equal', imageURL);
   });
+
+  it.only('Search for for image by metadata (title)', function() {
+    typeInSearchBox(testImage.metadata.title);
+    cy.wait(3);
+    cy.get(`a.preview__link[href*="${testImage.hash}"]`).click();
+    cy.wait(3);
+    cy.url().should('equal', imageURL);
+    // Assert no "image not found"
+  });
+
+  it.only('Returns an error message if image is not found', function() {
+    cy.visit(Cypress.env('baseUrl') + '/images/someimagehashthatdefinitelydoesnotexist');
+    cy.get('.full-error').should(($div) => {
+      const text = $div.text();
+      expect(text).to.include('Error: Image not found');
+    });
+  });
+
+  xit('Upload an image to the Grid', function() { });
+  xit('Upload image, edit the usage rights, then find it in search', function() { });
 
   xit('Should be able to add and delete a lease', () => {
     cy.visit(imageURL);
@@ -42,7 +71,7 @@ describe('Grid Integration Tests', () => {
     cy.url().should('include', '/');
   });
 
-  it('edit the image description, byline, credit and copyright', () => {
+  it('Edit the image description, byline, credit and copyright', () => {
     cy.visit(imageURL);
 
     // Edit the description
