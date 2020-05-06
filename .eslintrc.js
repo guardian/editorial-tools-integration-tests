@@ -14,6 +14,7 @@ module.exports = {
     sourceType: "module"
   },
   rules: {
-    "require-jsdoc": "off"
+    "require-jsdoc": "off",
+    "max-len": "off"
   }
 };
