@@ -3,6 +3,7 @@
 set -e
 
 ENV=${1:-dev}
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 
 bold='\x1B[0;1m'
@@ -10,7 +11,7 @@ green='\x1B[0;32m'
 red='\x1B[0;31m'
 plain='\x1B[0m' # No Color
 
-GRID_ENV=$(cat cypress.env.json | grep baseUrl | cut -d ":" -f 2-)
+GRID_ENV=$(cat "${DIR}"/../cypress.env.json | grep baseUrl | cut -d ":" -f 2-)
 
 checkIfAbleToTalkToAWS() {
   if [[ ${ENV} == "dev" ]]; then
@@ -30,6 +31,6 @@ checkIfAbleToTalkToAWS() {
 
 checkIfAbleToTalkToAWS
 echo -e "Fetching cookie for environment: ${bold}${GRID_ENV}${plain}"
-ENV=${ENV} node src/utils/cookie.js > cookie.json
+ENV=${ENV} node "${DIR}"/../src/utils/cookie.js > "${DIR}"/../cookie.json
 
 echo -e "${green}Cookie fetched!${plain}"
