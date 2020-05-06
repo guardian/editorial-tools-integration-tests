@@ -26,7 +26,7 @@ describe('Grid Integration Tests', () => {
     cy.wait(2);
   });
 
-  it.only('Can find an image by ID in search', function() {
+  it('Can find an image by ID in search', function() {
     typeInSearchBox(testImage.hash);
     cy.wait(3);
     cy.get(`a.preview__link[href*="${testImage.hash}"]`).click();
@@ -35,7 +35,7 @@ describe('Grid Integration Tests', () => {
     cy.url().should('equal', imageURL);
   });
 
-  it.only('Search for for image by metadata (title)', function() {
+  it('Search for for image by metadata (title)', function() {
     typeInSearchBox(testImage.metadata.title);
     cy.wait(3);
     cy.get(`a.preview__link[href*="${testImage.hash}"]`).click();
@@ -44,7 +44,7 @@ describe('Grid Integration Tests', () => {
     // Assert no "image not found"
   });
 
-  it.only('Returns an error message if image is not found', function() {
+  it('Returns an error message if image is not found', function() {
     cy.visit(Cypress.env('baseUrl') + '/images/someimagehashthatdefinitelydoesnotexist');
     cy.get('.full-error').should(($div) => {
       const text = $div.text();

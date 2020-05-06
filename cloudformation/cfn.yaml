@@ -143,11 +143,11 @@ Resources:
           aws s3 cp s3://editorial-tools-integration-tests-dist/env.json /editorial-tools-integration-tests/env.json
 
           # set up crontab
-          (crontab -l | echo '*/5 * * * * cd /editorial-tools-integration-tests && ./scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1') | sort - | uniq - | crontab -
+          CRONJOB="*/5 * * * * root /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1"
+          echo "${CRONJOB}" >> /etc/cron.d/run-integration-tests
 
           # Run the tests
-          cd /editorial-tools-integration-tests
-          ./scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1
+          /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1
 
 
   ApplicationSecurityGroup:
