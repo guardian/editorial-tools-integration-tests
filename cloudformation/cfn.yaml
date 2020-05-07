@@ -59,6 +59,10 @@ Resources:
             Resource:
               - arn:aws:s3::*:editorial-tools-integration-tests-dist/*
               - arn:aws:s3::*:pan-domain-auth-settings/*
+          - Effect: Allow
+            Action:
+              - cloudwatch:PutMetricData
+            Resource: "*"
       Roles:
         - !Ref EditorialToolsIntegrationTestsRole
     DependsOn: EditorialToolsIntegrationTestsRole
@@ -143,8 +147,7 @@ Resources:
           aws s3 cp s3://editorial-tools-integration-tests-dist/env.json /editorial-tools-integration-tests/env.json
 
           # set up crontab
-          CRONJOB="*/5 * * * * root /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1"
-          echo "${CRONJOB}" >> /etc/cron.d/run-integration-tests
+          echo "*/5 * * * * root /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1" >> /etc/cron.d/run-integration-tests
 
           # Run the tests
           /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1
