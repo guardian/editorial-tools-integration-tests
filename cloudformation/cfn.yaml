@@ -61,7 +61,8 @@ Resources:
               - arn:aws:s3::*:pan-domain-auth-settings/*
           - Effect: Allow
             Action:
-              - cloudwatch:PutMetricData
+            - cloudwatch:PutMetricData
+            - ec2:DescribeTags
             Resource: "*"
       Roles:
         - !Ref EditorialToolsIntegrationTestsRole
@@ -137,6 +138,8 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -ev
+
+          cfn-init -s ${AWS::StackId} -r LaunchConfig --region ${AWS::Region} || error_exit ''Failed to run cfn-init''
 
           # Set up the tests and their depedencies
           aws s3 cp s3://editorial-tools-integration-tests-dist/media-service/${Stage}/editorial-tools-integration-tests/editorial-tools-integration-tests.zip /tmp/editorial-tools-integration-tests.zip
