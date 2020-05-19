@@ -16,3 +16,5 @@ For Composer and Workflow testing, see [editorial-tools-production-monitoring](g
 ## Develop
 
 Tests are located in `cypress/integration`. They are written in mocha/chai with Cypress commands to navigate the DOM.
+
+You can run cypress interactively by running `npm run cy:open`.
