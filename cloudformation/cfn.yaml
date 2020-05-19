@@ -59,6 +59,11 @@ Resources:
             Resource:
               - arn:aws:s3::*:editorial-tools-integration-tests-dist/*
               - arn:aws:s3::*:pan-domain-auth-settings/*
+          - Effect: Allow
+            Action:
+            - cloudwatch:PutMetricData
+            - ec2:DescribeTags
+            Resource: "*"
       Roles:
         - !Ref EditorialToolsIntegrationTestsRole
     DependsOn: EditorialToolsIntegrationTestsRole
@@ -134,6 +139,8 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash -ev
 
+          cfn-init -s ${AWS::StackId} -r LaunchConfig --region ${AWS::Region} || error_exit ''Failed to run cfn-init''
+
           # Set up the tests and their depedencies
           aws s3 cp s3://editorial-tools-integration-tests-dist/media-service/${Stage}/editorial-tools-integration-tests/editorial-tools-integration-tests.zip /tmp/editorial-tools-integration-tests.zip
           unzip -q /tmp/editorial-tools-integration-tests.zip -d /editorial-tools-integration-tests
@@ -143,11 +150,10 @@ Resources:
           aws s3 cp s3://editorial-tools-integration-tests-dist/env.json /editorial-tools-integration-tests/env.json
 
           # set up crontab
-          (crontab -l | echo '*/5 * * * * cd /editorial-tools-integration-tests && ./scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1') | sort - | uniq - | crontab -
+          echo "*/5 * * * * root /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1" >> /etc/cron.d/run-integration-tests
 
           # Run the tests
-          cd /editorial-tools-integration-tests
-          ./scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1
+          /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1
 
 
   ApplicationSecurityGroup:
