@@ -151,7 +151,30 @@ Resources:
             /etc/cron.d/run-integration-tests:
               content: !Sub "*/5 * * * * root /editorial-tools-integration-tests/scripts/run.sh ${Stage} >> /var/log/tests.log 2>&1"
             "/etc/logstash/conf.d/logstash.conf":
-              source: https://s3-eu-west-1.amazonaws.com/editorial-tools-integration-tests-dist/logstash.conf.template
+              content: !Sub |
+                input {
+                    file {
+                        path => "/var/log/tests.json.log"
+                        type => "application"
+                    }
+                }
+                filter {
+                    mutate {
+                        add_field => {
+                            "app" => "editorial-tools-integration-tests"
+                            "stack" => "media-service"
+                            "stage" => "${Stage}"
+                        }
+                    }
+                }
+                output {
+                   kinesis {
+                       role_arn => "${LoggingRoleToAssumeArn}"
+                       stream_name => "${LoggingStreamName}"
+                       randomized_partition_key => true
+                       region => "${AWS::Region}"
+                    }
+                }
               mode: "000644"
     Properties:
       ImageId: !Ref 'AMI'
@@ -175,11 +198,6 @@ Resources:
           aws s3 cp s3://editorial-tools-integration-tests-dist/env.json /editorial-tools-integration-tests/env.json
 
           # Set up logstash
-          sed -i -e "s,@@REGION,${AWS::Region},g" \
-            -e "s,@@STAGE,${Stage},g" \
-            -e "s,@@LOGGING_ROLE,${LoggingRoleToAssumeArn},g" \
-            -e "s,@@LOGGING_STREAM,${LoggingStreamName},g" \
-            /etc/logstash/conf.d/logstash.conf
           systemctl start logstash
 
           # Run the tests
