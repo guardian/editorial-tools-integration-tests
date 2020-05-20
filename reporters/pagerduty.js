@@ -21,6 +21,8 @@ function Pagerduty(runner) {
   runner.on('pass', async function(test) {
     passes++;
     console.log('Pass:', test.fullTitle());
+    // TODO: Log to a file
+    // logToFile('/var/log/tests.json.log', JSON.stringify({}));
     await callPagerduty(test.title, 'resolve');
   });
 

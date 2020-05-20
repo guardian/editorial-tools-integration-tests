@@ -28,7 +28,25 @@ Parameters:
   KinesisStreamName:
     Type: String
     Description: The name (NOT arn) of the Kinesis stream that logs should be shipped to
+  LoggingRoleToAssumeArn:
+    Type: String
+    Description: Name of IAM role in logging account e.g. arn:aws:iam::222222222222:role/LoggingRole
+  LoggingStreamName:
+    Type: String
+    Description: Name of Kinesis Logging stream
 Resources:
+  LoggingPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: LoggingPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Resource: !Ref "LoggingRoleToAssumeArn"
+      Roles:
+        - !Ref "EditorialToolsIntegrationTestsRole"
   EditorialToolsIntegrationTestsRole:
     Type: AWS::IAM::Role
     Properties:
@@ -37,10 +55,8 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service:
-                - ec2.amazonaws.com
-            Action:
-              - sts:AssumeRole
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
   ServerInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
@@ -133,7 +149,10 @@ Resources:
         config:
           files:
             /etc/cron.d/run-integration-tests:
-              content: !Sub "*/5 * * * * root /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1"
+              content: !Sub "*/5 * * * * root /editorial-tools-integration-tests/scripts/run.sh ${Stage} >> /var/log/tests.log 2>&1"
+            "/etc/logstash/conf.d/logstash.conf":
+              source: https://s3-eu-west-1.amazonaws.com/editorial-tools-integration-tests-dist/logstash.conf.template
+              mode: "000644"
     Properties:
       ImageId: !Ref 'AMI'
       AssociatePublicIpAddress: true
@@ -155,8 +174,16 @@ Resources:
           # get envars
           aws s3 cp s3://editorial-tools-integration-tests-dist/env.json /editorial-tools-integration-tests/env.json
 
+          # Set up logstash
+          sed -i -e "s,@@REGION,${AWS::Region},g" \
+            -e "s,@@STAGE,${Stage},g" \
+            -e "s,@@LOGGING_ROLE,${LoggingRoleToAssumeArn},g" \
+            -e "s,@@LOGGING_STREAM,${LoggingStreamName},g" \
+            /etc/logstash/conf.d/logstash.conf
+          systemctl start logstash
+
           # Run the tests
-          /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1
+          /editorial-tools-integration-tests/scripts/run.sh ${Stage} >> /var/log/tests.log 2>&1
 
 
   ApplicationSecurityGroup:
