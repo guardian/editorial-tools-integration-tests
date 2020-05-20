@@ -9,6 +9,6 @@ ${DIR}/setup.sh "${ENV}"
 
 echo "$(date): Running integration tests"
 
-pushd "${DIR}"/../ 2&>1 /dev/null
+pushd "${DIR}"/../
 docker run -v $PWD:/e2e -w /e2e cypress/included:4.3.0
 popd

@@ -128,6 +128,12 @@ Resources:
           Value: editorial-tools-integration-tests
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          files:
+            /etc/cron.d/run-integration-tests:
+              content: !Sub "*/5 * * * * root /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1"
     Properties:
       ImageId: !Ref 'AMI'
       AssociatePublicIpAddress: true
@@ -148,9 +154,6 @@ Resources:
 
           # get envars
           aws s3 cp s3://editorial-tools-integration-tests-dist/env.json /editorial-tools-integration-tests/env.json
-
-          # set up crontab
-          echo "*/5 * * * * root /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1" >> /etc/cron.d/run-integration-tests
 
           # Run the tests
           /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1
