@@ -151,6 +151,9 @@ Resources:
             /etc/cron.d/run-integration-tests:
               content: !Sub |
                 */5 * * * * root /data/editorial-tools-integration-tests/scripts/run.sh ${Stage} >> /var/log/tests.log 2>&1
+            /etc/docker/daemon.json:
+              content: |
+                { "data-root": "/data/docker" }
 
             "/etc/logstash/conf.d/logstash.conf":
               content: !Sub |
@@ -197,7 +200,7 @@ Resources:
           cfn-init -s ${AWS::StackId} -r LaunchConfig --region ${AWS::Region} || error_exit ''Failed to run cfn-init''
 
           attach-ebs-volume -d k -m /data
-          ln -sf /data/docker /var/lib/docker
+          service docker restart
 
           # Set up the tests and their depedencies
           aws s3 cp s3://editorial-tools-integration-tests-dist/media-service/${Stage}/editorial-tools-integration-tests/editorial-tools-integration-tests.zip /tmp/editorial-tools-integration-tests.zip
