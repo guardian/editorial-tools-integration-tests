@@ -150,7 +150,7 @@ Resources:
           files:
             /etc/cron.d/run-integration-tests:
               content: !Sub |
-                */5 * * * * root /editorial-tools-integration-tests/scripts/run.sh ${Stage} >> /var/log/tests.log 2>&1
+                */5 * * * * root /data/editorial-tools-integration-tests/scripts/run.sh ${Stage} >> /var/log/tests.log 2>&1
 
             "/etc/logstash/conf.d/logstash.conf":
               content: !Sub |
@@ -179,6 +179,11 @@ Resources:
                 }
               mode: "000644"
     Properties:
+      BlockDeviceMappings:
+        - DeviceName: /dev/sdk
+          Ebs:
+            VolumeSize: 150
+            VolumeType: gp2
       ImageId: !Ref 'AMI'
       AssociatePublicIpAddress: true
       SecurityGroups:
@@ -191,20 +196,18 @@ Resources:
 
           cfn-init -s ${AWS::StackId} -r LaunchConfig --region ${AWS::Region} || error_exit ''Failed to run cfn-init''
 
+          attach-ebs-volume -d k -m /data
+
           # Set up the tests and their depedencies
           aws s3 cp s3://editorial-tools-integration-tests-dist/media-service/${Stage}/editorial-tools-integration-tests/editorial-tools-integration-tests.zip /tmp/editorial-tools-integration-tests.zip
-          unzip -q /tmp/editorial-tools-integration-tests.zip -d /editorial-tools-integration-tests
+          unzip -q /tmp/editorial-tools-integration-tests.zip -d /data/editorial-tools-integration-tests
           docker pull cypress/included:4.3.0
 
           # get envars
-          aws s3 cp s3://editorial-tools-integration-tests-dist/env.json /editorial-tools-integration-tests/env.json
+          aws s3 cp s3://editorial-tools-integration-tests-dist/env.json /data/editorial-tools-integration-tests/env.json
 
           # Set up logstash
           systemctl start logstash
-
-          # Run the tests
-          /editorial-tools-integration-tests/scripts/run.sh ${Stage} >> /var/log/tests.log 2>&1
-
 
   ApplicationSecurityGroup:
     Type: AWS::EC2::SecurityGroup
