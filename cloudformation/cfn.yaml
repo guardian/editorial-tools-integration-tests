@@ -197,6 +197,7 @@ Resources:
           cfn-init -s ${AWS::StackId} -r LaunchConfig --region ${AWS::Region} || error_exit ''Failed to run cfn-init''
 
           attach-ebs-volume -d k -m /data
+          ln -sf /data/docker /var/lib/docker
 
           # Set up the tests and their depedencies
           aws s3 cp s3://editorial-tools-integration-tests-dist/media-service/${Stage}/editorial-tools-integration-tests/editorial-tools-integration-tests.zip /tmp/editorial-tools-integration-tests.zip
