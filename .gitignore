@@ -13,3 +13,6 @@ screenshots
 cookie.json
 credentials.json
 env.json
+
+# Logging
+logs/*.log

@@ -1,9 +1,14 @@
+const {Logger} = require('../src/utils/logger');
+
 const mocha = require('mocha');
 const fetch = require('node-fetch');
 const config = require('../cypress.env.json');
 const env = require('../env.json');
 
+const logFile = `${__dirname}/../logs/tests.json.log`;
+
 const routingKey = env.pagerduty.routingKey;
+const logger = new Logger(logFile);
 
 module.exports = Pagerduty;
 
@@ -15,20 +20,25 @@ function Pagerduty(runner) {
   runner.on('pending', async function(test) {
     passes++;
     console.log('Pending:', test.fullTitle());
+    logger.log({testTitle: test.title, state: 'pending'});
     await callPagerduty(test.title, 'resolve');
   });
 
   runner.on('pass', async function(test) {
     passes++;
     console.log('Pass:', test.fullTitle());
-    // TODO: Log to a file
-    // logToFile('/var/log/tests.json.log', JSON.stringify({}));
+    logger.log({testTitle: test.title, state: 'pass'});
     await callPagerduty(test.title, 'resolve');
   });
 
   runner.on('fail', async function(test, err) {
     failures++;
     console.error('Failure:', test.fullTitle(), err.message, '\n');
+    logger.log({
+      testTitle: test.title,
+      state: 'failure',
+      error: err.message,
+    });
     await callPagerduty(test.title, 'trigger', {
       error: err.message,
       errorTitle: err.title,

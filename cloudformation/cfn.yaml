@@ -159,7 +159,7 @@ Resources:
               content: !Sub |
                 input {
                     file {
-                        path => "/var/log/tests.json.log"
+                        path => "/data/editorial-tools-integration-tests/logs/tests.json.log"
                         type => "application"
                         codec => json
                     }
