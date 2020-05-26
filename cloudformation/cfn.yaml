@@ -201,6 +201,8 @@ Resources:
           cfn-init -s ${AWS::StackId} -r LaunchConfig --region ${AWS::Region} || error_exit ''Failed to run cfn-init''
 
           attach-ebs-volume -d k -m /data
+
+          # Restart docker to pick up config changes in /etc/docker/daemon.json
           service docker restart
 
           # Set up the tests and their depedencies
