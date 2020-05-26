@@ -15,4 +15,4 @@ credentials.json
 env.json
 
 # Logging
-logs/*.log
+logs
