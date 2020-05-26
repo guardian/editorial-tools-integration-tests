@@ -10,7 +10,7 @@ class Logger {
       ...json,
       date: Date.now(),
     });
-    fs.appendFileSync(this.file, '\n' + data);
+    fs.appendFileSync(this.file, data + '\n');
   }
 }
 
