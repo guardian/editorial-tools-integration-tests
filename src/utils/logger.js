@@ -7,10 +7,14 @@ class Logger {
     fs.mkdirSync(logDir, {recursive: true});
   }
 
+  executionDate() {
+    return Date.now().toISOString();
+  }
+
   log(json) {
     const data = JSON.stringify({
       ...json,
-      testExecutionDate: Date.now(),
+      testExecutionDate: this.executionDate(),
       level: 'INFO',
     });
     fs.appendFileSync(this.file, data + '\n');
@@ -19,7 +23,7 @@ class Logger {
   error(json) {
     const data = JSON.stringify({
       ...json,
-      testExecutionDate: Date.now(),
+      testExecutionDate: this.executionDate(),
       level: 'ERROR',
     });
     fs.appendFileSync(this.file, data + '\n');
