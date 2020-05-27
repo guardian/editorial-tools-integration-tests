@@ -28,7 +28,25 @@ Parameters:
   KinesisStreamName:
     Type: String
     Description: The name (NOT arn) of the Kinesis stream that logs should be shipped to
+  LoggingRoleToAssumeArn:
+    Type: String
+    Description: Name of IAM role in logging account e.g. arn:aws:iam::222222222222:role/LoggingRole
+  LoggingStreamName:
+    Type: String
+    Description: Name of Kinesis Logging stream
 Resources:
+  LoggingPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: LoggingPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Resource: !Ref "LoggingRoleToAssumeArn"
+      Roles:
+        - !Ref "EditorialToolsIntegrationTestsRole"
   EditorialToolsIntegrationTestsRole:
     Type: AWS::IAM::Role
     Properties:
@@ -37,10 +55,8 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service:
-                - ec2.amazonaws.com
-            Action:
-              - sts:AssumeRole
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
   ServerInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
@@ -133,8 +149,45 @@ Resources:
         config:
           files:
             /etc/cron.d/run-integration-tests:
-              content: !Sub "*/5 * * * * root /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1"
+              content: !Sub |
+                */5 * * * * root /data/editorial-tools-integration-tests/scripts/run.sh ${Stage} >> /var/log/tests.log 2>&1
+            /etc/docker/daemon.json:
+              content: |
+                { "data-root": "/data/docker" }
+
+            "/etc/logstash/conf.d/logstash.conf":
+              content: !Sub |
+                input {
+                    file {
+                        path => "/data/editorial-tools-integration-tests/logs/tests.json.log"
+                        type => "application"
+                        codec => json
+                    }
+                }
+                filter {
+                    mutate {
+                        add_field => {
+                            "app" => "editorial-tools-integration-tests"
+                            "stack" => "media-service"
+                            "stage" => "${Stage}"
+                        }
+                    }
+                }
+                output {
+                   kinesis {
+                       role_arn => "${LoggingRoleToAssumeArn}"
+                       stream_name => "${LoggingStreamName}"
+                       randomized_partition_key => true
+                       region => "${AWS::Region}"
+                    }
+                }
+              mode: "000644"
     Properties:
+      BlockDeviceMappings:
+        - DeviceName: /dev/sdk
+          Ebs:
+            VolumeSize: 150
+            VolumeType: gp2
       ImageId: !Ref 'AMI'
       AssociatePublicIpAddress: true
       SecurityGroups:
@@ -147,17 +200,21 @@ Resources:
 
           cfn-init -s ${AWS::StackId} -r LaunchConfig --region ${AWS::Region} || error_exit ''Failed to run cfn-init''
 
+          attach-ebs-volume -d k -m /data
+
+          # Restart docker to pick up config changes in /etc/docker/daemon.json
+          service docker restart
+
           # Set up the tests and their depedencies
           aws s3 cp s3://editorial-tools-integration-tests-dist/media-service/${Stage}/editorial-tools-integration-tests/editorial-tools-integration-tests.zip /tmp/editorial-tools-integration-tests.zip
-          unzip -q /tmp/editorial-tools-integration-tests.zip -d /editorial-tools-integration-tests
+          unzip -q /tmp/editorial-tools-integration-tests.zip -d /data/editorial-tools-integration-tests
           docker pull cypress/included:4.3.0
 
           # get envars
-          aws s3 cp s3://editorial-tools-integration-tests-dist/env.json /editorial-tools-integration-tests/env.json
+          aws s3 cp s3://editorial-tools-integration-tests-dist/env.json /data/editorial-tools-integration-tests/env.json
 
-          # Run the tests
-          /editorial-tools-integration-tests/scripts/start.sh ${Stage} >> /var/log/tests.log 2>&1
-
+          # Set up logstash
+          systemctl start logstash
 
   ApplicationSecurityGroup:
     Type: AWS::EC2::SecurityGroup

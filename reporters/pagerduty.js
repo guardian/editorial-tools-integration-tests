@@ -1,9 +1,15 @@
+const { Logger } = require('../src/utils/logger');
+
 const mocha = require('mocha');
 const fetch = require('node-fetch');
 const config = require('../cypress.env.json');
 const env = require('../env.json');
 
+const logDir = `${__dirname}/../logs`;
+const logFile = 'tests.json.log';
+
 const routingKey = env.pagerduty.routingKey;
+const logger = new Logger({ logDir, logFile });
 
 module.exports = Pagerduty;
 
@@ -12,28 +18,44 @@ function Pagerduty(runner) {
   let passes = 0;
   let failures = 0;
 
-  runner.on('pending', async function(test) {
+  runner.on('pending', async function (test) {
     passes++;
     console.log('Pending:', test.fullTitle());
+    logger.log({
+      testTitle: test.title,
+      testContext: test.titlePath()[0],
+      testState: 'pending',
+    });
     await callPagerduty(test.title, 'resolve');
   });
 
-  runner.on('pass', async function(test) {
+  runner.on('pass', async function (test) {
     passes++;
     console.log('Pass:', test.fullTitle());
+    logger.log({
+      testTitle: test.title,
+      testContext: test.titlePath()[0],
+      testState: 'pass',
+    });
     await callPagerduty(test.title, 'resolve');
   });
 
-  runner.on('fail', async function(test, err) {
+  runner.on('fail', async function (test, err) {
     failures++;
     console.error('Failure:', test.fullTitle(), err.message, '\n');
+    logger.error({
+      testTitle: test.title,
+      testContext: test.titlePath()[0],
+      testState: 'failure',
+      error: err.message,
+    });
     await callPagerduty(test.title, 'trigger', {
       error: err.message,
       errorTitle: err.title,
     });
   });
 
-  runner.on('end', function() {
+  runner.on('end', function () {
     console.log('end: %d/%d', passes, passes + failures);
   });
 }
@@ -58,7 +80,7 @@ async function callPagerduty(incidentKey, action, details = {}) {
 
   const params = {
     method: 'POST',
-    headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   };
 
