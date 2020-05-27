@@ -1,20 +1,21 @@
 const AWS = require('aws-sdk');
 const iniparser = require('iniparser');
-const {base64ToPEM} = require('@guardian/pan-domain-node/dist/src/utils');
-const {createCookie} = require('@guardian/pan-domain-node/dist/src/panda');
+const { base64ToPEM } = require('@guardian/pan-domain-node/dist/src/utils');
+const { createCookie } = require('@guardian/pan-domain-node/dist/src/panda');
 const env = require('../../env.json');
-const {baseUrl} = require('../../cypress.env.json');
+const { baseUrl } = require('../../cypress.env.json');
 
-const user = {...env.user, expires: Date.now() + 1800000};
+const user = { ...env.user, expires: Date.now() + 1800000 };
 
 async function getCookie(domain, environment) {
-  let credentials; let s3;
+  let credentials;
+  let s3;
 
   if (environment === 'dev') {
     credentials = new AWS.SharedIniFileCredentials({
       profile: 'media-service',
     });
-    s3 = new AWS.S3({credentials});
+    s3 = new AWS.S3({ credentials });
   } else {
     //  Authenticate via EC2 instance permissions,
     // rather than shared credentials
@@ -22,17 +23,17 @@ async function getCookie(domain, environment) {
   }
 
   const settings = await s3
-      .getObject({
-        Bucket: env.s3.bucket,
-        Key: `${domain}.settings`,
-      })
-      .promise()
-      .catch((err) => {
-        console.error(err);
-        process.exit(1);
-      });
+    .getObject({
+      Bucket: env.s3.bucket,
+      Key: `${domain}.settings`,
+    })
+    .promise()
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
 
-  const {privateKey} = iniparser.parseString(settings.Body.toString());
+  const { privateKey } = iniparser.parseString(settings.Body.toString());
 
   if (privateKey) {
     const pemEncodedPrivateKey = base64ToPEM(privateKey, 'RSA PRIVATE');
@@ -55,5 +56,5 @@ function getDomain(stage) {
   const stage = baseUrl.split('/')[2].split('.')[1];
   const domain = getDomain(stage);
   const cookie = await getCookie(domain, process.env.ENV || 'dev');
-  console.log(JSON.stringify({cookie, domain}));
+  console.log(JSON.stringify({ cookie, domain }));
 })();

@@ -5,7 +5,7 @@ const imageURL = `${Cypress.env('baseUrl')}/images/${hash}`;
 
 describe('Grid Integration Tests', () => {
   beforeEach(() => {
-    const {cookie, domain} = require('../../../cookie.json');
+    const { cookie, domain } = require('../../../cookie.json');
 
     cy.setCookie('gutoolsAuth-assym', cookie, {
       domain: `.${domain}`,
@@ -18,7 +18,7 @@ describe('Grid Integration Tests', () => {
     cy.wait(2);
   });
 
-  it('Can find an image by ID in search', function() {
+  it('Can find an image by ID in search', function () {
     cy.get('gr-text-chip > .ng-pristine').type(hash);
     cy.wait(3);
     cy.get(`a.preview__link[href*="${hash}"]`).click();
@@ -46,25 +46,25 @@ describe('Grid Integration Tests', () => {
     cy.visit(imageURL);
 
     // Edit the description
-    cy.get('[data-cy=it-edit-description-button]').click({force: true});
+    cy.get('[data-cy=it-edit-description-button]').click({ force: true });
     cy.get('.editable-has-buttons').clear().type(date);
     cy.get('.editable-buttons > .button-save').click();
     wait(3);
 
     // Edit the byline
-    cy.get('[data-cy=it-edit-byline-button]').click({force: true});
+    cy.get('[data-cy=it-edit-byline-button]').click({ force: true });
     cy.get('.editable-has-buttons').clear().type(date);
     cy.get('.editable-buttons > .button-save').click();
     wait(3);
 
     // Edit the credit
-    cy.get('[data-cy=it-edit-credit-button]').click({force: true});
+    cy.get('[data-cy=it-edit-credit-button]').click({ force: true });
     cy.get('.editable-has-buttons').clear().type(date);
     cy.get('.editable-buttons > .button-save').click();
     wait(3);
 
     // Edit the copyright
-    cy.get('[data-cy=it-edit-copyright-button]').click({force: true});
+    cy.get('[data-cy=it-edit-copyright-button]').click({ force: true });
     cy.get('.editable-has-buttons').clear().type(date);
     cy.get('.editable-buttons > .button-save').click();
     wait(3);
@@ -79,25 +79,25 @@ describe('Grid Integration Tests', () => {
     cy.get('.gr-add-label__form__buttons__button-save').click();
     wait(1);
     cy.contains('someLabelHere')
-        .parent()
-        .find('[data-cy=it-remove-label-button]')
-        .click();
+      .parent()
+      .find('[data-cy=it-remove-label-button]')
+      .click();
   });
 
   it('edit the photoshoot section', () => {
     cy.visit(imageURL);
 
-    cy.get('[data-cy=it-photoshoot-edit-button]').click({force: true});
+    cy.get('[data-cy=it-photoshoot-edit-button]').click({ force: true });
     cy.get('.editable-has-buttons').clear().type(date);
     cy.get('.editable-buttons > .button-save').click();
     cy.get(
-        '.top-bar-item > gr-icon-label > .icon-label > ng\\:transclude',
+      '.top-bar-item > gr-icon-label > .icon-label > ng\\:transclude'
     ).click();
   });
 
-  it('can change the rights', function() {
+  it('can change the rights', function () {
     cy.visit(imageURL);
-    cy.get('[data-cy=it-edit-usage-rights-button]').click({force: true});
+    cy.get('[data-cy=it-edit-usage-rights-button]').click({ force: true });
     cy.get('[data-cy=it-rights-select]').select('screengrab');
     cy.get('[data-cy=it-edit-usage-input]').type(date);
     cy.get('.ure__bar > .button-save').click();
