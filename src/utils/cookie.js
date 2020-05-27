@@ -1,26 +1,14 @@
-const AWS = require('aws-sdk');
 const iniparser = require('iniparser');
 const { base64ToPEM } = require('@guardian/pan-domain-node/dist/src/utils');
 const { createCookie } = require('@guardian/pan-domain-node/dist/src/panda');
 const env = require('../../env.json');
 const { baseUrl } = require('../../cypress.env.json');
+const { getS3Client } = require('./s3');
 
 const user = { ...env.user, expires: Date.now() + 1800000 };
 
 async function getCookie(domain, environment) {
-  let credentials;
-  let s3;
-
-  if (environment === 'dev') {
-    credentials = new AWS.SharedIniFileCredentials({
-      profile: 'media-service',
-    });
-    s3 = new AWS.S3({ credentials });
-  } else {
-    //  Authenticate via EC2 instance permissions,
-    // rather than shared credentials
-    s3 = new AWS.S3();
-  }
+  const s3 = await getS3Client(environment);
 
   const settings = await s3
     .getObject({

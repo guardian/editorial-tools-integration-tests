@@ -1,7 +1,7 @@
-const { Logger } = require('../src/utils/logger');
-
 const mocha = require('mocha');
 const fetch = require('node-fetch');
+
+const { Logger } = require('../src/utils/logger');
 const config = require('../cypress.env.json');
 const env = require('../env.json');
 
@@ -17,6 +17,10 @@ function Pagerduty(runner) {
   mocha.reporters.Base.call(this, runner);
   let passes = 0;
   let failures = 0;
+
+  runner.on('start', async function (test) {
+    process.env.CLEAN = true;
+  });
 
   runner.on('pending', async function (test) {
     passes++;
@@ -41,6 +45,7 @@ function Pagerduty(runner) {
   });
 
   runner.on('fail', async function (test, err) {
+    process.env.CLEAN = false;
     failures++;
     console.error('Failure:', test.fullTitle(), err.message, '\n');
     logger.error({
@@ -55,8 +60,18 @@ function Pagerduty(runner) {
     });
   });
 
-  runner.on('end', function () {
+  runner.on('end', async function () {
     console.log('end: %d/%d', passes, passes + failures);
+    if (!process.env.CLEAN && !env.isDev) {
+      console.log('Test suite had failures, uploading video to S3');
+      const s3 = await getS3Client();
+      await s3
+        .putObject({
+          Bucket: env.videoBucket,
+          Key: `videos/integration-tests-${Date.now()}`,
+        })
+        .promise();
+    }
   });
 }
 
