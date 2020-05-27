@@ -5,10 +5,11 @@ const fetch = require('node-fetch');
 const config = require('../cypress.env.json');
 const env = require('../env.json');
 
-const logFile = `${__dirname}/../logs/tests.json.log`;
+const logDir = `${__dirname}/../logs`;
+const logFile = 'tests.json.log';
 
 const routingKey = env.pagerduty.routingKey;
-const logger = new Logger(logFile);
+const logger = new Logger({logDir, logFile});
 
 module.exports = Pagerduty;
 
@@ -20,23 +21,32 @@ function Pagerduty(runner) {
   runner.on('pending', async function(test) {
     passes++;
     console.log('Pending:', test.fullTitle());
-    logger.log({testTitle: test.title, state: 'pending'});
+    logger.log({
+      testTitle: test.title,
+      testContext: test.titlePath()[0],
+      testState: 'pending',
+    });
     await callPagerduty(test.title, 'resolve');
   });
 
   runner.on('pass', async function(test) {
     passes++;
     console.log('Pass:', test.fullTitle());
-    logger.log({testTitle: test.title, state: 'pass'});
+    logger.log({
+      testTitle: test.title,
+      testContext: test.titlePath()[0],
+      testState: 'pass',
+    });
     await callPagerduty(test.title, 'resolve');
   });
 
   runner.on('fail', async function(test, err) {
     failures++;
     console.error('Failure:', test.fullTitle(), err.message, '\n');
-    logger.log({
+    logger.error({
       testTitle: test.title,
-      state: 'failure',
+      testContext: test.titlePath()[0],
+      testState: 'failure',
       error: err.message,
     });
     await callPagerduty(test.title, 'trigger', {
