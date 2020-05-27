@@ -8,7 +8,7 @@ class Logger {
   }
 
   executionDate() {
-    return Date.now().toISOString();
+    return new Date();
   }
 
   log(json) {
