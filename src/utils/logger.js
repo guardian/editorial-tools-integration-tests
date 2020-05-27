@@ -2,32 +2,32 @@ const fs = require('fs');
 const path = require('path');
 
 class Logger {
-  constructor({logDir, logFile}) {
+  constructor({ logDir, logFile }) {
     this.file = path.join(logDir, logFile);
-    fs.mkdirSync(logDir, {recursive: true});
+    fs.mkdirSync(logDir, { recursive: true });
   }
 
   executionDate() {
-    return new Date();
+    return new Date().toISOString();
+  }
+
+  prepopulated(json, level) {
+    return JSON.stringify({
+      level,
+      ...json,
+      testExecutionTime: this.executionDate(),
+    });
   }
 
   log(json) {
-    const data = JSON.stringify({
-      ...json,
-      testExecutionDate: this.executionDate(),
-      level: 'INFO',
-    });
+    const data = this.prepopulated(json, 'INFO');
     fs.appendFileSync(this.file, data + '\n');
   }
 
   error(json) {
-    const data = JSON.stringify({
-      ...json,
-      testExecutionDate: this.executionDate(),
-      level: 'ERROR',
-    });
+    const data = this.prepopulated(json, 'ERROR');
     fs.appendFileSync(this.file, data + '\n');
   }
 }
 
-module.exports = {Logger};
+module.exports = { Logger };
