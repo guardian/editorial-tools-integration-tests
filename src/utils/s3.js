@@ -1,16 +1,17 @@
 const AWS = require('aws-sdk');
+const config = require('../../env.json');
 
-async function getS3Client() {
-  const chain = new AWS.CredentialProviderChain();
-  const sharedIniCreds = new AWS.SharedIniFileCredentials({
-    profile: 'media-service',
-  });
-  chain.providers.push(sharedIniCreds, new AWS.EC2MetadataCredentials());
+async function getS3Client({ dev, profile, filename }) {
+  if (config.isDev || dev) {
+    const sharedIniCreds = new AWS.SharedIniFileCredentials({
+      profile,
+      ...(filename && { filename }),
+    });
 
-  // await chain.resolvePromise();
-
-  // TODO: Revert to asserting over config.isDev if we can't work this out
-  return new AWS.S3({ credentialProvider: chain });
+    return new AWS.S3({ credentials: sharedIniCreds });
+  } else {
+    return new AWS.S3();
+  }
 }
 
 module.exports = { getS3Client };

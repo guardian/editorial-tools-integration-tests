@@ -7,8 +7,8 @@ const { getS3Client } = require('./s3');
 
 const user = { ...env.user, expires: Date.now() + 1800000 };
 
-async function getCookie(domain, environment) {
-  const s3 = await getS3Client(environment);
+async function getCookie(domain) {
+  const s3 = await getS3Client({ profile: 'media-service' });
 
   const settings = await s3
     .getObject({
@@ -43,6 +43,9 @@ function getDomain(stage) {
   // infer env from cypress.env.json URL
   const stage = baseUrl.split('/')[2].split('.')[1];
   const domain = getDomain(stage);
-  const cookie = await getCookie(domain, process.env.ENV || 'dev');
+  const cookie = await getCookie(domain).catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
   console.log(JSON.stringify({ cookie, domain }));
 })();
