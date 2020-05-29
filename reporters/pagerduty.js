@@ -63,7 +63,6 @@ function Pagerduty(runner) {
     });
     await callPagerduty(test.title, 'trigger', {
       error: err.message,
-      errorTitle: err.title,
       videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
     });
   });
