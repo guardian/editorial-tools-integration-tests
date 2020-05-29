@@ -48,6 +48,11 @@ function Pagerduty(runner) {
   });
 
   runner.on('fail', async function (test, err) {
+    const now = new Date();
+    const region = 'eu-west-1';
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
     failures++;
     console.error('Failure:', test.fullTitle(), err.message, '\n');
     logger.error({
@@ -59,6 +64,7 @@ function Pagerduty(runner) {
     await callPagerduty(test.title, 'trigger', {
       error: err.message,
       errorTitle: err.title,
+      videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
     });
   });
 
