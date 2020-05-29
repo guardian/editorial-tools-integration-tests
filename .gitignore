@@ -8,6 +8,7 @@ node_modules
 # Cypress
 videos
 screenshots
+failures.txt
 
 # Config
 cookie.json

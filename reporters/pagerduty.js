@@ -1,12 +1,15 @@
-const { Logger } = require('../src/utils/logger');
-
 const mocha = require('mocha');
+const fs = require('fs');
+const path = require('path');
 const fetch = require('node-fetch');
+
+const { Logger } = require('../src/utils/logger');
 const config = require('../cypress.env.json');
 const env = require('../env.json');
 
-const logDir = `${__dirname}/../logs`;
+const logDir = path.join(__dirname, '../logs');
 const logFile = 'tests.json.log';
+const failuresFile = path.join(__dirname, '../failures.txt');
 
 const routingKey = env.pagerduty.routingKey;
 const logger = new Logger({ logDir, logFile });
@@ -17,6 +20,10 @@ function Pagerduty(runner) {
   mocha.reporters.Base.call(this, runner);
   let passes = 0;
   let failures = 0;
+
+  runner.on('start', async function () {
+    fs.writeFileSync(failuresFile, '0');
+  });
 
   runner.on('pending', async function (test) {
     passes++;
@@ -41,6 +48,11 @@ function Pagerduty(runner) {
   });
 
   runner.on('fail', async function (test, err) {
+    const now = new Date();
+    const region = 'eu-west-1';
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
     failures++;
     console.error('Failure:', test.fullTitle(), err.message, '\n');
     logger.error({
@@ -51,12 +63,13 @@ function Pagerduty(runner) {
     });
     await callPagerduty(test.title, 'trigger', {
       error: err.message,
-      errorTitle: err.title,
+      videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
     });
   });
 
-  runner.on('end', function () {
+  runner.on('end', async function () {
     console.log('end: %d/%d', passes, passes + failures);
+    fs.writeFileSync(failuresFile, failures);
   });
 }
 

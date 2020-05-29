@@ -77,6 +77,11 @@ Resources:
               - arn:aws:s3::*:pan-domain-auth-settings/*
           - Effect: Allow
             Action:
+              - s3:PutObject
+            Resource:
+              - arn:aws:s3::*:editorial-tools-integration-tests/*
+          - Effect: Allow
+            Action:
             - cloudwatch:PutMetricData
             - ec2:DescribeTags
             Resource: "*"

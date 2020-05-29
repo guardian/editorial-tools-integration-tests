@@ -1,26 +1,22 @@
 const AWS = require('aws-sdk');
+
 const iniparser = require('iniparser');
 const { base64ToPEM } = require('@guardian/pan-domain-node/dist/src/utils');
 const { createCookie } = require('@guardian/pan-domain-node/dist/src/panda');
 const env = require('../../env.json');
 const { baseUrl } = require('../../cypress.env.json');
+const { getS3Client } = require('./s3');
 
 const user = { ...env.user, expires: Date.now() + 1800000 };
 
-async function getCookie(domain, environment) {
-  let credentials;
-  let s3;
+async function getCookie(domain) {
+  const credentials = env.isDev
+    ? new AWS.SharedIniFileCredentials({
+        profile: env.aws.profile,
+      })
+    : undefined;
 
-  if (environment === 'dev') {
-    credentials = new AWS.SharedIniFileCredentials({
-      profile: 'media-service',
-    });
-    s3 = new AWS.S3({ credentials });
-  } else {
-    //  Authenticate via EC2 instance permissions,
-    // rather than shared credentials
-    s3 = new AWS.S3();
-  }
+  const s3 = await getS3Client(credentials);
 
   const settings = await s3
     .getObject({
@@ -55,6 +51,9 @@ function getDomain(stage) {
   // infer env from cypress.env.json URL
   const stage = baseUrl.split('/')[2].split('.')[1];
   const domain = getDomain(stage);
-  const cookie = await getCookie(domain, process.env.ENV || 'dev');
+  const cookie = await getCookie(domain).catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
   console.log(JSON.stringify({ cookie, domain }));
 })();
