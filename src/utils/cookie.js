@@ -1,3 +1,5 @@
+const AWS = require('aws-sdk');
+
 const iniparser = require('iniparser');
 const { base64ToPEM } = require('@guardian/pan-domain-node/dist/src/utils');
 const { createCookie } = require('@guardian/pan-domain-node/dist/src/panda');
@@ -8,7 +10,13 @@ const { getS3Client } = require('./s3');
 const user = { ...env.user, expires: Date.now() + 1800000 };
 
 async function getCookie(domain) {
-  const s3 = await getS3Client({ profile: 'media-service' });
+  const credentials = env.isDev
+    ? new AWS.SharedIniFileCredentials({
+        profile: env.aws.profile,
+      })
+    : undefined;
+
+  const s3 = await getS3Client(credentials);
 
   const settings = await s3
     .getObject({

@@ -1,42 +1,29 @@
 const mocha = require('mocha');
 const fs = require('fs');
+const path = require('path');
 const fetch = require('node-fetch');
 
 const { Logger } = require('../src/utils/logger');
-const { getS3Client } = require('../src/utils/s3');
 const config = require('../cypress.env.json');
 const env = require('../env.json');
 
-const logDir = `${__dirname}/../logs`;
+const logDir = path.join(__dirname, '../logs');
 const logFile = 'tests.json.log';
+const failuresFile = path.join(__dirname, '../failures.txt');
 
 const routingKey = env.pagerduty.routingKey;
 const logger = new Logger({ logDir, logFile });
 
 module.exports = Pagerduty;
 
-// eslint-disable-next-line no-unused-vars
-async function uploadVideoToS3() {
-  const s3 = await getS3Client({
-    dev: true,
-    profile: 'media-service',
-    filename: '/aws/credentials',
-  });
-  const videoData = fs.readFileSync('../cypress/videos/grid/grid_spec.js.mp4');
-  await s3
-    .putObject({
-      Bucket: env.videoBucket,
-      Key: `videos/integration-tests-${Date.now()}`,
-      Body: videoData,
-    })
-    .promise()
-    .catch((err) => console.error(err));
-}
-
 function Pagerduty(runner) {
   mocha.reporters.Base.call(this, runner);
   let passes = 0;
   let failures = 0;
+
+  runner.on('start', async function () {
+    fs.writeFileSync(failuresFile, '0');
+  });
 
   runner.on('pending', async function (test) {
     passes++;
@@ -77,19 +64,7 @@ function Pagerduty(runner) {
 
   runner.on('end', async function () {
     console.log('end: %d/%d', passes, passes + failures);
-    if (failures > 0 && !env.isDev) {
-      console.log(
-        `Test suite had ${failures} failures and not in dev-mode, uploading video to S3`
-      );
-      // TODO: Find a way to do this once video is actually created
-      // right now this is before the video is available
-      // If this doesn't work, upload within run.sh
-      // await uploadVideoToS3();
-    } else {
-      console.log(
-        `Clean run or in dev-mode, not uploading video (clean run: ${process.env.CLEAN}, dev: ${env.isDev})`
-      );
-    }
+    fs.writeFileSync(failuresFile, failures);
   });
 }
 

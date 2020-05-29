@@ -67,7 +67,6 @@ describe('Grid Integration Tests', () => {
     cy.get('[data-cy=it-edit-copyright-button]').click({ force: true });
     cy.get('.editable-has-buttons').clear().type(date);
     cy.get('.editable-buttons > .button-save').click();
-    wait(3);
   });
 
   xit('add image to and remove image from a collection', () => {});
@@ -101,7 +100,6 @@ describe('Grid Integration Tests', () => {
     cy.get('[data-cy=it-rights-select]').select('screengrab');
     cy.get('[data-cy=it-edit-usage-input]').type(date);
     cy.get('.ure__bar > .button-save').click();
-    wait(3);
   });
 });
 

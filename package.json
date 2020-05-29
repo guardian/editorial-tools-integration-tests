@@ -9,7 +9,8 @@
     "cy:run": "cypress run",
     "cy:open": "cypress open",
     "lint": "eslint cypress/integration/* src/* reporters",
-    "riffraff": "node-riffraff-artifact"
+    "riffraff": "node-riffraff-artifact",
+    "upload-video": "node scripts/uploadVideo.js"
   },
   "keywords": [],
   "author": "",
