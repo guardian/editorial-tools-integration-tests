@@ -11,7 +11,7 @@ ${DIR}/setup.sh "${ENV}"
 
 echo "$(date): Running integration tests"
 
-pushd "${DIR}"/../ 2>&1 /dev/null
+pushd "${DIR}"/../ > /dev/null
 rm "${FAILURES_FILE}" || true
 
 docker run \
@@ -21,4 +21,4 @@ docker run \
     cypress/included:4.3.0 || true
 
 npm run upload-video
-popd 2>&1 /dev/null
+popd > /dev/null
