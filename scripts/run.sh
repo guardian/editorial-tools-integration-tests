@@ -20,5 +20,5 @@ docker run \
     -w /e2e \
     cypress/included:4.3.0 || true
 
-npm run upload-video
+node scripts/uploadVideo.js
 popd > /dev/null
