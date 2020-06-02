@@ -4,7 +4,6 @@ const path = require('path');
 const fetch = require('node-fetch');
 
 const { Logger } = require('../src/utils/logger');
-const config = require('../cypress.env.json');
 const env = require('../env.json');
 
 const logDir = path.join(__dirname, '../logs');
@@ -33,7 +32,7 @@ function Pagerduty(runner) {
       testContext: test.titlePath()[0],
       testState: 'pending',
     });
-    await callPagerduty(test.title, 'resolve');
+    await callPagerduty(test, 'resolve');
   });
 
   runner.on('pass', async function (test) {
@@ -44,7 +43,7 @@ function Pagerduty(runner) {
       testContext: test.titlePath()[0],
       testState: 'pass',
     });
-    await callPagerduty(test.title, 'resolve');
+    await callPagerduty(test, 'resolve');
   });
 
   runner.on('fail', async function (test, err) {
@@ -61,7 +60,7 @@ function Pagerduty(runner) {
       testState: 'failure',
       error: err.message,
     });
-    await callPagerduty(test.title, 'trigger', {
+    await callPagerduty(test, 'trigger', {
       error: err.message,
       videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
     });
@@ -73,19 +72,19 @@ function Pagerduty(runner) {
   });
 }
 
-async function callPagerduty(incidentKey, action, details = {}) {
+async function callPagerduty(test, action, details = {}) {
   const url = 'https://events.pagerduty.com/v2/enqueue';
 
   const data = {
     routing_key: routingKey,
     event_action: action,
-    dedup_key: incidentKey,
+    dedup_key: test.title,
     payload: {
-      summary: incidentKey,
-      source: config.baseUrl,
+      summary: test.title,
+      source: test.titlePath()[0],
       severity: 'critical',
       timestamp: new Date().toISOString(),
-      component: 'gridmon',
+      component: 'Editorial Tools Integration Tests',
       links: 'https://gu.com',
       custom_details: details,
     },
@@ -101,6 +100,11 @@ async function callPagerduty(incidentKey, action, details = {}) {
   const json = await response.json();
   if (!response.ok) {
     console.error('PagerdutyReportError:', JSON.stringify(json));
+    logger.error({
+      message: `PagerdutyReportError: ${json.message}`,
+      error: json.errors,
+      data,
+    });
   }
 }
 

@@ -1,11 +1,13 @@
+const baseUrl = Cypress.env('grid').baseUrl;
 const date = new Date().toString();
 // hash of the image in assets/prodmontestimage12345.png
 const hash = '0e019da30d5c429a98a3e9aabafe689576a6a4ba';
-const imageURL = `${Cypress.env('baseUrl')}/images/${hash}`;
+
+const imageURL = `${baseUrl}/images/${hash}`;
 
 describe('Grid Integration Tests', () => {
   beforeEach(() => {
-    const { cookie, domain } = require('../../../cookie.json');
+    const { cookie, domain } = require(`../../../grid.cookie.json`);
 
     cy.setCookie('gutoolsAuth-assym', cookie, {
       domain: `.${domain}`,
@@ -14,7 +16,7 @@ describe('Grid Integration Tests', () => {
       httpOnly: true,
     });
 
-    cy.visit(Cypress.env('baseUrl') + '/');
+    cy.visit(baseUrl + '/');
     cy.wait(2);
   });
 
