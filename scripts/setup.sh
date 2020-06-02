@@ -29,7 +29,17 @@ checkIfAbleToTalkToAWS() {
   fi
 }
 
+fetchEnv() {
+  if [[ ${ENV} == "dev" ]]; then
+      aws s3 cp s3://editorial-tools-integration-tests-dist/env.dev.json ${DIR}/../env.json --profile media-service
+  else
+      aws s3 cp s3://editorial-tools-integration-tests-dist/env.dev.json ${DIR}/../env.json
+  fi
+}
+
+
 checkIfAbleToTalkToAWS
+fetchEnv
 echo -e "Fetching cookie for services: ${bold}${SERVICES}${plain}"
 ENV=${ENV} node "${DIR}"/../src/utils/cookie.js
 
