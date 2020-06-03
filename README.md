@@ -68,4 +68,17 @@ $ touch cypress/integration/my-new-service/my-new-service_spec.js
 3. Follow the example in `To develop` above to create your first test
     - In order to ensure you're using the same URL as the cookie you generated for it, you can use `const baseUrl = Cypress.env('my-new-service').baseUrl`
     to get the URL used in the cookie generation step in your tests.
+    - In order to set the cookie before running your tests, you can import the cookie and set it like so:
+```js
+ beforeEach(() => {
+    const { cookie, domain } = require(`../../../my-new-service.cookie.json`);
+
+    cy.setCookie('gutoolsAuth-assym', cookie, {
+      domain: `.${domain}`,
+      path: '/',
+      secure: true,
+      httpOnly: true,
+    });
+  });
+```
 
