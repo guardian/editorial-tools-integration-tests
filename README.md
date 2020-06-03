@@ -55,6 +55,7 @@ Note that if you don't need a `gutools` cookie for your service, you can skip th
     - In the below example, a cookie called `my-new-service.cookie.json` would be created in the root of 
 the repository, given the necessary `.settings` configuration file is found in the S3 bucket referenced in `env.json`.
     - The `.settings` config file looks at the top-level domain of the URL you are looking to hit, so, if your domain was `service.gutools.co.uk`, it would look for a settings file called `gutools.settings`.
+    - For futher information on how the cookie gets validated, please see the [pan-domain-node repository](https://github.com/guardian/pan-domain-authentication/#to-verify-login-in-nodejs) that `cookie.js` leverages to authenticate itself with Guardian domains.
 ```json
 # env.json
 { 
