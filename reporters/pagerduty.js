@@ -80,8 +80,8 @@ async function callPagerduty(test, action, details = {}) {
     event_action: action,
     dedup_key: test.title,
     payload: {
-      summary: test.title,
-      source: test.titlePath()[0],
+      summary: `${test.titlePath()[0]} - ${test.title}`,
+      source: 'https://github.com/guardian/editorial-tools-integration-tests',
       severity: 'critical',
       timestamp: new Date().toISOString(),
       component: 'Editorial Tools Integration Tests',
