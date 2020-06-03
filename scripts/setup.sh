@@ -11,7 +11,14 @@ green='\x1B[0;32m'
 red='\x1B[0;31m'
 plain='\x1B[0m' # No Color
 
-GRID_ENV=$(cat "${DIR}"/../cypress.env.json | grep baseUrl | cut -d ":" -f 2-)
+SERVICES=$(cat "${DIR}"/../cypress.env.json)
+
+checkForNodeModules() {
+  if [[ ! -d ${DIR}/../node_modules ]]; then
+    echo -e "${red}No node_modules found, please run npm install.${plain}"
+    exit 1
+  fi
+}
 
 checkIfAbleToTalkToAWS() {
   if [[ ${ENV} == "dev" ]]; then
@@ -29,8 +36,18 @@ checkIfAbleToTalkToAWS() {
   fi
 }
 
+fetchEnv() {
+  if [[ ${ENV} == "dev" ]]; then
+      aws s3 cp s3://editorial-tools-integration-tests-dist/env.dev.json ${DIR}/../env.json --profile media-service
+  else
+      aws s3 cp s3://editorial-tools-integration-tests-dist/env.dev.json ${DIR}/../env.json
+  fi
+}
+
+checkForNodeModules
 checkIfAbleToTalkToAWS
-echo -e "Fetching cookie for environment: ${bold}${GRID_ENV}${plain}"
-ENV=${ENV} node "${DIR}"/../src/utils/cookie.js > "${DIR}"/../cookie.json
+fetchEnv
+echo -e "Fetching cookie for services: ${bold}${SERVICES}${plain}"
+ENV=${ENV} node "${DIR}"/../src/utils/cookie.js
 
 echo -e "${green}Cookie fetched!${plain}"

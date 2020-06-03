@@ -1,10 +1,12 @@
 const AWS = require('aws-sdk');
 
+const path = require('path');
+const fs = require('fs');
 const iniparser = require('iniparser');
 const { base64ToPEM } = require('@guardian/pan-domain-node/dist/src/utils');
 const { createCookie } = require('@guardian/pan-domain-node/dist/src/panda');
 const env = require('../../env.json');
-const { baseUrl } = require('../../cypress.env.json');
+const cypress = require('../../cypress.env.json');
 const { getS3Client } = require('./s3');
 
 const user = { ...env.user, expires: Date.now() + 1800000 };
@@ -49,11 +51,18 @@ function getDomain(stage) {
 
 (async function f() {
   // infer env from cypress.env.json URL
-  const stage = baseUrl.split('/')[2].split('.')[1];
-  const domain = getDomain(stage);
-  const cookie = await getCookie(domain).catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
-  console.log(JSON.stringify({ cookie, domain }));
+  for (const service in cypress) {
+    if (Object.prototype.hasOwnProperty.call(cypress, service)) {
+      const stage = cypress[service].baseUrl.split('/')[2].split('.')[1];
+      const domain = getDomain(stage);
+      const cookie = await getCookie(domain).catch((err) => {
+        console.error(err);
+        process.exit(1);
+      });
+      fs.writeFileSync(
+        path.join(__dirname, `../../${service}.cookie.json`),
+        JSON.stringify({ cookie, domain })
+      );
+    }
+  }
 })();
