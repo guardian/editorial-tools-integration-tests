@@ -2,6 +2,8 @@
 
 set -e
 
+# TODO: Add npm install here somewhere sensible
+
 ENV=${1:-dev}
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
