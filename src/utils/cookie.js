@@ -1,10 +1,11 @@
 const AWS = require('aws-sdk');
 
 const iniparser = require('iniparser');
+const fs = require('fs');
+const path = require('path');
 const { base64ToPEM } = require('@guardian/pan-domain-node/dist/src/utils');
 const { createCookie } = require('@guardian/pan-domain-node/dist/src/panda');
 const env = require('../../env.json');
-const { baseUrl } = require('../../cypress.env.json');
 const { getS3Client } = require('./s3');
 
 const user = { ...env.user, expires: Date.now() + 1800000 };
@@ -25,6 +26,7 @@ async function getCookie(domain) {
     })
     .promise()
     .catch((err) => {
+      console.log(`Unable to read pandomain settings from ${env.s3.bucket}/${domain}.settings`)
       console.error(err);
       process.exit(1);
     });
@@ -40,20 +42,23 @@ async function getCookie(domain) {
 }
 
 function getDomain(stage) {
-  if (stage === 'gutools') {
-    return 'gutools.co.uk';
+  if (stage === 'prod') {
+    return "gutools.co.uk";
   } else {
     return `${stage}.dev-gutools.co.uk`;
   }
 }
 
 (async function f() {
-  // infer env from cypress.env.json URL
-  const stage = baseUrl.split('/')[2].split('.')[1];
+  const stage=process.env['STAGE'];
   const domain = getDomain(stage);
   const cookie = await getCookie(domain).catch((err) => {
+    console.log(`Received an error - please check you can access ${domain}`);
     console.error(err);
     process.exit(1);
   });
-  console.log(JSON.stringify({ cookie, domain }));
+  fs.writeFileSync(
+    path.join(__dirname, `../../cookie.json`),
+    JSON.stringify({ cookie, domain })
+  );
 })();

@@ -1,7 +1,32 @@
 const date = new Date().toString();
 // hash of the image in assets/prodmontestimage12345.png
-const hash = '0e019da30d5c429a98a3e9aabafe689576a6a4ba';
-const imageURL = `${Cypress.env('baseUrl')}/images/${hash}`;
+const prodhash = '0e019da30d5c429a98a3e9aabafe689576a6a4ba';
+const codehash = '8297d9e8825642feb236d1105f1c01b37e45089d';
+const { baseUrls } = require('../../../cypress.env.json');
+
+function getDomain() {
+  const stage=Cypress.env('STAGE');
+  const app=Cypress.env('APP');
+  const appName=baseUrls[app] || app;
+  if (stage === 'prod') {
+    return `https://${appName}.gutools.co.uk`;
+  } else {
+    return `https://${appName}.${stage}.dev-gutools.co.uk`;
+  }
+}
+
+function getImageHash() {
+    const stage=Cypress.env('STAGE');
+    if (stage === 'prod') {
+        return prodhash;
+    } else {
+        return codehash;
+    }
+}
+
+function getImageURL() {
+  return `${getDomain()}/images/${getImageHash()}`
+}
 
 describe('Grid Integration Tests', () => {
   beforeEach(() => {
@@ -14,20 +39,21 @@ describe('Grid Integration Tests', () => {
       httpOnly: true,
     });
 
-    cy.visit(Cypress.env('baseUrl') + '/');
+    const fullDomain=getDomain();
+    cy.visit(fullDomain + '/');
     cy.wait(2);
   });
 
   it('Can find an image by ID in search', function () {
-    cy.get('gr-text-chip > .ng-pristine').type(hash);
+    cy.get('gr-text-chip > .ng-pristine').type(getImageHash());
     cy.wait(3);
-    cy.get(`a.preview__link[href*="${hash}"]`).click();
+    cy.get(`a.preview__link[href*="${getImageHash()}"]`).click();
     cy.wait(3);
-    cy.url().should('equal', imageURL);
+    cy.url().should('equal', getImageURL());
   });
 
   xit('Should be able to add and delete a lease', () => {
-    cy.visit(imageURL);
+    cy.visit(getImageURL());
 
     cy.get('[data-cy=it-add-lease-icon] > .gr-icon').click();
     cy.get('#access-select').select('allow-use');
@@ -43,7 +69,7 @@ describe('Grid Integration Tests', () => {
   });
 
   it('edit the image description, byline, credit and copyright', () => {
-    cy.visit(imageURL);
+    cy.visit(getImageURL());
 
     // Edit the description
     cy.get('[data-cy=it-edit-description-button]').click({ force: true });
@@ -72,7 +98,7 @@ describe('Grid Integration Tests', () => {
   xit('add image to and remove image from a collection', () => {});
 
   it('add and remove labels from an image', () => {
-    cy.visit(imageURL);
+    cy.visit(getImageURL());
     cy.get('[data-cy=it-add-label-button]').click();
     cy.get('.text-input').clear().type('someLabelHere');
     cy.get('.gr-add-label__form__buttons__button-save').click();
@@ -84,7 +110,7 @@ describe('Grid Integration Tests', () => {
   });
 
   it('edit the photoshoot section', () => {
-    cy.visit(imageURL);
+    cy.visit(getImageURL());
 
     cy.get('[data-cy=it-photoshoot-edit-button]').click({ force: true });
     cy.get('.editable-has-buttons').clear().type(date);
@@ -95,7 +121,7 @@ describe('Grid Integration Tests', () => {
   });
 
   it('can change the rights', function () {
-    cy.visit(imageURL);
+    cy.visit(getImageURL());
     cy.get('[data-cy=it-edit-usage-rights-button]').click({ force: true });
     cy.get('[data-cy=it-rights-select]').select('screengrab');
     cy.get('[data-cy=it-edit-usage-input]').type(date);
