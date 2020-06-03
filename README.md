@@ -38,6 +38,8 @@ describe('MyCoolService Integration Tests', () => { // It's good to have the ser
 });
 ```
 
+*To use Cypress' lovely interactive suite, run `scripts/dev.sh`.
+
 ## To add a new test to a service already being tested
 
 To do this, find the test suite or the service from within `cypress/integration`, 
