@@ -11,7 +11,7 @@ screenshots
 failures.txt
 
 # Config
-cookie.json
+*cookie.json
 credentials.json
 env.json
 

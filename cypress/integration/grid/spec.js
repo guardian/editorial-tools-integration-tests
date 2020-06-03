@@ -30,7 +30,7 @@ function getImageURL() {
 
 describe('Grid Integration Tests', () => {
   beforeEach(() => {
-    const { cookie, domain } = require('../../../cookie.json');
+    const { cookie, domain } = require(`../../../cookie.json`);
 
     cy.setCookie('gutoolsAuth-assym', cookie, {
       domain: `.${domain}`,

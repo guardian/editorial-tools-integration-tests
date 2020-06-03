@@ -1,8 +1,8 @@
 const AWS = require('aws-sdk');
 
-const iniparser = require('iniparser');
-const fs = require('fs');
 const path = require('path');
+const fs = require('fs');
+const iniparser = require('iniparser');
 const { base64ToPEM } = require('@guardian/pan-domain-node/dist/src/utils');
 const { createCookie } = require('@guardian/pan-domain-node/dist/src/panda');
 const env = require('../../env.json');

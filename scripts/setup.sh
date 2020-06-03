@@ -11,6 +11,15 @@ green='\x1B[0;32m'
 red='\x1B[0;31m'
 plain='\x1B[0m' # No Color
 
+SERVICES=$(cat "${DIR}"/../cypress.env.json)
+
+checkForNodeModules() {
+  if [[ ! -d ${DIR}/../node_modules ]]; then
+    echo -e "${red}No node_modules found, please run npm install.${plain}"
+    exit 1
+  fi
+}
+
 checkIfAbleToTalkToAWS() {
   if [[ ${ENV} == "dev" ]]; then
     STATUS=$(aws sts get-caller-identity --profile media-service 2>&1 || true)
@@ -27,4 +36,13 @@ checkIfAbleToTalkToAWS() {
   fi
 }
 
+fetchEnv() {
+  if [[ ${ENV} == "dev" ]]; then
+      aws s3 cp s3://editorial-tools-integration-tests-dist/env.dev.json ${DIR}/../env.json --profile media-service
+  else
+      aws s3 cp s3://editorial-tools-integration-tests-dist/env.dev.json ${DIR}/../env.json
+  fi
+}
+
+checkForNodeModules
 checkIfAbleToTalkToAWS
