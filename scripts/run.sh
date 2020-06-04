@@ -15,11 +15,7 @@ echo "$(date): Running integration tests"
 pushd "${DIR}"/../ > /dev/null
 rm "${FAILURES_FILE}" || true
 
-docker run \
-    --rm \
-    -v $PWD:/e2e \
-    -w /e2e \
-    cypress/included:4.3.0 || true
+APP=grid STAGE="${STAGE}" npm run cy:live
 
 node scripts/uploadVideo.js
 popd > /dev/null

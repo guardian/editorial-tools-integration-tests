@@ -13,6 +13,7 @@
     "composer-code": "APP=composer STAGE=code npm run doit",
     "composer-local": "APP=composer STAGE=local npm run doit",
     "doit": "node ./src/utils/cookie.js && cypress run --reporter spec --env APP=$APP,STAGE=$STAGE --spec cypress/integration/$APP/*",
+    "cy:live": "node ./src/utils/cookie.js && cypress run --env APP=$APP,STAGE=$STAGE  --spec cypress/integration/$APP/*",
     "cy:run-dev": "cypress run --reporter spec",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
