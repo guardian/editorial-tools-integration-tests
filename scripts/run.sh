@@ -2,8 +2,7 @@
 
 set -e
 
-STAGE=$1; shift
-APP=${1:-grid}; shift    // this will change to NOT default grid in later
+STAGE=${1:-PROD}
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 FAILURES_FILE="${DIR}/../failures.txt"
