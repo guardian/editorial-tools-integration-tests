@@ -1,19 +1,11 @@
+import {setCookie, getDomain} from "../../utils/networking";
+import {checkVars} from "../../utils/vars";
+import {wait} from "../../utils/wait";
+
 const date = new Date().toString();
 // hash of the image in assets/prodmontestimage12345.png
 const prodhash = '0e019da30d5c429a98a3e9aabafe689576a6a4ba';
 const codehash = '8297d9e8825642feb236d1105f1c01b37e45089d';
-const { baseUrls } = require('../../../cypress.env.json');
-
-function getDomain() {
-  const stage=Cypress.env('STAGE');
-  const app=Cypress.env('APP');
-  const appName=baseUrls[app] || app;
-  if (stage === 'prod') {
-    return `https://${appName}.gutools.co.uk`;
-  } else {
-    return `https://${appName}.${stage}.dev-gutools.co.uk`;
-  }
-}
 
 function getImageHash() {
     const stage=Cypress.env('STAGE');
@@ -25,23 +17,13 @@ function getImageHash() {
 }
 
 function getImageURL() {
-  return `${getDomain()}/images/${getImageHash()}`
+  return `${getDomain()}images/${getImageHash()}`
 }
 
 describe('Grid Integration Tests', () => {
   beforeEach(() => {
-    const { cookie, domain } = require(`../../../cookie.json`);
-
-    cy.setCookie('gutoolsAuth-assym', cookie, {
-      domain: `.${domain}`,
-      path: '/',
-      secure: true,
-      httpOnly: true,
-    });
-
-    const fullDomain=getDomain();
-    cy.visit(fullDomain + '/');
-    cy.wait(2);
+    checkVars();
+    setCookie(cy);
   });
 
   it('Can find an image by ID in search', function () {
@@ -129,4 +111,3 @@ describe('Grid Integration Tests', () => {
   });
 });
 
-const wait = (seconds) => cy.wait(seconds * 1000);
