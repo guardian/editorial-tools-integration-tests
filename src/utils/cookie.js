@@ -26,7 +26,9 @@ async function getCookie(domain) {
     })
     .promise()
     .catch((err) => {
-      console.log(`Unable to read pandomain settings from ${env.s3.bucket}/${domain}.settings`)
+      console.log(
+        `Unable to read pandomain settings from ${env.s3.bucket}/${domain}.settings`
+      );
       console.error(err);
       process.exit(1);
     });
@@ -42,15 +44,16 @@ async function getCookie(domain) {
 }
 
 function getDomain(stage) {
-  if (stage === 'prod') {
-    return "gutools.co.uk";
+  const lowercasedStage = stage.toLowerCase();
+  if (lowercasedStage === 'prod') {
+    return 'gutools.co.uk';
   } else {
-    return `${stage}.dev-gutools.co.uk`;
+    return `${lowercasedStage}.dev-gutools.co.uk`;
   }
 }
 
 (async function f() {
-  const stage=process.env['STAGE'];
+  const stage = process.env['STAGE'];
   const domain = getDomain(stage);
   const cookie = await getCookie(domain).catch((err) => {
     console.log(`Received an error - please check you can access ${domain}`);

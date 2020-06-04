@@ -2,13 +2,14 @@
 
 set -e
 
-ENV=$1; shift
+STAGE=$1; shift
 APP=${1:-grid}; shift    // this will change to NOT default grid in later
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 FAILURES_FILE="${DIR}/../failures.txt"
 
-${DIR}/setup.sh "${ENV}"
+${DIR}/setup.sh "${STAGE}"
+STAGE="${STAGE}" node "${DIR}"/../src/utils/cookie.js
 
 echo "$(date): Running integration tests"
 

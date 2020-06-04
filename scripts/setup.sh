@@ -2,7 +2,7 @@
 
 set -e
 
-ENV=${1:-local}
+STAGE=${1:-LOCAL}
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 
@@ -21,7 +21,7 @@ checkForNodeModules() {
 }
 
 checkIfAbleToTalkToAWS() {
-  if [[ ${ENV} == "dev" ]]; then
+  if [[ ${STAGE} != "PROD" ]]; then
     STATUS=$(aws sts get-caller-identity --profile media-service 2>&1 || true)
   else
     STATUS=$(aws sts get-caller-identity 2>&1 || true)
@@ -37,7 +37,7 @@ checkIfAbleToTalkToAWS() {
 }
 
 fetchEnv() {
-  if [[ ${ENV} == "dev" ]]; then
+  if [[ ${STAGE} != "PROD" ]]; then
       aws s3 cp s3://editorial-tools-integration-tests-dist/env.dev.json ${DIR}/../env.json --profile media-service
   else
       aws s3 cp s3://editorial-tools-integration-tests-dist/env.dev.json ${DIR}/../env.json
