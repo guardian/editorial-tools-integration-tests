@@ -44,6 +44,8 @@ const key = `videos/${year}/${month}/${date}/integration-tests-${new Date().toIS
       logger.log({
         message: `Video [${key}] uploaded to ${config.videoBucket}`,
       });
+    } else {
+      logger.log({ message: 'No failures, not uploading video' });
     }
   } catch (e) {
     logger.error({ message: e.message, stackTrace: e.stack });
