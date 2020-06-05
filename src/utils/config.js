@@ -1,4 +1,5 @@
 const path = require('path');
+const env = require('../../env.json');
 
 class Config {
     static get stack() {
@@ -28,6 +29,24 @@ class Config {
     static get failureFilepath() {
         // failure files land in the root
         return path.join(__dirname, '..', `${this.suite}.failures.txt`);
+    }
+
+    static get pandaUser() {
+        return env.user;
+    }
+
+    static get pandaSettingsBucket() {
+        return env.s3.bucket;
+    }
+
+    static get awsProfile() {
+        return env.aws.profile;
+    }
+
+    static get toolsDomain() {
+        return this.isProd 
+            ? 'gutools.co.uk' 
+            : `${this.stage.toLowerCase()}.dev-gutools.co.uk`;
     }
 }
 

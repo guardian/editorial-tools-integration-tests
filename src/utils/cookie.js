@@ -5,16 +5,15 @@ const fs = require('fs');
 const iniparser = require('iniparser');
 const { base64ToPEM } = require('@guardian/pan-domain-node/dist/src/utils');
 const { createCookie } = require('@guardian/pan-domain-node/dist/src/panda');
-const env = require('../../env.json');
 const { getS3Client } = require('./s3');
 const Config = require('./config');
 
-const user = { ...env.user, expires: Date.now() + 1800000 };
+const user = { ...Config.pandaUser, expires: Date.now() + 1800000 };
 
 async function getCookie(domain) {
-  const credentials = env.isDev
+  const credentials = Config.isDev
     ? new AWS.SharedIniFileCredentials({
-        profile: env.aws.profile,
+        profile: Config.awsProfile,
       })
     : undefined;
 
@@ -22,13 +21,13 @@ async function getCookie(domain) {
 
   const settings = await s3
     .getObject({
-      Bucket: env.s3.bucket,
+      Bucket: Config.pandaSettingsBucket,
       Key: `${domain}.settings`,
     })
     .promise()
     .catch((err) => {
       console.log(
-        `Unable to read pandomain settings from ${env.s3.bucket}/${domain}.settings`
+        `Unable to read pandomain settings from ${Config.pandaSettingsBucket}/${domain}.settings`
       );
       console.error(err);
       process.exit(1);
@@ -44,24 +43,14 @@ async function getCookie(domain) {
   }
 }
 
-function getDomain(stage) {
-  const lowercasedStage = stage.toLowerCase();
-  if (lowercasedStage === 'prod') {
-    return 'gutools.co.uk';
-  } else {
-    return `${lowercasedStage}.dev-gutools.co.uk`;
-  }
-}
-
 (async function f() {
-  const domain = getDomain(Config.stage);
-  const cookie = await getCookie(domain).catch((err) => {
-    console.log(`Received an error - please check you can access ${domain}`);
+  const cookie = await getCookie(Config.toolsDomain).catch((err) => {
+    console.log(`Received an error - please check you can access ${Config.toolsDomain}`);
     console.error(err);
     process.exit(1);
   });
   fs.writeFileSync(
     path.join(__dirname, `../../cookie.json`),
-    JSON.stringify({ cookie, domain })
+    JSON.stringify({ cookie, domain: Config.toolsDomain })
   );
 })();
