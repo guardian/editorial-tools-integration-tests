@@ -2,12 +2,13 @@
 
 set -e
 
-ENV=$1
+STAGE=${1:-PROD}
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 FAILURES_FILE="${DIR}/../failures.txt"
 
-${DIR}/setup.sh "${ENV}"
+${DIR}/setup.sh "${STAGE}"
+STAGE="${STAGE}" node "${DIR}"/../src/utils/cookie.js
 
 echo "$(date): Running integration tests"
 

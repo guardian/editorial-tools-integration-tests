@@ -4,22 +4,34 @@ Integration testing using [Cypress](https://www.cypress.io/).
 
 This repository currently includes testing for:
 
-* Grid
+  * Grid
 
 For Composer and Workflow testing, see [editorial-tools-production-monitoring](git@github.com:guardian/editorial-tools-production-monitoring.git).
 
-## To run locally
-
-To run locally, all you need to do is fetch the dependencies then call `./scripts/start.sh`.
+## Setup
 
 ```bash
 $ npm install # Fetches the node modules
-$ ./scripts/start.sh # Fetches config and creates a cookie for each service configured in cypress.env.json
 ```
 
-These tests use the `cypress.env.json` file to generate cookies and assert the base URL to run tests on. 
-Running `scripts/start.sh` will fetch the necessary configuration to run the tests, given you have permission (via credentials or otherwise) to access the `media-service` account.
+## Run against remote service
 
+```bash
+npm run --silent <application>-<stage>
+```
+
+Note that not all applications and environments are supported!  Use `npm run` to list. 
+
+For example: 
+
+```bash
+npm run --silent grid-prod
+```
+
+## Run locally
+
+1. Spin up a local instance of the Grid
+2. Run `npm run --silent grid-local`
 
 ## To develop
 

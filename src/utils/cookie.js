@@ -6,7 +6,6 @@ const iniparser = require('iniparser');
 const { base64ToPEM } = require('@guardian/pan-domain-node/dist/src/utils');
 const { createCookie } = require('@guardian/pan-domain-node/dist/src/panda');
 const env = require('../../env.json');
-const cypress = require('../../cypress.env.json');
 const { getS3Client } = require('./s3');
 
 const user = { ...env.user, expires: Date.now() + 1800000 };
@@ -27,6 +26,9 @@ async function getCookie(domain) {
     })
     .promise()
     .catch((err) => {
+      console.log(
+        `Unable to read pandomain settings from ${env.s3.bucket}/${domain}.settings`
+      );
       console.error(err);
       process.exit(1);
     });
@@ -42,27 +44,24 @@ async function getCookie(domain) {
 }
 
 function getDomain(stage) {
-  if (stage === 'gutools') {
+  const lowercasedStage = stage.toLowerCase();
+  if (lowercasedStage === 'prod') {
     return 'gutools.co.uk';
   } else {
-    return `${stage}.dev-gutools.co.uk`;
+    return `${lowercasedStage}.dev-gutools.co.uk`;
   }
 }
 
 (async function f() {
-  // infer env from cypress.env.json URL
-  for (const service in cypress) {
-    if (Object.prototype.hasOwnProperty.call(cypress, service)) {
-      const stage = cypress[service].baseUrl.split('/')[2].split('.')[1];
-      const domain = getDomain(stage);
-      const cookie = await getCookie(domain).catch((err) => {
-        console.error(err);
-        process.exit(1);
-      });
-      fs.writeFileSync(
-        path.join(__dirname, `../../${service}.cookie.json`),
-        JSON.stringify({ cookie, domain })
-      );
-    }
-  }
+  const stage = process.env['STAGE'];
+  const domain = getDomain(stage);
+  const cookie = await getCookie(domain).catch((err) => {
+    console.log(`Received an error - please check you can access ${domain}`);
+    console.error(err);
+    process.exit(1);
+  });
+  fs.writeFileSync(
+    path.join(__dirname, `../../cookie.json`),
+    JSON.stringify({ cookie, domain })
+  );
 })();

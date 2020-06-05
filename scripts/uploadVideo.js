@@ -11,7 +11,7 @@ const logDir = path.join(__dirname, '../logs');
 const failuresFile = path.join(__dirname, '../failures.txt');
 const videoLocation = path.join(
   __dirname,
-  '../cypress/videos/grid/grid_spec.js.mp4'
+  '../cypress/videos/grid/spec.js.mp4'
 );
 
 const now = new Date();
