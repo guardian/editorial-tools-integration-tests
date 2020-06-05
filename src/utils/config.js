@@ -52,6 +52,10 @@ class Config {
     static get videoBucket() {
         return env.videoBucket;
     }
+
+    static get pagerdutyRoutingKey() {
+        return env.pagerduty.routingKey;
+    }
 }
 
 module.exports = Config;

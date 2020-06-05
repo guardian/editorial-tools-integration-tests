@@ -4,13 +4,11 @@ const path = require('path');
 const fetch = require('node-fetch');
 
 const { Logger } = require('../src/utils/logger');
-const env = require('../env.json');
 
 const logDir = path.join(__dirname, '../logs');
 const logFile = 'tests.json.log';
 const Config = require('../src/utils/config');
 
-const routingKey = env.pagerduty.routingKey;
 const logger = new Logger({ logDir, logFile });
 
 module.exports = Pagerduty;
@@ -72,7 +70,7 @@ function Pagerduty(runner) {
     });
     await callPagerduty(test, 'trigger', {
       error: err.message,
-      videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
+      videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${Config.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
     });
   });
 
@@ -86,7 +84,7 @@ async function callPagerduty(test, action, details = {}) {
   const url = 'https://events.pagerduty.com/v2/enqueue';
 
   const data = {
-    routing_key: routingKey,
+    routing_key: Config.pagerdutyRoutingKey,
     event_action: action,
     dedup_key: test.title,
     payload: {
