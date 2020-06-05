@@ -1,8 +1,6 @@
 import { setCookie } from "../../utils/networking";
 import { checkVars } from "../../utils/vars";
-import { createAndEditArticle } from "../../utils/composer/createArticle";
-import { deleteArticle } from "../../utils/composer/deleteArticle";
-import { stopEditingAndClose } from "../../utils/composer/stopEditingAndClose";
+import { inATemporaryArticle } from "../../utils/composer/inATemporaryArticle";
 
 describe('Composer Basic Behaviour Tests', () => {
   beforeEach(() => {
@@ -10,10 +8,8 @@ describe('Composer Basic Behaviour Tests', () => {
     setCookie(cy);
   });
 
-  it('Create a new article, then get it from the menu and delete it', function () {
-    createAndEditArticle(id => {
-      cy.get(".ProseMirror").type("This is a test article");
-      stopEditingAndClose( () => deleteArticle(id));
-    });
-  })
+  inATemporaryArticle(
+      'Do nothing but create and delete',
+      async () => {return cy},
+      async () => {})
 });

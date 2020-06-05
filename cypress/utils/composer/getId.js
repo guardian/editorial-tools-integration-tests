@@ -1,11 +1,8 @@
 import {getDomain} from "../networking";
-import {wait} from "../wait";
 
-export function getId(url) {
-    const id = url.split('/')[4];
-    // debug(id);
-    cy.url().should('contain', `${getDomain()}content/`);
-    wait(1);
-    return id;
+export async function getId(url) {
+    const domain = getDomain();
+    expect(url).to.match( new RegExp(`${domain}content\/`));
+    return url.split('/')[4];
 }
 
