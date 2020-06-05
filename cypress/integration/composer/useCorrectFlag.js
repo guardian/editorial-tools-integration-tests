@@ -1,11 +1,9 @@
 import { setCookie, getDomain } from "../../utils/networking";
 import { checkVars } from "../../utils/vars";
 import { wait } from "../../utils/wait";
-import {createAndEditArticle, createArticle} from "../../utils/composer/createArticle";
+import { createAndEditArticle } from "../../utils/composer/createArticle";
 import { deleteArticle } from "../../utils/composer/deleteArticle";
-import { getId } from "../../utils/composer/getId";
 import { getContent } from "../../utils/composer/getContent";
-import { startEditing } from "../../utils/composer/startEditing";
 import { stopEditingAndClose } from "../../utils/composer/stopEditingAndClose";
 
 describe('Composer Noting Tests', () => {
@@ -14,7 +12,7 @@ describe('Composer Noting Tests', () => {
     setCookie(cy);
   });
 
-  it('Create a new article, add a correct tag, check it, and delete it', function () {
+  it('(In a temporary article) Check that correct flags are present in preview', function () {
     createAndEditArticle(id => {
       cy.get(".ProseMirror").type("This is a ");
       cy.get('button[title*="Correct (F7)"]').click();
