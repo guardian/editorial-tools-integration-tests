@@ -3,23 +3,23 @@
 set -e
 
 STAGE=${1:-PROD}
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-FAILURES_FILE="${DIR}/../failures.txt"
 
-${DIR}/setup.sh "${STAGE}"
-STAGE="${STAGE}" node "${DIR}"/../src/utils/cookie.js
+function runTests() {
+    SUITE=$1
+    FAILURES_FILE="${DIR}/../${SUITE}.failures.txt"
+    rm "${FAILURES_FILE}" || true
+    SUITE=${SUITE} STAGE="${STAGE}" npm run --silent cy:live || true
+    SUITE=${SUITE} STAGE="${STAGE}" node scripts/uploadVideo.js
+}
+
+"${DIR}"/setup.sh "${STAGE}"
 
 echo "$(date): Running integration tests"
 
 pushd "${DIR}"/../ > /dev/null
-rm "${FAILURES_FILE}" || true
 
-docker run \
-    --rm \
-    -v $PWD:/e2e \
-    -w /e2e \
-    cypress/included:4.3.0 || true
+runTests grid
+runTests composer
 
-node scripts/uploadVideo.js
 popd > /dev/null

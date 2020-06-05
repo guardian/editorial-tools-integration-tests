@@ -156,9 +156,6 @@ Resources:
             /etc/cron.d/run-integration-tests:
               content: !Sub |
                 */5 * * * * root /data/editorial-tools-integration-tests/scripts/run.sh ${Stage} >> /var/log/tests.log 2>&1
-            /etc/docker/daemon.json:
-              content: |
-                { "data-root": "/data/docker" }
 
             "/etc/logstash/conf.d/logstash.conf":
               content: !Sub |
@@ -207,13 +204,16 @@ Resources:
 
           attach-ebs-volume -d k -m /data
 
-          # Restart docker to pick up config changes in /etc/docker/daemon.json
-          service docker restart
 
           # Set up the tests and their depedencies
           aws s3 cp s3://editorial-tools-integration-tests-dist/media-service/${Stage}/editorial-tools-integration-tests/editorial-tools-integration-tests.zip /tmp/editorial-tools-integration-tests.zip
           unzip -q /tmp/editorial-tools-integration-tests.zip -d /data/editorial-tools-integration-tests
-          docker pull cypress/included:4.3.0
+
+          # Install Cypress dependencies
+          apt install -y npm
+          apt-get -y install libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+          /data/editorial-tools-integration-tests/node_modules/cypress/bin/cypress install
+
 
           # get envars
           aws s3 cp s3://editorial-tools-integration-tests-dist/env.json /data/editorial-tools-integration-tests/env.json

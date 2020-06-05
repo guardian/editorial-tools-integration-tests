@@ -6,12 +6,14 @@ const { Logger } = require('../src/utils/logger');
 const { uploadVideoToS3 } = require('../src/utils/s3');
 const config = require('../env.json');
 
+const suite = process.env.SUITE;
+
 const logFile = 'tests.json.log';
 const logDir = path.join(__dirname, '../logs');
-const failuresFile = path.join(__dirname, '../failures.txt');
+const failuresFile = path.join(__dirname, `../${suite}.failures.txt`);
 const videoLocation = path.join(
   __dirname,
-  '../cypress/videos/grid/spec.js.mp4'
+  `../cypress/videos/${suite}/spec.js.mp4`
 );
 
 const now = new Date();
@@ -43,6 +45,10 @@ const key = `videos/${year}/${month}/${date}/integration-tests-${new Date().toIS
 
       logger.log({
         message: `Video [${key}] uploaded to ${config.videoBucket}`,
+      });
+    } else {
+      logger.log({
+        message: `No failures for suite ${suite}, not uploading video`,
       });
     }
   } catch (e) {
