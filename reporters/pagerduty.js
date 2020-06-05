@@ -8,12 +8,19 @@ const env = require('../env.json');
 
 const logDir = path.join(__dirname, '../logs');
 const logFile = 'tests.json.log';
-const failuresFile = path.join(__dirname, '../failures.txt');
+const failuresFile = path.join(
+  __dirname,
+  `../${process.env.SUITE}.failures.txt`
+);
 
 const routingKey = env.pagerduty.routingKey;
 const logger = new Logger({ logDir, logFile });
 
 module.exports = Pagerduty;
+
+function generateMessage(state, test) {
+  return `${state} - ${test.titlePath().join(' - ')}`;
+}
 
 function Pagerduty(runner) {
   mocha.reporters.Base.call(this, runner);
@@ -25,10 +32,12 @@ function Pagerduty(runner) {
   });
 
   runner.on('pending', async function (test) {
+    const message = generateMessage('Pending', test);
     passes++;
     console.log('Pending:', test.fullTitle());
     logger.log({
       testTitle: test.title,
+      message,
       testContext: test.titlePath()[0],
       testState: 'pending',
     });
@@ -36,10 +45,12 @@ function Pagerduty(runner) {
   });
 
   runner.on('pass', async function (test) {
+    const message = generateMessage('Pass', test);
     passes++;
     console.log('Pass:', test.fullTitle());
     logger.log({
       testTitle: test.title,
+      message,
       testContext: test.titlePath()[0],
       testState: 'pass',
     });
@@ -47,6 +58,7 @@ function Pagerduty(runner) {
   });
 
   runner.on('fail', async function (test, err) {
+    const message = generateMessage('Failure', test);
     const now = new Date();
     const region = 'eu-west-1';
     const year = now.getFullYear();
@@ -56,6 +68,7 @@ function Pagerduty(runner) {
     console.error('Failure:', test.fullTitle(), err.message, '\n');
     logger.error({
       testTitle: test.title,
+      message,
       testContext: test.titlePath()[0],
       testState: 'failure',
       error: err.message,
