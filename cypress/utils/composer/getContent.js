@@ -1,4 +1,4 @@
-const https = require('https');
+export const https = require('https');
 
 export function getContent(url) {
     return new Promise(function(resolve, reject) {

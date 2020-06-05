@@ -8,8 +8,6 @@ describe('Composer Basic Behaviour Tests', () => {
     setCookie(cy);
   });
 
-  inATemporaryArticle(
-      'Do nothing but create and delete',
-      async () => {return cy},
-      async () => {})
+  inATemporaryArticle('Do nothing but create and delete')
+
 });

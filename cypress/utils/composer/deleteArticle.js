@@ -1,6 +1,6 @@
 import { getDomain } from "../networking";
 
-export async function deleteArticle(id) {
+export function deleteArticle(id) {
     return cy
         .get(`a[href*="/content/${id}"]`).click()
         .wait(2000)
