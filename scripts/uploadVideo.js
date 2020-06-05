@@ -6,14 +6,14 @@ const { Logger } = require('../src/utils/logger');
 const { uploadVideoToS3 } = require('../src/utils/s3');
 const config = require('../env.json');
 
-const suite = process.env.SUITE;
+const Config = require('../src/utils/config');
 
 const logFile = 'tests.json.log';
 const logDir = path.join(__dirname, '../logs');
-const failuresFile = path.join(__dirname, `../${suite}.failures.txt`);
+
 const videoLocation = path.join(
   __dirname,
-  `../cypress/videos/${suite}/spec.js.mp4`
+  `../cypress/videos/${Config.suite}/spec.js.mp4`
 );
 
 const now = new Date();
@@ -27,7 +27,7 @@ const key = `videos/${year}/${month}/${date}/integration-tests-${new Date().toIS
   const logger = new Logger({ logDir, logFile });
 
   try {
-    const failures = fs.readFileSync(failuresFile);
+    const failures = fs.readFileSync(Config.failureFilepath);
 
     if (failures > 0) {
       const credentials = config.isDev
@@ -48,7 +48,7 @@ const key = `videos/${year}/${month}/${date}/integration-tests-${new Date().toIS
       });
     } else {
       logger.log({
-        message: `No failures for suite ${suite}, not uploading video`,
+        message: `No failures for suite ${Config.suite}, not uploading video`,
       });
     }
   } catch (e) {

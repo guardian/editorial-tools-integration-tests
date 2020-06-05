@@ -7,6 +7,7 @@ const { base64ToPEM } = require('@guardian/pan-domain-node/dist/src/utils');
 const { createCookie } = require('@guardian/pan-domain-node/dist/src/panda');
 const env = require('../../env.json');
 const { getS3Client } = require('./s3');
+const Config = require('./config');
 
 const user = { ...env.user, expires: Date.now() + 1800000 };
 
@@ -53,8 +54,7 @@ function getDomain(stage) {
 }
 
 (async function f() {
-  const stage = process.env['STAGE'];
-  const domain = getDomain(stage);
+  const domain = getDomain(Config.stage);
   const cookie = await getCookie(domain).catch((err) => {
     console.log(`Received an error - please check you can access ${domain}`);
     console.error(err);

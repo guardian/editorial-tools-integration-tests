@@ -8,10 +8,7 @@ const env = require('../env.json');
 
 const logDir = path.join(__dirname, '../logs');
 const logFile = 'tests.json.log';
-const failuresFile = path.join(
-  __dirname,
-  `../${process.env.SUITE}.failures.txt`
-);
+const Config = require('../src/utils/config');
 
 const routingKey = env.pagerduty.routingKey;
 const logger = new Logger({ logDir, logFile });
@@ -28,7 +25,7 @@ function Pagerduty(runner) {
   let failures = 0;
 
   runner.on('start', async function () {
-    fs.writeFileSync(failuresFile, '0');
+    fs.writeFileSync(Config.failureFilepath, '0');
   });
 
   runner.on('pending', async function (test) {
@@ -81,7 +78,7 @@ function Pagerduty(runner) {
 
   runner.on('end', async function () {
     console.log('end: %d/%d', passes, passes + failures);
-    fs.writeFileSync(failuresFile, failures);
+    fs.writeFileSync(Config.failureFilepath, failures);
   });
 }
 
