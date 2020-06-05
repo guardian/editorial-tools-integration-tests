@@ -1,11 +1,9 @@
 import { setCookie } from "../../utils/networking";
-import { checkVars } from "../../utils/vars";
 import { expectPreview } from "../../utils/composer/expectPreview";
 import { inATemporaryArticle } from "../../utils/composer/inATemporaryArticle";
 
 describe('Composer Noting Tests', () => {
   beforeEach(() => {
-    checkVars();
     setCookie(cy);
   });
 

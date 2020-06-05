@@ -11,7 +11,7 @@ class Config {
     }
 
     static get app() {
-        return process.env.APP;
+        return 'editorial-tools-integration-tests';
     }
 
     static get isDev() {

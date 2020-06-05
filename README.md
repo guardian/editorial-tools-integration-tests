@@ -100,12 +100,9 @@ $ touch cypress/integration/my-new-service/spec.js
 ```js
 // In `cypress/integration/myNewService/spec.js
 import { setCookie } from '../../utils/networking';
-import { checkVars } from '../../utils/vars';
-
 
 describe('MyNewService Integration Tests', () => {
     beforeEach(() => {
-        checkVars();
         setCookie(cy);
     });
 

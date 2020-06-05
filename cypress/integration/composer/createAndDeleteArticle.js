@@ -1,10 +1,8 @@
 import { setCookie } from "../../utils/networking";
-import { checkVars } from "../../utils/vars";
 import { inATemporaryArticle } from "../../utils/composer/inATemporaryArticle";
 
 describe('Composer Basic Behaviour Tests', () => {
   beforeEach(() => {
-    checkVars();
     setCookie(cy);
   });
 

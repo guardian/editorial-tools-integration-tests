@@ -1,15 +1,10 @@
 const { baseUrls } = require('../../cypress.env.json');
 const { cookie, domain } = require(`../../cookie.json`);
+const Config = require('../../src/utils/config');
 
 export function getDomain() {
-  const stage = Cypress.env('STAGE');
-  const app = Cypress.env('APP');
-  const appName = baseUrls[app] || app;
-  if (stage.toLowerCase() === 'prod') {
-    return `https://${appName}.gutools.co.uk/`;
-  } else {
-    return `https://${appName}.${stage}.dev-gutools.co.uk/`;
-  }
+  const appName = baseUrls[Config.suite] || Config.suite;
+  return `https://${appName}.${Config.toolsDomain}/`
 }
 
 export function setCookie(cy) {

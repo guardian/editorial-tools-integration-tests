@@ -1,6 +1,6 @@
 import { setCookie, getDomain } from '../../utils/networking';
-import { checkVars } from '../../utils/vars';
 import { wait } from '../../utils/wait';
+import Config from '../../../src/utils/config';
 
 const date = new Date().toString();
 // hash of the image in assets/prodmontestimage12345.png
@@ -8,12 +8,7 @@ const prodhash = '0e019da30d5c429a98a3e9aabafe689576a6a4ba';
 const codehash = '8297d9e8825642feb236d1105f1c01b37e45089d';
 
 function getImageHash() {
-  const stage = Cypress.env('STAGE');
-  if (stage.toLowerCase() === 'prod') {
-    return prodhash;
-  } else {
-    return codehash;
-  }
+  return Config.isProd ? prodhash : codehash;
 }
 
 function getImageURL() {
@@ -22,7 +17,6 @@ function getImageURL() {
 
 describe('Grid Integration Tests', () => {
   beforeEach(() => {
-    checkVars();
     setCookie(cy);
   });
 
