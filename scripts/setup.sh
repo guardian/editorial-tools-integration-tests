@@ -11,8 +11,6 @@ green='\x1B[0;32m'
 red='\x1B[0;31m'
 plain='\x1B[0m' # No Color
 
-SERVICES=$(cat "${DIR}"/../cypress.env.json)
-
 checkForNodeModules() {
   if [[ ! -d ${DIR}/../node_modules ]]; then
     echo -e "${red}No node_modules found, please run npm install.${plain}"
