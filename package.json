@@ -16,6 +16,7 @@
     "cy:run-dev": "cypress run --reporter spec",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
+    "cookie": "node ./src/utils/cookie.js",
     "lint": "eslint cypress/integration/* src/* reporters",
     "riffraff": "node-riffraff-artifact",
     "upload-video": "node scripts/uploadVideo.js"

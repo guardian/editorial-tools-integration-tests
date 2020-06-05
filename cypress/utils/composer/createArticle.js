@@ -1,17 +1,14 @@
-import { getId } from "./getId";
-import { startEditing } from "./startEditing";
+import { getId } from './getId';
+import { startEditing } from './startEditing';
 
-export function createAndEditArticle(fn) {
-    return cy
-        .get("#js-dashboard-create-dropdown").click()
-        .get("#js-dashboard-create-article").click()
-        .wait(2000)
-        .url()
-        .then(async (url) => {
-            const id = await getId(url);
-            await startEditing().then(async () =>
-                await fn(id)
-            )
-        });
+export async function createAndEditArticle() {
+  return new Promise(async (resolve, reject) => {
+    cy.get('#js-dashboard-create-dropdown').click();
+    cy.get('#js-dashboard-create-article').click().wait(2000);
+
+    startEditing();
+    cy.url().then((url) => {
+      resolve(getId(url));
+    });
+  });
 }
-
