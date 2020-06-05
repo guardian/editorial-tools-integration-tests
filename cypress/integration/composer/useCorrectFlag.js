@@ -10,7 +10,7 @@ describe('Composer Noting Tests', () => {
   });
 
   inATemporaryArticle('Check that correct flags are present in preview',
-    async function (id) {
+    function (id) {
       return cy
         .get(".ProseMirror").type(`${id} is a `)
         .get('button[title*="Correct (F7)"]').click()

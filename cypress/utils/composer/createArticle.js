@@ -1,7 +1,4 @@
-import { getId } from "./getId";
-import { startEditing } from "./startEditing";
-
-export function createAndEditArticle(fn) {
+export function createAndEditArticle() {
     cy
         .get("#js-dashboard-create-dropdown").click()
         .get("#js-dashboard-create-article").click()

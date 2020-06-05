@@ -10,15 +10,15 @@ export function inATemporaryArticle(
     assertFn = (id) => {return cy.log(`Checked nothing for id ${id}`)}
 ) {
     it(`(In a temporary article) ${title}`,  () => {
-            cy
-                .then(() => createAndEditArticle())
-                .url()
-                .then( (url) => {
-                    const id = getId(url);
-                    startEditing()
-                        .log("Article id is ", id)
-                        .then(() => editFn(id))
-                        .then(() => {
+        cy
+            .then(() => createAndEditArticle())
+            .url()
+            .then( (url) => {
+                const id = getId(url);
+                startEditing()
+                    .log("Article id is ", id)
+                    .then(() => editFn(id))
+                    .then(() => {
                         stopEditingAndClose()
                             .log("Closed the article")
                             .then(() =>
@@ -26,9 +26,8 @@ export function inATemporaryArticle(
                                     // Go ahead and delete the article
                                     .then(() => deleteArticle(id))
                             )
-                })
-
-        })
+                    })
+            })
     })
 }
 
