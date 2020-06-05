@@ -3,17 +3,23 @@
 set -e
 
 STAGE=${1:-PROD}
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-FAILURES_FILE="${DIR}/../failures.txt"
 
-${DIR}/setup.sh "${STAGE}"
+function runTests() {
+    SUITE=$1
+    FAILURES_FILE="${DIR}/../${SUITE}.failures.txt"
+    rm "${FAILURES_FILE}" || true
+    SUITE=${SUITE} STAGE="${STAGE}" npm run --silent cy:live || true
+    SUITE=${SUITE} STAGE="${STAGE}" node scripts/uploadVideo.js
+}
+
+"${DIR}"/setup.sh "${STAGE}"
+
 echo "$(date): Running integration tests"
 
 pushd "${DIR}"/../ > /dev/null
-rm "${FAILURES_FILE}" || true
 
-APP=grid STAGE="${STAGE}" npm run cy:live
+runTests grid
+runTests composer
 
-node scripts/uploadVideo.js
 popd > /dev/null
