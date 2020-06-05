@@ -1,7 +1,7 @@
 import { setCookie, getDomain } from "../../utils/networking";
 import { checkVars } from "../../utils/vars";
 import { wait } from "../../utils/wait";
-import { createArticle } from "../../utils/composer/createArticle";
+import {createAndEditArticle, createArticle} from "../../utils/composer/createArticle";
 import { deleteArticle } from "../../utils/composer/deleteArticle";
 import { getId } from "../../utils/composer/getId";
 import { getContent } from "../../utils/composer/getContent";
@@ -15,18 +15,14 @@ describe('Composer Noting Tests', () => {
   });
 
   it('Create a new article, add a correct tag, check it, and delete it', function () {
-    createArticle();
-    cy.url().then(async url => {
-      const id = getId(url);
-      startEditing();
-
+    createAndEditArticle(id => {
       cy.get(".ProseMirror").type("This is a ");
       cy.get('button[title*="Correct (F7)"]').click();
       wait(1);
       cy.get(".ProseMirror").type("test article");
       wait(1);
 
-      stopEditingAndClose().then(async () => {
+      stopEditingAndClose(async () => {
         const url = `${getDomain()}api/content/${id}/preview`;
         const data = await getContent(url);
         expect(data, "the data").to.not.be.null;
@@ -53,9 +49,9 @@ describe('Composer Noting Tests', () => {
         expect(content10, "the text").to.match(
             /<p>This is a <gu-correct class=".*" title="Correct: .*" data-gu-mark="true" data-note-edited-by=".*" data-note-edited-date=".*" data-type="correct" data-note-id=".*">test article<\/gu-correct><\/p>/
         );
+        // Go ahead and delete the article
+        deleteArticle(id);
       });
-      // Go ahead and delete the article
-      deleteArticle(id);
     });
   })
 });
