@@ -4,7 +4,6 @@ const fs = require('fs');
 const { Logger } = require('../src/utils/logger');
 
 const { uploadVideoToS3 } = require('../src/utils/s3');
-const config = require('../env.json');
 
 const Config = require('../src/utils/config');
 
@@ -30,21 +29,21 @@ const key = `videos/${year}/${month}/${date}/integration-tests-${new Date().toIS
     const failures = fs.readFileSync(Config.failureFilepath);
 
     if (failures > 0) {
-      const credentials = config.isDev
+      const credentials = Config.isDev
         ? new AWS.SharedIniFileCredentials({
-            profile: config.aws.profile,
+            profile: Config.awsProfile,
           })
         : undefined;
 
       await uploadVideoToS3({
         credentials,
         file: videoLocation,
-        bucket: config.videoBucket,
+        bucket: Config.videoBucket,
         key,
       });
 
       logger.log({
-        message: `Video [${key}] uploaded to ${config.videoBucket}`,
+        message: `Video [${key}] uploaded to ${Config.videoBucket}`,
       });
     } else {
       logger.log({

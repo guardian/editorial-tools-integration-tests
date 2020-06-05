@@ -48,6 +48,10 @@ class Config {
             ? 'gutools.co.uk' 
             : `${this.stage.toLowerCase()}.dev-gutools.co.uk`;
     }
+
+    static get videoBucket() {
+        return env.videoBucket;
+    }
 }
 
 module.exports = Config;
