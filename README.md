@@ -5,27 +5,28 @@ Integration testing using [Cypress](https://www.cypress.io/).
 This repository currently includes testing for:
 
   * Grid
+  * Composer
 
-For Composer and Workflow testing, see [editorial-tools-production-monitoring](git@github.com:guardian/editorial-tools-production-monitoring.git).
+For more Composer and Workflow testing, see [editorial-tools-production-monitoring](git@github.com:guardian/editorial-tools-production-monitoring.git).
 
 ## Setup
 
-```bash
+```shell script
 $ npm install # Fetches the node modules
 ```
 
 ## Run against remote service
 
-```bash
-npm run --silent <application>-<stage>
+```shell script
+$ npm run --silent <application>-<stage>
 ```
 
 Note that not all applications and environments are supported!  Use `npm run` to list. 
 
 For example: 
 
-```bash
-npm run --silent grid-prod
+```shell script
+$ npm run --silent grid-prod
 ```
 
 ## Run locally
@@ -38,7 +39,7 @@ npm run --silent grid-prod
 Tests are located in `cypress/integration`. They are written in mocha/chai with Cypress commands to navigate the DOM. 
 Any `spec` files within the `cypress/integration` folder will be picked up by the test runner automatically.
 
-An example test for MyCoolService looks like the following:
+An example test for MyCoolService in a file located in `cypress/integration/myCoolService.js` looks like the following:
 
 ```js
 describe('MyCoolService Integration Tests', () => { // It's good to have the service name in your top describe block
@@ -50,7 +51,11 @@ describe('MyCoolService Integration Tests', () => { // It's good to have the ser
 });
 ```
 
-*To use Cypress' lovely interactive suite, run `scripts/dev.sh`.
+**To use Cypress' lovely interactive suite, run `scripts/dev.sh`.**
+
+```shell script
+$ ./scripts/dev.sh grid prod # Opens up the interactive suite, recommended if developing on the tests and wanting quick feedback!
+```
 
 ## To add a new test to a service already being tested
 
@@ -61,40 +66,64 @@ and either add a new test to the pre-existing suite or create a new test suite f
 
 In the interests of keeping this repository organised, the best practice for adding a new service is to do the following (using a service called `my-new-service` as an example):
 
-1. Add the required information to `cypress.env.json`. Every key in the file is ingested by the cookie generator script `src/utils/cookie.js`, 
+1. Add the required information to `cypress.env.json`. Keys in the file are ingested by the cookie generator script `src/utils/cookie.js`, 
 with the `baseUrl` of each being used to create a cookie. 
 Note that if you don't need a `gutools` cookie for your service, you can skip this step and reference the URL directly in the tests.
-    - In the below example, a cookie called `my-new-service.cookie.json` would be created in the root of 
+    - In the below example, a cookie called `myNewService.cookie.json` would be created in the root of 
 the repository, given the necessary `.settings` configuration file is found in the S3 bucket referenced in `env.json`.
-    - The `.settings` config file looks at the top-level domain of the URL you are looking to hit, so, if your domain was `service.gutools.co.uk`, it would look for a settings file called `gutools.settings`.
-    - For futher information on how the cookie gets validated, please see the [pan-domain-node repository](https://github.com/guardian/pan-domain-authentication/#to-verify-login-in-nodejs) that `cookie.js` leverages to authenticate itself with Guardian domains.
+    - The `.settings` config file looks at the third-level domain of the URL you are looking to hit, so, if your domain was `my-new-service.gutools.co.uk`, it would look for a settings file called `gutools.settings`.
+    - For further information on how the cookie gets validated, please see the [pan-domain-node repository](https://github.com/guardian/pan-domain-authentication/#to-verify-login-in-nodejs) that `cookie.js` leverages to authenticate itself with Guardian domains.
 ```json
-# env.json
 { 
-  ...
-  ...
-  "my-new-service": { "baseUrl": "https://some-new-service-I-want-to-test.gutools.co.uk" }
+  "baseUrls": { 
+    "grid": "media",
+    "myNewService": "my-new-service" 
+  }
 }
 ```
 2. Create a subfolder and test file for the service in `cypress/integration`. For example:
 ```bash
 $ mkdir cypress/integration/my-new-service
-$ touch cypress/integration/my-new-service/my-new-service_spec.js
+$ touch cypress/integration/my-new-service/spec.js
 ```
 3. Follow the example in `To develop` above to create your first test
     - In order to ensure you're using the same URL as the cookie you generated for it, you can use `const baseUrl = Cypress.env('my-new-service').baseUrl`
     to get the URL used in the cookie generation step in your tests.
     - In order to set the cookie before running your tests, you can import the cookie and set it like so:
 ```js
- beforeEach(() => {
-    const { cookie, domain } = require(`../../../my-new-service.cookie.json`);
+// In `cypress/integration/myNewService/spec.js
+import { setCookie } from '../../utils/networking';
+import { checkVars } from '../../utils/vars';
 
-    cy.setCookie('gutoolsAuth-assym', cookie, {
-      domain: `.${domain}`,
-      path: '/',
-      secure: true,
-      httpOnly: true,
+
+describe('MyNewService Integration Tests', () => {
+    beforeEach(() => {
+        checkVars();
+        setCookie(cy);
     });
-  });
+
+    it('Can do a thing', function () {
+      //  Define test here using Cypress, Mocha/Chai and whatever else you need
+      });
+});
 ```
 
+4. Run `scripts/start.sh` with the right arguments to test your service!
+```shell script
+$ ./scripts/start.sh myNewService prod
+```
+
+### To add the service to the production testing suite 
+
+If you want to start running these tests in production and alerting on them, you can add them to `scripts/run.sh`:
+
+```shell script
+# scripts/run.sh
+...
+
+runTests grid
+runTests composer
+runTests myNewService # This will call the test suite in production
+
+...
+```
