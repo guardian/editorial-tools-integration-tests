@@ -13,13 +13,20 @@ For more Composer and Workflow testing, see [editorial-tools-production-monitori
 
 ```shell script
 $ npm install # Fetches the node modules
+$ ./scripts/setup.sh # Fetches config
 ```
 
 ## Run against remote service
 
 ```shell script
 $ npm run --silent <application>-<stage>
+
+# Or, if you haven't set up the npm script, you can use start.sh
+$ ./scripts/start.sh <application>-<stage>
 ```
+
+Running `scripts/start.sh` in essence does the same as the npm run script above, 
+but doesn't require you to define the npm script first if you do not want to.
 
 Note that not all applications and environments are supported!  Use `npm run` to list. 
 
