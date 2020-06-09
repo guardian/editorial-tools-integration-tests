@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "cookie": "node ./src/utils/cookie.js",
     "test": "./scripts/setup.sh $ENV && npm run cy:run-dev",
     "grid-prod": "APP=grid STAGE=prod npm run start",
     "grid-code": "APP=grid STAGE=test npm run start",
@@ -12,11 +13,11 @@
     "composer-prod": "APP=composer STAGE=prod npm run start",
     "composer-code": "APP=composer STAGE=code npm run start",
     "composer-local": "APP=composer STAGE=local npm run start",
-    "start": "node ./src/utils/cookie.js && cypress run --reporter spec --env APP=$APP,STAGE=$STAGE --spec cypress/integration/$APP/*",
-    "cy:live": "node ./src/utils/cookie.js && cypress run --env APP=$SUITE,STAGE=$STAGE  --spec cypress/integration/$SUITE/*",
+    "start": "npm run cookie && cypress run --reporter spec --env APP=$APP,STAGE=$STAGE --spec cypress/integration/$APP/*",
+    "cy:live": "npm run cookie && cypress run --env APP=$SUITE,STAGE=$STAGE --spec cypress/integration/$SUITE/*",
     "cy:run-dev": "cypress run --reporter spec",
-    "cy:run": "cypress run",
-    "cy:open": "cypress open",
+    "cy:run": "npm run cookie && cypress run",
+    "cy:open": "npm run cookie && cypress open --env APP=$APP,STAGE=$STAGE",
     "lint": "eslint cypress/integration/* src/* reporters",
     "riffraff": "node-riffraff-artifact",
     "upload-video": "node scripts/uploadVideo.js"
