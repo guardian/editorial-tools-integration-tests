@@ -5,15 +5,9 @@ import { wait } from '../../utils/wait';
 const date = new Date().toString();
 // hash of the image in assets/prodmontestimage12345.png
 const prodhash = '0e019da30d5c429a98a3e9aabafe689576a6a4ba';
-const codehash = '8297d9e8825642feb236d1105f1c01b37e45089d';
 
 function getImageHash() {
-  const stage = Cypress.env('STAGE');
-  if (stage.toLowerCase() === 'prod') {
-    return prodhash;
-  } else {
-    return codehash;
-  }
+  return prodhash;
 }
 
 function getImageURL() {
@@ -108,5 +102,11 @@ describe('Grid Integration Tests', () => {
     cy.get('[data-cy=it-rights-select]').select('screengrab');
     cy.get('[data-cy=it-edit-usage-input]').type(date);
     cy.get('.ure__bar > .button-save').click();
+  });
+
+  describe('Key user journeys', function () {
+    xit('User can find an image by metadata', function () {});
+    xit('User can create a crop of an image', function () {});
+    xit('User can upload an image to the Grid', function () {});
   });
 });
