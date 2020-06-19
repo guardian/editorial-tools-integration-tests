@@ -2,8 +2,8 @@ import axios from 'axios';
 import 'cypress-file-upload';
 
 import { getDomain, setCookie } from '../../utils/networking';
-import { getImageHash, getImageURL } from './spec';
 import { checkVars } from '../../utils/vars';
+import { getImageHash, getImageURL } from '../../utils/grid/image';
 
 // ID of `cypress/fixtures/drag-n-drop.png`
 const id = '68991a0825f86a6b33ebcc6737bfe68340cd221f';

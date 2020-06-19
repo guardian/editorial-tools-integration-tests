@@ -1,18 +1,9 @@
-import { setCookie, getDomain } from '../../utils/networking';
+import { setCookie } from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
 import { wait } from '../../utils/wait';
+import { getImageHash, getImageURL } from '../../utils/grid/image';
 
 const date = new Date().toString();
-// hash of the image in assets/GridmonTestImage.png
-export const imageHash = 'fe052e21c4bc4d76a2c841d97c5b2281cccd19bd';
-
-export function getImageHash() {
-  return imageHash;
-}
-
-export function getImageURL() {
-  return `${getDomain()}images/${getImageHash()}`;
-}
 
 describe('Grid Integration Tests', () => {
   beforeEach(() => {
