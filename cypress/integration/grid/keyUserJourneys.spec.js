@@ -15,10 +15,12 @@ describe('Grid Key User Journeys', function () {
     checkVars();
     setCookie(cy);
     cy.server();
-    cy.route(`/images/${id}`).as('getImage');
+    cy.route(`/images/${id}`).as('getDragNDrop');
+    cy.route(`/images/${getImageHash()}`).as('getImage');
+    cy.route(`/images?q=&length=1&orderBy=-uploadTime&free=true`).as('search');
   });
 
-  it('User can find an image by Source metadata, click on the image, crop it, then delete the crop', function () {
+  it.only('User can find an image by Source metadata, click on the image, crop it, then delete the crop', function () {
     const crop = {
       width: '900',
       height: '540',
@@ -33,13 +35,10 @@ describe('Grid Key User Journeys', function () {
         cy.stub(win, 'prompt').returns('DELETE');
       },
     });
-
-    cy.server();
-    cy.route(`/images/${getImageHash()}`).as('getImage');
-
-    cy.get('[data-cy=image-search-input]').type(
-      '+source:GridmonTestImage{enter}'
-    );
+    cy.wait('@search').its('status').should('be', 200);
+    cy.get('[data-cy=image-search-input]')
+      .click({ force: true })
+      .type('+source:GridmonTestImage{enter}');
     cy.get(`a.preview__link[href*="${getImageHash()}"]`).click();
     cy.url().should('equal', getImageURL());
 
@@ -87,7 +86,7 @@ describe('Grid Key User Journeys', function () {
     cy.get('[data-cy="upload-button"]').attachFile('drag-n-drop.png', {
       subjectType: 'drag-n-drop',
     });
-    cy.wait('@getImage');
+    cy.wait('@getDragNDrop');
 
     // Set rights as screengrab
     cy.get('ui-upload-jobs [data-cy=edit-rights-button]')
