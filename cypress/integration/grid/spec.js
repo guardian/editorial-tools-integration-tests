@@ -27,7 +27,7 @@ describe('Grid Integration Tests', () => {
   });
 
   it('Can find an image by ID in search', function () {
-    cy.get('gr-text-chip > .ng-pristine').type(getImageHash());
+    cy.get('[data-cy=image-search-input]').type(getImageHash());
     cy.wait(3);
     cy.get(`a.preview__link[href*="${getImageHash()}"]`).click();
     cy.wait(3);
