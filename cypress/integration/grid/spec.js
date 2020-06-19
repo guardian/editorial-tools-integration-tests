@@ -18,13 +18,15 @@ describe('Grid Integration Tests', () => {
   beforeEach(() => {
     checkVars();
     setCookie(cy);
+    cy.server();
+    cy.route(`/images/${getImageHash()}`).as('image');
   });
 
   it('Can find an image by ID in search', function () {
-    cy.get('gr-text-chip > .ng-pristine').type(getImageHash());
+    cy.get('[data-cy=image-search-input]').type(getImageHash());
     cy.wait(3);
     cy.get(`a.preview__link[href*="${getImageHash()}"]`).click();
-    cy.wait(3);
+    cy.wait('@image');
     cy.url().should('equal', getImageURL());
   });
 
@@ -49,26 +51,39 @@ describe('Grid Integration Tests', () => {
 
     // Edit the description
     cy.get('[data-cy=it-edit-description-button]').click({ force: true });
-    cy.get('.editable-has-buttons').clear().type(date);
-    cy.get('.editable-buttons > .button-save').click();
-    wait(3);
+    cy.get('[data-cy=metadata-description] .editable-has-buttons')
+      .clear()
+      .type(date);
+    cy.get(
+      '[data-cy=metadata-description] .editable-buttons > .button-save'
+    ).click();
 
     // Edit the byline
     cy.get('[data-cy=it-edit-byline-button]').click({ force: true });
-    cy.get('.editable-has-buttons').clear().type(date);
-    cy.get('.editable-buttons > .button-save').click();
-    wait(3);
+    cy.get('[data-cy=metadata-byline] .editable-has-buttons')
+      .clear()
+      .type(date);
+    cy.get(
+      '[data-cy=metadata-byline] .editable-buttons > .button-save'
+    ).click();
 
     // Edit the credit
     cy.get('[data-cy=it-edit-credit-button]').click({ force: true });
-    cy.get('.editable-has-buttons').clear().type(date);
-    cy.get('.editable-buttons > .button-save').click();
-    wait(3);
+    cy.get('[data-cy=metadata-credit] .editable-has-buttons')
+      .clear()
+      .type(date);
+    cy.get(
+      '[data-cy=metadata-credit] .editable-buttons > .button-save'
+    ).click();
 
     // Edit the copyright
     cy.get('[data-cy=it-edit-copyright-button]').click({ force: true });
-    cy.get('.editable-has-buttons').clear().type(date);
-    cy.get('.editable-buttons > .button-save').click();
+    cy.get('[data-cy=metadata-copyright] .editable-has-buttons')
+      .clear()
+      .type(date);
+    cy.get(
+      '[data-cy=metadata-copyright] .editable-buttons > .button-save'
+    ).click();
   });
 
   xit('add image to and remove image from a collection', () => {});
