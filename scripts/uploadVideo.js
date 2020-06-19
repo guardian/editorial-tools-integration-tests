@@ -11,17 +11,12 @@ const suite = process.env.SUITE;
 const logFile = 'tests.json.log';
 const logDir = path.join(__dirname, '../logs');
 const failuresFile = path.join(__dirname, `../${suite}.failures.txt`);
-const videoLocation = path.join(
-  __dirname,
-  `../cypress/videos/${suite}/spec.js.mp4`
-);
+const videoDir = path.join(__dirname, `../cypress/videos/${suite}`);
 
 const now = new Date();
 const year = now.getFullYear();
 const month = now.getMonth() + 1;
 const date = now.getDate();
-
-const key = `videos/${year}/${month}/${date}/integration-tests-${new Date().toISOString()}.mp4`;
 
 (async function f() {
   const logger = new Logger({ logDir, logFile });
@@ -36,16 +31,24 @@ const key = `videos/${year}/${month}/${date}/integration-tests-${new Date().toIS
           })
         : undefined;
 
-      await uploadVideoToS3({
-        credentials,
-        file: videoLocation,
-        bucket: config.videoBucket,
-        key,
-      });
+      const videos = fs.readdirSync(videoDir);
 
-      logger.log({
-        message: `Video [${key}] uploaded to ${config.videoBucket}`,
-      });
+      await Promise.all(
+        videos.map(async (video) => {
+          const key = `videos/${year}/${month}/${date}/${suite}-${video}-${new Date().toISOString()}.mp4`;
+
+          await uploadVideoToS3({
+            credentials,
+            file: `${videoDir}/${video}`,
+            bucket: config.videoBucket,
+            key,
+          });
+
+          logger.log({
+            message: `Video [${key}] uploaded to ${config.videoBucket}`,
+          });
+        })
+      );
     } else {
       logger.log({
         message: `No failures for suite ${suite}, not uploading video`,
