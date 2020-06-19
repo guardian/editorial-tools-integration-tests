@@ -103,10 +103,4 @@ describe('Grid Integration Tests', () => {
     cy.get('[data-cy=it-edit-usage-input]').type(date);
     cy.get('.ure__bar > .button-save').click();
   });
-
-  describe('Key user journeys', function () {
-    xit('User can find an image by metadata', function () {});
-    xit('User can create a crop of an image', function () {});
-    xit('User can upload an image to the Grid', function () {});
-  });
 });

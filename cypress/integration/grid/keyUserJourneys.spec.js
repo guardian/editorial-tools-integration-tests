@@ -10,7 +10,7 @@ const id = '68991a0825f86a6b33ebcc6737bfe68340cd221f';
 
 axios.defaults.withCredentials = true;
 
-describe.only('Grid Key User Journeys', function () {
+describe('Grid Key User Journeys', function () {
   beforeEach(() => {
     checkVars();
     setCookie(cy);
@@ -82,7 +82,7 @@ describe.only('Grid Key User Journeys', function () {
       });
     });
   });
-  it('Upload image, add label, add to collection, and search', function () {
+  it('Upload image, add label, add to collection', function () {
     // Drag image to Grid
     cy.get('[data-cy="upload-button"]').attachFile('drag-n-drop.png', {
       subjectType: 'drag-n-drop',
