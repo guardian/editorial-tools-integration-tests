@@ -52,7 +52,7 @@ describe('Grid Integration Tests', () => {
     cy.url().should('include', '/');
   });
 
-  it.only('edit the image description, byline, credit and copyright', () => {
+  it('edit the image description, byline, credit and copyright', () => {
     cy.visit(getImageURL());
 
     // Edit the description
