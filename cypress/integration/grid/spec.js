@@ -4,16 +4,10 @@ import { wait } from '../../utils/wait';
 
 const date = new Date().toString();
 // hash of the image in assets/prodmontestimage12345.png
-const prodhash = '0e019da30d5c429a98a3e9aabafe689576a6a4ba';
-const codehash = '8297d9e8825642feb236d1105f1c01b37e45089d';
+const imageHash = 'fe052e21c4bc4d76a2c841d97c5b2281cccd19bd';
 
 function getImageHash() {
-  const stage = Cypress.env('STAGE');
-  if (stage.toLowerCase() === 'prod') {
-    return prodhash;
-  } else {
-    return codehash;
-  }
+  return imageHash;
 }
 
 function getImageURL() {
