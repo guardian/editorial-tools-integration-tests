@@ -5,23 +5,11 @@ export function getDomain(prefix) {
   const stage = Cypress.env('STAGE');
   const app = Cypress.env('APP');
   const appName = baseUrls[app] || app;
+  const subdomain = prefix ? prefix + '.' + appName : appName;
   if (stage.toLowerCase() === 'prod') {
-    return `https://${prefix ? `${prefix}.` : ''}${appName}.gutools.co.uk/`;
+    return `https://${subdomain}.gutools.co.uk/`;
   } else {
-    return `https://${
-      prefix ? `${prefix}.` : ''
-    }${appName}.${stage}.dev-gutools.co.uk/`;
-  }
-}
-
-export function getApiDomain() {
-  const stage = Cypress.env('STAGE');
-  const app = Cypress.env('APP');
-  const appName = baseUrls[app] || app;
-  if (stage.toLowerCase() === 'prod') {
-    return `https://api.${appName}.gutools.co.uk/`;
-  } else {
-    return `https://api.${appName}.${stage}.dev-gutools.co.uk/`;
+    return `https://${subdomain}.${stage}.dev-gutools.co.uk/`;
   }
 }
 

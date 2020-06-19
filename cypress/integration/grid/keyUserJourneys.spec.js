@@ -20,7 +20,7 @@ describe('Grid Key User Journeys', function () {
     cy.route(`/images?q=&length=1&orderBy=-uploadTime&free=true`).as('search');
   });
 
-  it.only('User can find an image by Source metadata, click on the image, crop it, then delete the crop', function () {
+  it('User can find an image by Source metadata, click on the image, crop it, then delete the crop', function () {
     const crop = {
       width: '900',
       height: '540',
@@ -60,7 +60,10 @@ describe('Grid Key User Journeys', function () {
 
     cy.get('.button').click().wait('@getImage');
 
-    cy.url().should('equal', `${getImageURL()}?crop=${cropID}`);
+    cy.url({ timeout: 5000 }).should(
+      'equal',
+      `${getImageURL()}?crop=${cropID}`
+    );
     cy.then(async () => {
       const url = `${getDomain('cropper')}crops/${getImageHash()}`;
       const cropsBeforeDelete = (await axios.get(url)).data.data;
