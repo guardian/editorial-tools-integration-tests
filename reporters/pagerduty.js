@@ -28,7 +28,14 @@ function Pagerduty(runner) {
   let failures = 0;
 
   runner.on('start', async function () {
-    fs.writeFileSync(failuresFile, '0');
+    // `scripts/run.sh` is responsible for cleaning up the failures file
+    // If one exists on start, it's because a
+    // previous test suite in the same app has run before this
+    if (fs.existsSync(failuresFile)) {
+      failures = fs.readFileSync(failuresFile);
+    } else {
+      fs.writeFileSync(failuresFile, '0');
+    }
   });
 
   runner.on('pending', async function (test) {
