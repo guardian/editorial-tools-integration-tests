@@ -1,4 +1,6 @@
 {
   "video": true,
-  "reporter": "reporters/pagerduty.js"
+  "reporter": "reporters/pagerduty.js",
+  "viewportWidth": 1920,
+  "viewportHeight": 1080
 }

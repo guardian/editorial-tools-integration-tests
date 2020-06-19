@@ -52,16 +52,27 @@ function getDomain(stage) {
   }
 }
 
-(async function f() {
-  const stage = process.env['STAGE'];
-  const domain = getDomain(stage);
-  const cookie = await getCookie(domain).catch((err) => {
-    console.log(`Received an error - please check you can access ${domain}`);
+function checkVars() {
+  if (!process.env.STAGE) {
+    throw new Error('Please pass STAGE environmental variable to this script');
+  }
+}
+
+(async function main() {
+  try {
+    checkVars();
+    const stage = process.env['STAGE'];
+    const domain = getDomain(stage);
+    const cookie = await getCookie(domain).catch((err) => {
+      console.log(`Received an error - please check you can access ${domain}`);
+      console.error(err);
+      process.exit(1);
+    });
+    fs.writeFileSync(
+      path.join(__dirname, `../../cookie.json`),
+      JSON.stringify({ cookie, domain })
+    );
+  } catch (err) {
     console.error(err);
-    process.exit(1);
-  });
-  fs.writeFileSync(
-    path.join(__dirname, `../../cookie.json`),
-    JSON.stringify({ cookie, domain })
-  );
+  }
 })();

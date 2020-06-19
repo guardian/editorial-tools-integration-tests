@@ -3,14 +3,14 @@ import { checkVars } from '../../utils/vars';
 import { wait } from '../../utils/wait';
 
 const date = new Date().toString();
-// hash of the image in assets/prodmontestimage12345.png
-const imageHash = 'fe052e21c4bc4d76a2c841d97c5b2281cccd19bd';
+// hash of the image in assets/GridmonTestImage.png
+export const imageHash = 'fe052e21c4bc4d76a2c841d97c5b2281cccd19bd';
 
-function getImageHash() {
+export function getImageHash() {
   return imageHash;
 }
 
-function getImageURL() {
+export function getImageURL() {
   return `${getDomain()}images/${getImageHash()}`;
 }
 
