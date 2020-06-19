@@ -35,7 +35,7 @@ const date = now.getDate();
 
       await Promise.all(
         videos.map(async (video) => {
-          const key = `videos/${year}/${month}/${date}/${suite}-${video}-${new Date().toISOString()}.mp4`;
+          const key = `videos/${year}/${month}/${date}/${new Date().toISOString()}-${suite}-${video}`;
 
           await uploadVideoToS3({
             credentials,
