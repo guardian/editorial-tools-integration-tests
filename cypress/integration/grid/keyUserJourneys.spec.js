@@ -43,18 +43,17 @@ describe('Grid Key User Journeys', function () {
     cy.url().should('equal', getImageURL());
 
     // Click on Crop button
-    cy.get('[ng-if="ctrl.canBeCropped"] > .titip-default').click();
+    cy.get('[data-cy=crop-image-button]').click();
     cy.wait(6000);
 
+    // Select freeform crop
+    cy.get('[data-cy=crop-options]').contains('freeform').click();
     // Edit x coordinate
     cy.get('[data-cy=crop-x-value-input]').clear().type(crop.xValue);
-
     // Edit y coordinate
     cy.get('[data-cy=crop-y-value-input]').clear().type(crop.yValue);
-
     // Edit width
     cy.get('[data-cy=crop-width-input]').clear().type(crop.width);
-
     // Edit height
     cy.get('[data-cy=crop-height-input]').clear().type(crop.height);
 
