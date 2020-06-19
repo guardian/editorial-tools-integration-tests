@@ -2,7 +2,7 @@ const { baseUrls } = require('../../cypress.env.json');
 const { cookie, domain } = require(`../../cookie.json`);
 
 export function getDomain(prefix) {
-  const stage = Cypress.env('STAGE');
+  const stage = Cypress.env('STAGE').toLowerCase();
   const app = Cypress.env('APP');
   const appName = baseUrls[app] || app;
   const subdomain = prefix ? prefix + '.' + appName : appName;
