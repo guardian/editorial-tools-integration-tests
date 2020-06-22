@@ -3,5 +3,6 @@
   "reporter": "reporters/pagerduty.js",
   "viewportWidth": 1280,
   "viewportHeight": 720,
-  "videoCompression": false
+  "videoCompression": false,
+  "defaultCommandTimeout": 10000
 }
