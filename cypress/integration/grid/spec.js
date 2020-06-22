@@ -11,13 +11,14 @@ describe('Grid Integration Tests', () => {
     setCookie(cy);
     cy.server();
     cy.route(`/images/${getImageHash()}`).as('image');
+    cy.route(`/images?q=${getImageHash()}**`).as('searchForImage');
   });
 
   it('Can find an image by ID in search', function () {
-    cy.get('[data-cy=image-search-input]').type(getImageHash());
-    cy.wait(3);
-    cy.get(`a.preview__link[href*="${getImageHash()}"]`).click();
-    cy.wait('@image');
+    cy.get('[data-cy=image-search-input]')
+      .type(getImageHash() + '{enter}')
+      .wait('@searchForImage');
+    cy.get(`a.preview__link[href*="${getImageHash()}"]`).click().wait('@image');
     cy.url().should('equal', getImageURL());
   });
 
