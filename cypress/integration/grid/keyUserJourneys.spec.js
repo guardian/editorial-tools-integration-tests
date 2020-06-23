@@ -24,7 +24,7 @@ describe('Grid Key User Journeys', function () {
     const crop = {
       width: '900',
       height: '540',
-      xValue: '1019',
+      xValue: '1020',
       yValue: '581',
     };
     const cropID = `${crop.xValue}_${crop.yValue}_${crop.width}_${crop.height}`;
@@ -49,7 +49,9 @@ describe('Grid Key User Journeys', function () {
     // Select freeform crop
     cy.get('[data-cy=crop-options]').contains('freeform').click();
     // Edit x coordinate
-    cy.get('[data-cy=crop-x-value-input]').clear().type(crop.xValue);
+    cy.get('[data-cy=crop-x-value-input]')
+      .clear()
+      .type(crop.xValue, { delay: 300 });
     // Edit y coordinate
     cy.get('[data-cy=crop-y-value-input]').clear().type(crop.yValue);
     // Edit width
