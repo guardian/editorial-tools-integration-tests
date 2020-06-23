@@ -4,6 +4,11 @@ import 'cypress-file-upload';
 import { getDomain, setCookie } from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
 import { getImageHash, getImageURL } from '../../utils/grid/image';
+import { createAndEditArticle } from '../../utils/composer/createArticle';
+import { getId } from '../../utils/composer/getId';
+import { startEditing } from '../../utils/composer/startEditing';
+import { stopEditingAndClose } from '../../utils/composer/stopEditingAndClose';
+import { deleteArticle } from '../../utils/composer/deleteArticle';
 
 // ID of `cypress/fixtures/drag-n-drop.png`
 const id = '68991a0825f86a6b33ebcc6737bfe68340cd221f';
@@ -165,5 +170,26 @@ describe('Grid Key User Journeys', function () {
     cy.get(
       '[data-cy=metadata-copyright] .editable-buttons > .button-save'
     ).click();
+  });
+
+  xit(`(In a temporary article) Crop and import an image from the Grid`, () => {
+    cy.visit(`<INSERT APPROPRIATE COMPOSER URL HERE>`)
+      .then(() => createAndEditArticle())
+      .url()
+      .then((url) => {
+        const id = getId(url);
+        startEditing()
+          .log('Article id is ', id)
+          .then(() => {
+            // Interact with Grid here
+
+            stopEditingAndClose()
+              .log('Closed the article')
+              .then(() =>
+                // Go ahead and delete the article
+                cy.then(() => deleteArticle(id))
+              );
+          });
+      });
   });
 });
