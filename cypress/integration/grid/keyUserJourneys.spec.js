@@ -4,17 +4,21 @@ import 'cypress-file-upload';
 import { getDomain, setCookie } from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
 import {
-  deleteTestImages,
+  deleteImages,
   getImageHash,
   getImageURL,
-  uploadImage,
+  readAndUploadImage,
 } from '../../utils/grid/image';
 const config = require('../../../env.json');
 
 // ID of `cypress/fixtures/drag-n-drop.png`
 const dragImageID = '68991a0825f86a6b33ebcc6737bfe68340cd221f';
-
 const date = new Date().toString();
+const waits = {
+  cropperApi: 2500,
+  createCrop: 1000,
+  beforeAll: 5000,
+};
 
 axios.defaults.withCredentials = true;
 
@@ -22,24 +26,24 @@ function setupAliases() {
   cy.server();
   cy.route(`/images/${dragImageID}`).as('getDragNDrop');
   cy.route(`/images/${getImageHash()}`).as('getImage');
-  cy.route(`/images?q;=&l**`).as('search');
+  cy.route(`/images?q=&l**`).as('search');
 }
 
 describe('Grid Key User Journeys', function () {
   before(() => {
     checkVars();
-    setCookie(cy);
-    cy.then(async () => {
-      await deleteTestImages([getImageHash(), dragImageID]);
-      cy.task('readFileMaybe', 'assets/GridmonTestImage.png').then(
-        async (contents) => await uploadImage(Buffer.from(contents.data))
-      );
-    }).wait(5000);
+    deleteImages(cy, [getImageHash(), dragImageID]);
+    readAndUploadImage(cy);
   });
 
   beforeEach(() => {
     setCookie(cy);
     setupAliases();
+  });
+
+  after(() => {
+    deleteImages(cy, [getImageHash(), dragImageID]);
+    readAndUploadImage(cy);
   });
 
   it('User can find an image by Source metadata, click on the image, crop it, then delete the crop', function () {
@@ -56,21 +60,74 @@ describe('Grid Key User Journeys', function () {
       crop.yValue
     }_${crop.width}_${crop.height}`;
 
-    // This is done to bypass the prompt when deleting crops
-    cy.visit(getDomain(), {
-      onBeforeLoad(win) {
-        cy.stub(win, 'prompt').returns('DELETE');
-      },
-    });
-    cy.wait('@search').its('status').should('be', 200);
+    // Search for non-free, as image doesn't have rights yet
+    cy.visit(getDomain()).wait('@search').its('status').should('be', 200);
+
+    // Search for image
     cy.get('[data-cy=image-search-input]')
       .click({ force: true })
       .type('+source:GridmonTestImage{enter}');
-    cy.get(`a.preview__link[href*="${getImageHash()}"]`).click();
+
+    // Untick free to use, as it has no rights yet
+    cy.get('gr-top-bar-nav')
+      .contains('Search filters')
+      .click()
+      .get('gr-top-bar-nav')
+      .contains('Free to use only')
+      .click();
+
+    cy.get(`a.preview__link[href*="${getImageHash()}"]`)
+      .should('exist')
+      .click();
     cy.url().should('equal', getImageURL());
 
+    // Add screengrab rights
+    cy.get('[data-cy=it-edit-usage-rights-button]')
+      .click({ force: true })
+      .get('[data-cy=it-rights-select]')
+      .select('screengrab')
+      .get('[data-cy=it-edit-usage-input]')
+      .type(date)
+      .get('.ure__bar > .button-save')
+      .click()
+      .should('not.exist');
+
+    // Add description
+    cy.get('[data-cy=it-edit-description-button]')
+      .click({ force: true })
+      .get('[data-cy=metadata-description] .editable-has-buttons')
+      .clear()
+      .type(date)
+      .get('[data-cy=metadata-description] .editable-buttons > .button-save')
+      .click()
+      .should('not.exist');
+
+    // Edit the credit
+    cy.get('[data-cy=it-edit-credit-button]').click({ force: true });
+
+    cy.get('[data-cy=metadata-credit] .editable-has-buttons')
+      .clear()
+      .type(date);
+    cy.get('[data-cy=metadata-credit] .editable-buttons > .button-save')
+      .click()
+      .should('not.exist');
+
+    // For now, we need to a wait a bit before cropping seems possible.
+    // We should really find out where the source of the wait is
+    cy.wait(6000);
+
+    // Reload browser so the image drop option is available
+    // This is done to bypass the prompt when deleting crops
+    cy.visit(getImageURL(), {
+      onBeforeLoad(win) {
+        cy.stub(win, 'prompt').returns('DELETE');
+      },
+    }).wait('@getImage');
+
     // Click on Crop button
-    cy.get('[data-cy=crop-image-button]').click();
+    cy.get('[data-cy=crop-image-button]', { timeout: 10000 })
+      .should('exist')
+      .click();
 
     // Wait for cropper image to exist before continuing
     cy.get('.cropper-face').should('exist');
@@ -86,7 +143,7 @@ describe('Grid Key User Journeys', function () {
     // Edit y coordinate
     cy.get('[data-cy=crop-y-value-input]').clear().type(crop.yValue);
 
-    cy.get('.button').click().wait('@getImage');
+    cy.get('.button').click().wait(waits.createCrop);
 
     cy.url({ timeout: 5000 }).should(
       'equal',
@@ -102,7 +159,7 @@ describe('Grid Key User Journeys', function () {
 
       // Delete all crops
       cy.get('[data-cy=delete-all-crops-button]').click().click();
-      cy.wait(1000).then(async () => {
+      cy.wait(waits.cropperApi).then(async () => {
         const cropsAfterDelete = (await axios.get(url)).data.data;
 
         expect(
@@ -117,13 +174,13 @@ describe('Grid Key User Journeys', function () {
     cy.get('[data-cy="upload-button"]').attachFile('drag-n-drop.png', {
       subjectType: 'drag-n-drop',
     });
-    cy.wait('@getDragNDrop')
+    cy.wait('@getDragNDrop', { timeout: 8000 })
       .get('ui-upload-jobs .result-editor__img')
       .should('exist')
       .then(async () => {
         // Assert that image isn't usable before rights are added
         const url = `${getDomain('api')}images/${dragImageID}`;
-        const { usageRights } = (await axios.get(url)).data.data;
+        let { usageRights } = (await axios.get(url)).data.data;
         expect(JSON.stringify(usageRights)).to.equal('{}');
 
         // Set rights as screengrab
@@ -134,7 +191,8 @@ describe('Grid Key User Journeys', function () {
           .get('ui-upload-jobs [data-cy=it-edit-usage-input]')
           .type(Date.now().toString())
           .get('ui-upload-jobs [data-cy=save-usage-rights]')
-          .click();
+          .click()
+          .should('not.exist');
 
         // Add label
         cy.get('ui-upload-jobs [data-cy=it-add-label-button]')
@@ -142,7 +200,8 @@ describe('Grid Key User Journeys', function () {
           .get('ui-upload-jobs [data-cy=label-input]')
           .type('integration-test-label')
           .get('ui-upload-jobs [data-cy=save-new-label-button]')
-          .click();
+          .click()
+          .should('not.exist');
 
         // Add credit
         cy.get('ui-upload-jobs [data-cy=image-metadata-credit]')
@@ -158,13 +217,19 @@ describe('Grid Key User Journeys', function () {
           .click();
 
         cy.get(`ui-upload-jobs [href="/images/${dragImageID}"] img`).click();
-        cy.url().should('equal', `${getDomain()}images/${dragImageID}`);
+        cy.url()
+          .should('equal', `${getDomain()}images/${dragImageID}`)
+          .then(async () => {
+            // Assert that image is usable after rights are added
+            usageRights = (await axios.get(url)).data.data.usageRights;
+            expect(usageRights).to.have.property('category', 'screengrab');
+          });
       });
   });
 
   it('User can edit the image description, byline, credit and copyright', () => {
-    cy.visit(getImageURL());
-    cy.wait(3000);
+    cy.visit(getImageURL()).wait('@getImage');
+
     // Edit the description
     cy.get('[data-cy=it-edit-description-button]').click({ force: true });
     cy.get('[data-cy=metadata-description] .editable-has-buttons')

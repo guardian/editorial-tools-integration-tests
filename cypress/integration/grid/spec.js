@@ -1,11 +1,21 @@
 import { setCookie } from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
 import { wait } from '../../utils/wait';
-import { getImageHash, getImageURL } from '../../utils/grid/image';
+import {
+  deleteImages,
+  getImageHash,
+  getImageURL,
+  readAndUploadImage,
+} from '../../utils/grid/image';
 
 const date = new Date().toString();
 
 describe('Grid Integration Tests', () => {
+  before(() => {
+    deleteImages(cy, [getImageHash()]);
+    readAndUploadImage(cy);
+  });
+
   beforeEach(() => {
     checkVars();
     setCookie(cy);
@@ -14,11 +24,28 @@ describe('Grid Integration Tests', () => {
     cy.route(`/images?q=${getImageHash()}**`).as('searchForImage');
   });
 
+  after(() => {
+    deleteImages(cy, [getImageHash()]);
+    readAndUploadImage(cy);
+  });
+
   it('Can find an image by ID in search', function () {
     cy.get('[data-cy=image-search-input]')
       .type(getImageHash() + '{enter}')
       .wait('@searchForImage');
-    cy.get(`a.preview__link[href*="${getImageHash()}"]`).click().wait('@image');
+
+    // Untick free to use, as it has no rights yet
+    cy.get('gr-top-bar-nav')
+      .contains('Search filters')
+      .click()
+      .get('gr-top-bar-nav')
+      .contains('Free to use only')
+      .click();
+
+    cy.get(`a.preview__link[href*="${getImageHash()}"]`)
+      .should('exist')
+      .click()
+      .wait('@image');
     cy.url().should('equal', getImageURL());
   });
 
