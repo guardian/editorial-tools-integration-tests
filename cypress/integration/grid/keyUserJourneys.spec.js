@@ -24,10 +24,10 @@ describe('Grid Key User Journeys', function () {
     const crop = {
       width: '900',
       height: '540',
-      xValue: '1020',
+      xValue: '1019',
       yValue: '581',
     };
-    const cropID = '1020_581_900_540';
+    const cropID = `${crop.xValue}_${crop.yValue}_${crop.width}_${crop.height}`;
 
     // This is done to bypass the prompt when deleting crops
     cy.visit(getDomain(), {
