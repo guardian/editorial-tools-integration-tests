@@ -85,6 +85,8 @@ describe('Grid Integration Tests', () => {
     cy.get('[data-cy=it-add-label-button]').click();
     cy.get('.text-input').clear().type('someLabelHere');
     cy.get('.gr-add-label__form__buttons__button-save').click();
+    // It looks like the Grid makes 2 XHR requests to the @image alias before the label is saved,
+    // so we wait twice with an extra 2 seconds to be extra safe
     cy.wait('@image').wait('@image');
     wait(2);
     cy.contains('someLabelHere')
