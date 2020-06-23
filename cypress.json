@@ -1,6 +1,8 @@
 {
   "video": true,
   "reporter": "reporters/pagerduty.js",
-  "viewportWidth": 1920,
-  "viewportHeight": 1080
+  "viewportWidth": 1280,
+  "viewportHeight": 720,
+  "videoCompression": false,
+  "defaultCommandTimeout": 10000
 }
