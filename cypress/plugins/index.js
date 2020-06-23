@@ -18,4 +18,15 @@
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
+  on('task', {
+    readFileMaybe(filename) {
+      const fs = require('fs');
+      if (fs.existsSync(filename)) {
+        console.log('cunt');
+        return fs.readFileSync(filename);
+      }
+
+      return null;
+    },
+  });
 };

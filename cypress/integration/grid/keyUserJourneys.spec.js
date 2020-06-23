@@ -3,24 +3,43 @@ import 'cypress-file-upload';
 
 import { getDomain, setCookie } from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
-import { getImageHash, getImageURL } from '../../utils/grid/image';
+import {
+  deleteTestImages,
+  getImageHash,
+  getImageURL,
+  uploadImage,
+} from '../../utils/grid/image';
 const config = require('../../../env.json');
 
 // ID of `cypress/fixtures/drag-n-drop.png`
-const id = '68991a0825f86a6b33ebcc6737bfe68340cd221f';
+const dragImageID = '68991a0825f86a6b33ebcc6737bfe68340cd221f';
 
 const date = new Date().toString();
 
 axios.defaults.withCredentials = true;
 
+function setupAliases() {
+  cy.server();
+  cy.route(`/images/${dragImageID}`).as('getDragNDrop');
+  cy.route(`/images/${getImageHash()}`).as('getImage');
+  cy.route(`/images?q;=&l**`).as('search');
+}
+
 describe('Grid Key User Journeys', function () {
-  beforeEach(() => {
+  before(() => {
     checkVars();
     setCookie(cy);
-    cy.server();
-    cy.route(`/images/${id}`).as('getDragNDrop');
-    cy.route(`/images/${getImageHash()}`).as('getImage');
-    cy.route(`/images?q=&length=1&orderBy=-uploadTime&free=true`).as('search');
+    cy.then(async () => {
+      await deleteTestImages([getImageHash(), dragImageID]);
+      cy.task('readFileMaybe', 'assets/GridmonTestImage.png').then(
+        async (contents) => await uploadImage(Buffer.from(contents.data))
+      );
+    }).wait(5000);
+  });
+
+  beforeEach(() => {
+    setCookie(cy);
+    setupAliases();
   });
 
   it('User can find an image by Source metadata, click on the image, crop it, then delete the crop', function () {
@@ -98,46 +117,54 @@ describe('Grid Key User Journeys', function () {
     cy.get('[data-cy="upload-button"]').attachFile('drag-n-drop.png', {
       subjectType: 'drag-n-drop',
     });
-    cy.wait('@getDragNDrop');
+    cy.wait('@getDragNDrop')
+      .get('ui-upload-jobs .result-editor__img')
+      .should('exist')
+      .then(async () => {
+        // Assert that image isn't usable before rights are added
+        const url = `${getDomain('api')}images/${dragImageID}`;
+        const { usageRights } = (await axios.get(url)).data.data;
+        expect(JSON.stringify(usageRights)).to.equal('{}');
 
-    // Set rights as screengrab
-    cy.get('ui-upload-jobs [data-cy=edit-rights-button]')
-      .click({
-        force: true,
-      })
-      .get('[data-cy=it-rights-select]')
-      .select('screengrab')
-      .get('[data-cy=it-edit-usage-input]')
-      .type(Date.now().toString())
-      .get('[data-cy=save-usage-rights]')
-      .click();
+        // Set rights as screengrab
+        cy.get('ui-upload-jobs [data-cy=edit-rights-button]')
+          .click({ force: true })
+          .get('ui-upload-jobs [data-cy=it-rights-select]')
+          .select('screengrab')
+          .get('ui-upload-jobs [data-cy=it-edit-usage-input]')
+          .type(Date.now().toString())
+          .get('ui-upload-jobs [data-cy=save-usage-rights]')
+          .click();
 
-    // Add label
-    cy.get('ui-upload-jobs [data-cy=it-add-label-button]')
-      .click()
-      .get('ui-upload-jobs [data-cy=label-input]')
-      .type('integration-test-label')
-      .get('ui-upload-jobs [data-cy=save-new-label-button]')
-      .click();
+        // Add label
+        cy.get('ui-upload-jobs [data-cy=it-add-label-button]')
+          .click()
+          .get('ui-upload-jobs [data-cy=label-input]')
+          .type('integration-test-label')
+          .get('ui-upload-jobs [data-cy=save-new-label-button]')
+          .click();
 
-    // Add credit
-    cy.get('ui-upload-jobs [data-cy=image-metadata-credit]')
-      .clear()
-      .type('Editorial Tools Integration Tests');
+        // Add credit
+        cy.get('ui-upload-jobs [data-cy=image-metadata-credit]')
+          .clear()
+          .type('Editorial Tools Integration Tests');
 
-    // Add image to collection
-    cy.get('ui-upload-jobs [data-cy=add-image-to-collection-button]').click();
-    cy.get('.collection-overlay__collections')
-      .contains('Cypress Integration Testing')
-      .click();
+        // Add image to collection
+        cy.get(
+          'ui-upload-jobs [data-cy=add-image-to-collection-button]'
+        ).click();
+        cy.get('.collection-overlay__collections')
+          .contains('Cypress Integration Testing')
+          .click();
 
-    cy.get(`ui-upload-jobs [href="/images/${id}"] img`).click();
-    cy.url().should('equal', `${getDomain()}images/${id}`);
+        cy.get(`ui-upload-jobs [href="/images/${dragImageID}"] img`).click();
+        cy.url().should('equal', `${getDomain()}images/${dragImageID}`);
+      });
   });
 
   it('User can edit the image description, byline, credit and copyright', () => {
     cy.visit(getImageURL());
-
+    cy.wait(3000);
     // Edit the description
     cy.get('[data-cy=it-edit-description-button]').click({ force: true });
     cy.get('[data-cy=metadata-description] .editable-has-buttons')
@@ -174,4 +201,8 @@ describe('Grid Key User Journeys', function () {
       '[data-cy=metadata-copyright] .editable-buttons > .button-save'
     ).click();
   });
+
+  xit(
+    'Use Grid from within Composer to crop and import and image into an article'
+  );
 });
