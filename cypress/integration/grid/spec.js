@@ -38,48 +38,6 @@ describe('Grid Integration Tests', () => {
     cy.url().should('include', '/');
   });
 
-  it('edit the image description, byline, credit and copyright', () => {
-    cy.visit(getImageURL());
-
-    // Edit the description
-    cy.get('[data-cy=it-edit-description-button]').click({ force: true });
-    cy.get('[data-cy=metadata-description] .editable-has-buttons')
-      .clear()
-      .type(date);
-    cy.get(
-      '[data-cy=metadata-description] .editable-buttons > .button-save'
-    ).click();
-
-    // Edit the byline
-    cy.get('[data-cy=it-edit-byline-button]').click({ force: true });
-    cy.get('[data-cy=metadata-byline] .editable-has-buttons')
-      .clear()
-      .type(date);
-    cy.get(
-      '[data-cy=metadata-byline] .editable-buttons > .button-save'
-    ).click();
-
-    // Edit the credit
-    cy.get('[data-cy=it-edit-credit-button]').click({ force: true });
-    cy.get('[data-cy=metadata-credit] .editable-has-buttons')
-      .clear()
-      .type(date);
-    cy.get(
-      '[data-cy=metadata-credit] .editable-buttons > .button-save'
-    ).click();
-
-    // Edit the copyright
-    cy.get('[data-cy=it-edit-copyright-button]').click({ force: true });
-    cy.get('[data-cy=metadata-copyright] .editable-has-buttons')
-      .clear()
-      .type(date);
-    cy.get(
-      '[data-cy=metadata-copyright] .editable-buttons > .button-save'
-    ).click();
-  });
-
-  xit('add image to and remove image from a collection', () => {});
-
   it('add and remove labels from an image', () => {
     cy.visit(getImageURL());
     cy.get('[data-cy=it-add-label-button]').click();
