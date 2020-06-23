@@ -85,9 +85,11 @@ describe('Grid Integration Tests', () => {
     cy.get('[data-cy=it-add-label-button]').click();
     cy.get('.text-input').clear().type('someLabelHere');
     cy.get('.gr-add-label__form__buttons__button-save').click();
-    cy.wait('@image').wait('@image');
-    wait(2);
-    cy.contains('someLabelHere')
+    cy.get('.labeller')
+      .contains('someLabelHere', { timeout: 5000 })
+      .should('exist');
+    cy.get('.labeller')
+      .contains('someLabelHere')
       .parent()
       .find('[data-cy=it-remove-label-button]')
       .click();
