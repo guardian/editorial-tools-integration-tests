@@ -58,21 +58,34 @@ function checkVars() {
   }
 }
 
-(async function main() {
+async function cookie(stageArg = undefined, writeToFile = true) {
   try {
     checkVars();
-    const stage = process.env['STAGE'];
+    const stage = stageArg || process.env['STAGE'];
     const domain = getDomain(stage);
     const cookie = await getCookie(domain).catch((err) => {
       console.log(`Received an error - please check you can access ${domain}`);
       console.error(err);
       process.exit(1);
     });
-    fs.writeFileSync(
-      path.join(__dirname, `../../cookie.json`),
-      JSON.stringify({ cookie, domain })
-    );
+    if (writeToFile) {
+      fs.writeFileSync(
+        path.join(__dirname, `../../cookie.json`),
+        JSON.stringify({ cookie, domain })
+      );
+    }
+
+    return { cookie, domain };
   } catch (err) {
     console.error(err);
   }
-})();
+}
+
+// Only call function if script is called directly
+if (require.main === module) {
+  (async function main() {
+    await cookie();
+  })();
+}
+
+module.exports = { cookie };

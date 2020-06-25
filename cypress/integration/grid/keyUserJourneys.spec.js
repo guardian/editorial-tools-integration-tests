@@ -14,6 +14,12 @@ const date = new Date().toString();
 axios.defaults.withCredentials = true;
 
 describe('Grid Key User Journeys', function () {
+  before(() => {
+    cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
+      setCookie(cy, cookie);
+    });
+  });
+
   beforeEach(() => {
     checkVars();
     setCookie(cy);

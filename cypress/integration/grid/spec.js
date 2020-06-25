@@ -6,6 +6,14 @@ import { getImageHash, getImageURL } from '../../utils/grid/image';
 const date = new Date().toString();
 
 describe('Grid Integration Tests', () => {
+  before(() => {
+    before(() => {
+      cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
+        setCookie(cy, cookie);
+      });
+    });
+  });
+
   beforeEach(() => {
     checkVars();
     setCookie(cy);
