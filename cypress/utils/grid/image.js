@@ -12,7 +12,7 @@ export function getImageURL() {
 }
 
 export async function deleteImages(cy, images) {
-  setCookie(cy);
+  setCookie(cy, false);
   cy.then(async () => {
     images.map((id) => {
       const url = `${getDomain('api')}images/${id}`;

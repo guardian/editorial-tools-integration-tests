@@ -216,6 +216,37 @@ describe('Grid Key User Journeys', function () {
     ).click();
   });
 
+  it.only('User can create a child collection', () => {
+    const collectionName = 'Cypress Integration Testing';
+    const childName = Date.now().toString();
+
+    cy.visit(getDomain());
+
+    cy.get('[data-cy=show-collections-panel]').should('exist').click();
+    cy.get('[data-cy=edit-collections-button]').click();
+    cy.get(`[data-cy="${collectionName}-collection"]`)
+      .find('[data-cy=create-new-folder-button]')
+      .click({ force: true });
+    cy.get(`[data-cy="${collectionName}-collection"]`)
+      .parent()
+      .find('[data-cy=collection-child-input]')
+      .type(childName);
+
+    cy.get(`[data-cy="${collectionName}-collection"]`)
+      .parent()
+      .find('[data-cy=save-child-button]')
+      .click()
+      .should('not.exist');
+    cy.get('[data-cy=edit-collections-button]').click();
+    cy.get(`[data-cy="${collectionName}-collection"]`).click();
+    cy.get('[data-cy=collection-child-link]').contains(childName).click();
+
+    cy.get('.search-query').should(
+      'contain',
+      `${collectionName.toLowerCase()}/${childName}`
+    );
+  });
+
   xit(
     'Use Grid from within Composer to crop and import and image into an article'
   );
