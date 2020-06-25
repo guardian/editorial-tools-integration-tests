@@ -18,6 +18,7 @@ const waits = {
   cropperApi: 2500,
   createCrop: 1000,
   beforeAll: 5000,
+  metadataApi: 6000,
 };
 
 axios.defaults.withCredentials = true;
@@ -61,24 +62,17 @@ describe('Grid Key User Journeys', function () {
     }_${crop.width}_${crop.height}`;
 
     // Search for non-free, as image doesn't have rights yet
-    cy.visit(getDomain()).wait('@search').its('status').should('be', 200);
+    cy.visit(getDomain() + '?nonFree=true')
+      .wait('@search')
+      .its('status')
+      .should('be', 200);
 
     // Search for image
     cy.get('[data-cy=image-search-input]')
       .click({ force: true })
       .type('+source:GridmonTestImage{enter}');
 
-    // Untick free to use, as it has no rights yet
-    cy.get('gr-top-bar-nav')
-      .contains('Search filters')
-      .click()
-      .get('gr-top-bar-nav')
-      .contains('Free to use only')
-      .click();
-
-    cy.get(`a.preview__link[href*="${getImageHash()}"]`)
-      .should('exist')
-      .click();
+    cy.get(`a [href="/images/${getImageHash()}"]`).should('exist').click();
     cy.url().should('equal', getImageURL());
 
     // Add screengrab rights
@@ -114,7 +108,7 @@ describe('Grid Key User Journeys', function () {
 
     // For now, we need to a wait a bit before cropping seems possible.
     // We should really find out where the source of the wait is
-    cy.wait(6000);
+    cy.wait(waits.metadataApi);
 
     // Reload browser so the image drop option is available
     // This is done to bypass the prompt when deleting crops
