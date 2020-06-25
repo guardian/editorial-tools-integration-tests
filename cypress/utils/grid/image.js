@@ -16,13 +16,16 @@ export async function deleteImages(cy, images) {
   cy.then(async () => {
     images.map((id) => {
       const url = `${getDomain('api')}images/${id}`;
-      axios.delete(url).catch((err) => {
-        console.log(`Error deleting ${id}`, err.message);
-        // If it's 404, it means the image doesn't exist (so it can't be deleted)
-        if (err.response.status !== 404) {
-          throw err;
-        }
-      });
+      axios
+        .delete(url)
+        .catch((err) => {
+          cy.log(`Error deleting ${id}`, err.message);
+          // If it's 404, it means the image doesn't exist (so it can't be deleted)
+          if (err.response.status !== 404) {
+            throw err;
+          }
+        })
+        .then(() => cy.log(`Deleted image ${id}`));
     });
   });
 }
