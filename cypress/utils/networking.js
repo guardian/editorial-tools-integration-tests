@@ -13,9 +13,11 @@ export function getDomain(prefix) {
   }
 }
 
-export function setCookie(cy) {
-  cy.setCookie('gutoolsAuth-assym', cookie, {
-    domain: `.${domain}`,
+export function setCookie(cy, overrides) {
+  const cookieToSet = overrides ? overrides.cookie : cookie;
+  const domainToSet = overrides ? overrides.domain : domain;
+  cy.setCookie('gutoolsAuth-assym', cookieToSet, {
+    domain: `.${domainToSet}`,
     path: '/',
     secure: true,
     httpOnly: true,
