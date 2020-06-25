@@ -216,7 +216,7 @@ describe('Grid Key User Journeys', function () {
     ).click();
   });
 
-  it.only('User can create a child collection', () => {
+  it('User can create a child collection', () => {
     const collectionName = 'Cypress Integration Testing';
     const childName = Date.now().toString();
 
