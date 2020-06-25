@@ -1,7 +1,7 @@
 import axios from 'axios';
 import 'cypress-file-upload';
 
-import { getDomain, setCookie } from '../../utils/networking';
+import { setCookie, getDomain } from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
 import { deleteImages, getImageHash, getImageURL } from '../../utils/grid/api';
 import * as uploads from '../../utils/grid/upload';
