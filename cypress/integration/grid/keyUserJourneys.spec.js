@@ -118,8 +118,10 @@ describe('Grid Key User Journeys', function () {
       // Add image to collection
       cy.get('ui-upload-jobs [data-cy=add-image-to-collection-button]').click();
       cy.get('.collection-overlay__collections')
+        .find('[data-cy="Cypress Integration Testing-collection"]')
         .contains('Cypress Integration Testing')
-        .click();
+        .click({ force: true })
+        .should('not.exist');
 
       cy.get(`ui-upload-jobs [href="/images/${dragImageID}"] img`).click();
       cy.url()
@@ -246,35 +248,70 @@ describe('Grid Key User Journeys', function () {
       .should('not.exist');
   });
 
-  it('User can create a child collection', () => {
+  it('User can create a child collection and delete it', () => {
     const collectionName = 'Cypress Integration Testing';
     const childName = Date.now().toString();
 
     cy.visit(getDomain());
 
+    // Click on collections panel
     cy.get('[data-cy=show-collections-panel]').should('exist').click();
+
+    // Click on edit collections button
     cy.get('[data-cy=edit-collections-button]').click();
+
+    // Click on button create new child
     cy.get(`[data-cy="${collectionName}-collection"]`)
       .find('[data-cy=create-new-folder-button]')
       .click({ force: true });
+
+    // Type name of new child
     cy.get(`[data-cy="${collectionName}-collection"]`)
       .parent()
       .find('[data-cy=collection-child-input]')
       .type(childName);
 
+    // Save child
     cy.get(`[data-cy="${collectionName}-collection"]`)
       .parent()
       .find('[data-cy=save-child-button]')
-      .click()
+      .click({ force: true })
       .should('not.exist');
+
+    // Stop editing collections
     cy.get('[data-cy=edit-collections-button]').click();
-    cy.get(`[data-cy="${collectionName}-collection"]`).click();
-    cy.get('[data-cy=collection-child-link]').contains(childName).click();
+
+    // Go to new collection
+    cy.get(`[data-cy="${collectionName}-collection"] button`).click({
+      force: true,
+    });
+    cy.get(`[data-cy="${collectionName}-collection"]`)
+      .parent()
+      .contains(childName)
+      .click({ force: true });
 
     cy.get('.search-query').should(
       'contain',
       `${collectionName.toLowerCase()}/${childName}`
     );
+
+    // Click on edit collections button
+    cy.get('[data-cy=edit-collections-button]').click();
+
+    // Delete child collection
+    cy.get(`[data-cy="${collectionName}-collection"]`)
+      .parent()
+      .contains(childName)
+      .parent()
+      .contains('delete')
+      .click({ force: true })
+      .click({ force: true });
+
+    // Assert collection does not exist
+    cy.get(`[data-cy="${collectionName}-collection"]`)
+      .parent()
+      .contains(childName)
+      .should('not.exist');
   });
 
   xit(
