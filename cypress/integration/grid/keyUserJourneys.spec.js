@@ -32,15 +32,23 @@ function setupAliases() {
 describe('Grid Key User Journeys', function () {
   before(() => {
     checkVars();
-    deleteImages(cy, [getImageHash()]);
+    cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
+      setCookie(cy, cookie, false);
+      deleteImages(cy, [getImageHash()]);
+    });
   });
 
   beforeEach(() => {
-    setCookie(cy);
+    cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
+      setCookie(cy, cookie);
+    });
     setupAliases();
   });
 
   after(() => {
+    cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
+      setCookie(cy, cookie, false);
+    });
     deleteImages(cy, [getImageHash()]);
   });
 

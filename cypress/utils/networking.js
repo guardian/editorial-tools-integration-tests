@@ -11,9 +11,11 @@ export function getDomain(prefix) {
     : `https://${subdomain}.${stage}.dev-gutools.co.uk/`;
 }
 
-export function setCookie(cy, visitDomain = true) {
-  cy.setCookie('gutoolsAuth-assym', cookie, {
-    domain: `.${domain}`,
+export function setCookie(cy, overrides, visitDomain = true) {
+  const cookieToSet = overrides ? overrides.cookie : cookie;
+  const domainToSet = overrides ? overrides.domain : domain;
+  cy.setCookie('gutoolsAuth-assym', cookieToSet, {
+    domain: `.${domainToSet}`,
     path: '/',
     secure: true,
     httpOnly: true,
