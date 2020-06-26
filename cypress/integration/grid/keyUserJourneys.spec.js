@@ -176,44 +176,68 @@ describe('Grid Key User Journeys', function () {
       });
   });
 
-  it('User can edit the image description, byline, credit and copyright', () => {
+  it('User can edit the image rights, description, byline, credit, copyright, label', () => {
     cy.visit(getImageURL()).wait('@getImage');
+
+    //  Edit the rights
+    cy.get('[data-cy=it-edit-usage-rights-button]').click({ force: true });
+    cy.get('[data-cy=it-rights-select]').select('screengrab');
+    cy.get('[data-cy=it-edit-usage-input]').type(date);
+    cy.get('.ure__bar > .button-save')
+      .click({ timeout: 5000 }) // Why do we need to wait?
+      .should('not.exist');
 
     // Edit the description
     cy.get('[data-cy=it-edit-description-button]').click({ force: true });
     cy.get('[data-cy=metadata-description] .editable-has-buttons')
       .clear()
       .type(date);
-    cy.get(
-      '[data-cy=metadata-description] .editable-buttons > .button-save'
-    ).click();
+    cy.get('[data-cy=metadata-description] .editable-buttons > .button-save')
+      .click()
+      .should('not.exist');
 
     // Edit the byline
     cy.get('[data-cy=it-edit-byline-button]').click({ force: true });
     cy.get('[data-cy=metadata-byline] .editable-has-buttons')
       .clear()
       .type(date);
-    cy.get(
-      '[data-cy=metadata-byline] .editable-buttons > .button-save'
-    ).click();
+    cy.get('[data-cy=metadata-byline] .editable-buttons > .button-save')
+      .click()
+      .should('not.exist');
 
     // Edit the credit
     cy.get('[data-cy=it-edit-credit-button]').click({ force: true });
     cy.get('[data-cy=metadata-credit] .editable-has-buttons')
       .clear()
       .type(date);
-    cy.get(
-      '[data-cy=metadata-credit] .editable-buttons > .button-save'
-    ).click();
+    cy.get('[data-cy=metadata-credit] .editable-buttons > .button-save')
+      .click()
+      .should('not.exist');
 
     // Edit the copyright
     cy.get('[data-cy=it-edit-copyright-button]').click({ force: true });
     cy.get('[data-cy=metadata-copyright] .editable-has-buttons')
       .clear()
       .type(date);
-    cy.get(
-      '[data-cy=metadata-copyright] .editable-buttons > .button-save'
-    ).click();
+    cy.get('[data-cy=metadata-copyright] .editable-buttons > .button-save')
+      .click()
+      .should('not.exist');
+
+    // Add label
+    cy.get('[data-cy=it-add-label-button]').click();
+    cy.get('.text-input').clear().type('someLabelHere');
+    cy.get('.gr-add-label__form__buttons__button-save')
+      .click()
+      .should('not.exist');
+    cy.get('.labeller')
+      .contains('someLabelHere', { timeout: 5000 })
+      .should('exist');
+    cy.get('.labeller')
+      .contains('someLabelHere')
+      .parent()
+      .find('[data-cy=it-remove-label-button]')
+      .click()
+      .should('not.exist');
   });
 
   it('User can create a child collection', () => {
