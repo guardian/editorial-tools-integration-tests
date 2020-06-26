@@ -118,9 +118,7 @@ describe('Grid Key User Journeys', function () {
         .should('equal', `${getDomain()}images/${dragImageID}`)
         .then(async () => {
           // Assert that image is usable after rights are added
-          usageRights = (
-            await axios.get(imageUrl).catch((err) => cy.log('broke!', err))
-          ).data.data.usageRights;
+          usageRights = (await axios.get(imageUrl)).data.data.usageRights;
           expect(usageRights).to.have.property('category', 'screengrab');
         });
     });
