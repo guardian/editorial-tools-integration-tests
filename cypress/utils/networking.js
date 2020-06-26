@@ -6,14 +6,12 @@ export function getDomain(prefix) {
   const app = Cypress.env('APP');
   const appName = baseUrls[app] || app;
   const subdomain = prefix ? prefix + '.' + appName : appName;
-  if (stage.toLowerCase() === 'prod') {
-    return `https://${subdomain}.gutools.co.uk/`;
-  } else {
-    return `https://${subdomain}.${stage}.dev-gutools.co.uk/`;
-  }
+  return stage.toLowerCase() === 'prod'
+    ? `https://${subdomain}.gutools.co.uk/`
+    : `https://${subdomain}.${stage}.dev-gutools.co.uk/`;
 }
 
-export function setCookie(cy, overrides) {
+export function setCookie(cy, overrides, visitDomain = true) {
   const cookieToSet = overrides ? overrides.cookie : cookie;
   const domainToSet = overrides ? overrides.domain : domain;
   cy.setCookie('gutoolsAuth-assym', cookieToSet, {
@@ -23,6 +21,8 @@ export function setCookie(cy, overrides) {
     httpOnly: true,
   });
 
-  cy.visit(getDomain());
-  cy.wait(2);
+  if (visitDomain) {
+    cy.visit(getDomain());
+    cy.wait(2);
+  }
 }
