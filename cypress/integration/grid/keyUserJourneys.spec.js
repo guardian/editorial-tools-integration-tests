@@ -13,12 +13,7 @@ const config = require('../../../env.json');
 // ID of `cypress/fixtures/GridmonTestImage.png`
 const dragImageID = getImageHash();
 const date = new Date().toString();
-const waits = {
-  cropperApi: 2500,
-  createCrop: 1000,
-  beforeAll: 5000,
-  metadataApi: 6000,
-};
+const waits = { createCrop: 1000 };
 
 axios.defaults.withCredentials = true;
 
