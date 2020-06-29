@@ -8,10 +8,12 @@ import * as uploads from '../../utils/grid/upload';
 import * as crops from '../../utils/grid/crop';
 import * as image from '../../utils/grid/image';
 import * as collections from '../../utils/grid/collections';
+import { resetCollection } from '../../utils/grid/collections';
 const config = require('../../../env.json');
 
 // ID of `cypress/fixtures/GridmonTestImage.png`
 const dragImageID = getImageHash();
+const rootCollection = 'Cypress Integration Testing';
 const date = new Date().toString();
 const waits = { createCrop: 1000 };
 
@@ -30,6 +32,7 @@ describe('Grid Key User Journeys', function () {
     cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
       setCookie(cy, cookie, false);
       deleteImages(cy, [getImageHash()]);
+      resetCollection(cy, rootCollection);
     });
   });
 
@@ -41,10 +44,8 @@ describe('Grid Key User Journeys', function () {
   });
 
   after(() => {
-    cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
-      setCookie(cy, cookie, false);
-    });
     deleteImages(cy, [getImageHash()]);
+    resetCollection(cy, rootCollection);
   });
 
   it('Upload image, set rights, set metadata, create crop, delete all crops', function () {
@@ -79,7 +80,7 @@ describe('Grid Key User Journeys', function () {
     cy.then(async () => {
       // Assert that image isn't usable before rights are added
       const imageUrl = `${getDomain('api')}images/${dragImageID}`;
-      let { usageRights } = (await axios.get(imageUrl)).data.data;
+      let { usageRights } = (await cy.request('GET', imageUrl)).data.data;
       expect(
         JSON.stringify(usageRights),
         'Usage rights before rights are added'
@@ -95,7 +96,8 @@ describe('Grid Key User Journeys', function () {
         .should('equal', `${getDomain()}images/${dragImageID}`)
         .then(async () => {
           // Assert that image is usable after rights are added
-          usageRights = (await axios.get(imageUrl)).data.data.usageRights;
+          usageRights = (await cy.request('GET', imageUrl)).data.data
+            .usageRights;
           expect(usageRights).to.have.property('category', 'screengrab');
         });
     });
@@ -123,7 +125,7 @@ describe('Grid Key User Journeys', function () {
 
     cy.then(async () => {
       const url = `${getDomain('cropper')}crops/${getImageHash()}`;
-      const cropsBeforeDelete = (await axios.get(url)).data.data;
+      const cropsBeforeDelete = (await cy.request('GET', url)).data.data;
       expect(
         cropsBeforeDelete.filter((ex) => ex.id === cropID).length,
         'Crop with correct ID'
@@ -133,7 +135,7 @@ describe('Grid Key User Journeys', function () {
     crops.deleteAllCrops();
 
     cy.then(async () => {
-      const cropsAfterDelete = (await axios.get(cropsUrl)).data.data;
+      const cropsAfterDelete = (await cy.request('GET', cropsUrl)).data.data;
 
       expect(
         cropsAfterDelete.length,
@@ -155,7 +157,6 @@ describe('Grid Key User Journeys', function () {
   });
 
   it('User can create a child collection and delete it', () => {
-    const collectionName = 'Cypress Integration Testing';
     const childName = Date.now().toString();
 
     cy.visit(getDomain());
@@ -163,18 +164,18 @@ describe('Grid Key User Journeys', function () {
     // Click on collections panel
     cy.get('[data-cy=show-collections-panel]').should('exist').click();
 
-    collections.createChild(collectionName, childName);
-    collections.goToChild(collectionName, childName);
+    collections.createChild(rootCollection, childName);
+    collections.goToChild(rootCollection, childName);
 
     cy.get('.search-query').should(
       'contain',
-      `${collectionName.toLowerCase()}/${childName}`
+      `${rootCollection.toLowerCase()}/${childName}`
     );
 
-    collections.deleteChild(collectionName, childName);
+    collections.deleteChild(rootCollection, childName);
 
     // Assert collection does not exist
-    cy.get(`[data-cy="${collectionName}-collection"]`)
+    cy.get(`[data-cy="${rootCollection}-collection"]`)
       .parent()
       .contains(childName)
       .should('not.exist');
