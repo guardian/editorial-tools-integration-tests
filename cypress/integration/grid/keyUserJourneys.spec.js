@@ -188,7 +188,24 @@ describe('Grid Key User Journeys', function () {
       .should('not.exist');
   });
 
-  xit(
-    'Use Grid from within Composer to crop and import and image into an article'
-  );
+  it('Use Grid from within Composer to crop and import and image into an article', () => {
+    cy.visit(getDomain(null, 'composer'));
+    cy.then(() => createAndEditArticle())
+      .url()
+      .then((url) => {
+        const id = getId(url, { app: 'composer' });
+        cy.log('Article id is ', id);
+
+        // Click into article
+        cy.get('[data-cy=article-body-block-mode]').click();
+
+        // Click on Add Image button
+        cy.get('.add-item__icon__svg--image').should('exist').click();
+
+        // Pause here, as currently we can't pass the cookie into the iframe and so have issues
+        cy.pause();
+        stopEditingAndClose().log('Closed the article');
+        deleteArticle(id, 'composer');
+      });
+  });
 });

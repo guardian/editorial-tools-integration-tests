@@ -1,13 +1,17 @@
-import { getDomain } from "../networking";
+import { getDomain } from '../networking';
 
-export function deleteArticle(id) {
-    return cy
-        .get(`a[href*="/content/${id}"]`).click()
-        .wait(2000)
-        .get('#js-management-edit').click()
-        .get('#js-content-information-delete').click({"force": true})
-        .get('#js-content-information-delete').click({"force": true})
-        .wait(2000)
-        .url().should('equal', `${getDomain()}`);
+export function deleteArticle(id, app) {
+  return cy
+    .get(`a[href*="/content/${id}"]`)
+    .click()
+    .wait(2000)
+    .get('#js-management-edit')
+    .click()
+    .get('#js-content-information-delete')
+    .click({ force: true })
+    .get('#js-content-information-delete')
+    .click({ force: true })
+    .wait(2000)
+    .url()
+    .should('equal', `${getDomain(undefined, app)}`);
 }
-
