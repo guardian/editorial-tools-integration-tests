@@ -8,6 +8,10 @@ import * as uploads from '../../utils/grid/upload';
 import * as crops from '../../utils/grid/crop';
 import * as image from '../../utils/grid/image';
 import * as collections from '../../utils/grid/collections';
+import { createAndEditArticle } from '../../utils/composer/createArticle';
+import { getId } from '../../utils/composer/getId';
+import { stopEditingAndClose } from '../../utils/composer/stopEditingAndClose';
+import { deleteArticle } from '../../utils/composer/deleteArticle';
 const config = require('../../../env.json');
 
 // ID of `cypress/fixtures/GridmonTestImage.png`
@@ -24,19 +28,23 @@ function setupAliases() {
   cy.route(`/images?q=&l**`).as('search');
 }
 
+function fetchAndSetCookie() {
+  cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
+    setCookie(cy, cookie, false);
+  });
+}
+
 describe('Grid Key User Journeys', function () {
   before(() => {
     checkVars();
     cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
       setCookie(cy, cookie, false);
-      deleteImages(cy, [getImageHash()]);
     });
+    deleteImages(cy, [getImageHash()]);
   });
 
   beforeEach(() => {
-    cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
-      setCookie(cy, cookie);
-    });
+    fetchAndSetCookie();
     setupAliases();
   });
 
