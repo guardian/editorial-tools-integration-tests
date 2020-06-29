@@ -1,3 +1,5 @@
+import { getDomain } from '../networking';
+
 module.exports = {
   createChild(collection, name) {
     // Click on edit collections button
@@ -48,5 +50,13 @@ module.exports = {
       .contains('delete')
       .click({ force: true })
       .click({ force: true }); // confirm delete crop
+  },
+
+  resetCollection(cy, rootCollection) {
+    const url = `${getDomain(null, 'media-collections')}collections`;
+    // Delete collection
+    const rootCollectionUrl = `${url}/${encodeURIComponent(rootCollection)}`;
+    cy.request('DELETE', rootCollectionUrl);
+    cy.request('POST', url, JSON.stringify({ data: rootCollection }));
   },
 };
