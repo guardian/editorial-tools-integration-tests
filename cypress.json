@@ -5,5 +5,5 @@
   "viewportHeight": 720,
   "videoCompression": false,
   "defaultCommandTimeout": 10000,
-  "chromeWebSecurity": false
+  "chromeWebSecurity": true
 }

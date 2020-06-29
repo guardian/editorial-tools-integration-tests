@@ -188,7 +188,7 @@ describe('Grid Key User Journeys', function () {
       .should('not.exist');
   });
 
-  it('Use Grid from within Composer to crop and import and image into an article', () => {
+  xit('Use Grid from within Composer to crop and import and image into an article', () => {
     cy.visit(getDomain(null, 'composer'));
     cy.then(() => createAndEditArticle())
       .url()
