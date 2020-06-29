@@ -12,7 +12,6 @@ export function getImageURL() {
 }
 
 export async function deleteImages(cy, images) {
-  setCookie(cy, false);
   cy.then(async () => {
     await Promise.all(
       images.map((id) => {
