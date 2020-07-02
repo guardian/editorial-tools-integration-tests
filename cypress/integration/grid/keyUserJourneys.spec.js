@@ -1,7 +1,7 @@
 import axios from 'axios';
 import 'cypress-file-upload';
 
-import { setCookie, getDomain } from '../../utils/networking';
+import { getDomain, fetchAndSetCookie } from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
 import { deleteImages, getImageHash, getImageURL } from '../../utils/grid/api';
 import * as uploads from '../../utils/grid/upload';
@@ -27,23 +27,17 @@ function setupAliases() {
 describe('Grid Key User Journeys', function () {
   before(() => {
     checkVars();
-    cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
-      setCookie(cy, cookie, false);
-      deleteImages(cy, [getImageHash()]);
-    });
+    fetchAndSetCookie();
+    deleteImages(cy, [getImageHash()]);
   });
 
   beforeEach(() => {
-    cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
-      setCookie(cy, cookie);
-    });
+    fetchAndSetCookie();
     setupAliases();
   });
 
   after(() => {
-    cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
-      setCookie(cy, cookie, false);
-    });
+    fetchAndSetCookie();
     deleteImages(cy, [getImageHash()]);
   });
 
@@ -73,7 +67,7 @@ describe('Grid Key User Journeys', function () {
     cy.get('[data-cy="upload-button"]').attachFile('GridmonTestImage.png', {
       subjectType: 'drag-n-drop',
     });
-    cy.get('ui-upload-jobs .result-editor__img', { timeout: 8000 }).should(
+    cy.get('ui-upload-jobs .result-editor__img', { timeout: 10000 }).should(
       'exist'
     );
     cy.then(async () => {
@@ -116,7 +110,7 @@ describe('Grid Key User Journeys', function () {
       waits.createCrop
     );
 
-    cy.url({ timeout: 5000 }).should(
+    cy.url({ timeout: 10000 }).should(
       'equal',
       `${getImageURL()}?crop=${cropID}`
     );
