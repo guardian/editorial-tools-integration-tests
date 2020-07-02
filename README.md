@@ -76,7 +76,7 @@ In the interests of keeping this repository organised, the best practice for add
 1. Add the required information to `cypress.env.json`. Keys in the file are ingested by the cookie generator script `src/utils/cookie.js`, 
 with the `baseUrl` of each being used to create a cookie. 
 Note that if you don't need a `gutools` cookie for your service, you can skip this step and reference the URL directly in the tests.
-    - In the below example, a cookie called `myNewService.cookie.json` would be created in the root of 
+    - In the below example, a `cookie.json` would be created in the root of 
 the repository, given the necessary `.settings` configuration file is found in the S3 bucket referenced in `env.json`.
     - The `.settings` config file looks at the third-level domain of the URL you are looking to hit, so, if your domain was `my-new-service.gutools.co.uk`, it would look for a settings file called `gutools.settings`.
     - For further information on how the cookie gets validated, please see the [pan-domain-node repository](https://github.com/guardian/pan-domain-authentication/#to-verify-login-in-nodejs) that `cookie.js` leverages to authenticate itself with Guardian domains.
