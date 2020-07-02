@@ -17,7 +17,18 @@ export async function deleteImages(cy, images) {
     await Promise.all(
       images.map((id) => {
         const url = `${getDomain('api')}images/${id}`;
-        cy.request('DELETE', url);
+        cy.request({
+          method: 'DELETE',
+          url,
+          failOnStatusCode: false,
+        }).then((response) => {
+          if (response.status !== 404) {
+            console.log('ERROR', response, url);
+            throw new Error(
+              `${response.status} (${response.statusText}) response from DELETE ${id}: ${response.body}`
+            );
+          }
+        });
       })
     );
   });

@@ -57,6 +57,11 @@ module.exports = {
     // Delete collection
     const rootCollectionUrl = `${url}/${encodeURIComponent(rootCollection)}`;
     cy.request('DELETE', rootCollectionUrl);
-    cy.request('POST', url, JSON.stringify({ data: rootCollection }));
+    cy.request({
+      url,
+      method: 'POST',
+      body: JSON.stringify({ data: rootCollection }),
+      headers: { 'Content-Type': 'application/json' },
+    });
   },
 };
