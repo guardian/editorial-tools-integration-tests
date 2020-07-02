@@ -1,7 +1,4 @@
 const AWS = require('aws-sdk');
-
-const path = require('path');
-const fs = require('fs');
 const iniparser = require('iniparser');
 const { base64ToPEM } = require('@guardian/pan-domain-node/dist/src/utils');
 const { createCookie } = require('@guardian/pan-domain-node/dist/src/panda');
@@ -58,7 +55,7 @@ function checkVars() {
   }
 }
 
-async function cookie(stageArg = undefined, writeToFile = true) {
+async function cookie(stageArg = undefined) {
   try {
     checkVars();
     const stage = stageArg || process.env['STAGE'];
@@ -68,24 +65,11 @@ async function cookie(stageArg = undefined, writeToFile = true) {
       console.error(err);
       process.exit(1);
     });
-    if (writeToFile) {
-      fs.writeFileSync(
-        path.join(__dirname, `../../cookie.json`),
-        JSON.stringify({ cookie, domain })
-      );
-    }
 
     return { cookie, domain };
   } catch (err) {
     console.error(err);
   }
-}
-
-// Only call function if script is called directly
-if (require.main === module) {
-  (async function main() {
-    await cookie();
-  })();
 }
 
 module.exports = { cookie };

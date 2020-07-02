@@ -12,7 +12,6 @@ export function getImageURL() {
 }
 
 export async function deleteImages(cy, images) {
-  setCookie(cy, false);
   cy.then(async () => {
     await Promise.all(
       images.map((id) => {
@@ -22,10 +21,8 @@ export async function deleteImages(cy, images) {
           .catch((err) => {
             // If it's 404, it means the image doesn't exist (so it can't be deleted)
             if (err.response && err.response.status === 404) {
-              cy.log(`${id} doesn't exist in Grid`);
               return;
             }
-            cy.log(`Error deleting ${id}`, err.message);
             throw err;
           })
           .then((res) => expect(res.status, `Delete ${id}`).to.equal(202));

@@ -26,3 +26,11 @@ export function setCookie(cy, overrides, visitDomain = true) {
     cy.wait(2);
   }
 }
+
+export function fetchAndSetCookie() {
+  return cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
+    expect(cookie).to.have.property('cookie');
+    expect(cookie).to.have.property('domain');
+    return setCookie(cy, cookie, false);
+  });
+}

@@ -54,7 +54,7 @@ module.exports = {
     cy.get('.gr-add-label__form__buttons__button-save')
       .click()
       .should('not.exist');
-    cy.get('.labeller').contains(name, { timeout: 5000 }).should('exist');
+    cy.get('.labeller').contains(name, { timeout: 10000 }).should('exist');
   },
 
   removeLabel(date) {
