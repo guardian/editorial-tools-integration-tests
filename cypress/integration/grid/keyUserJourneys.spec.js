@@ -3,7 +3,12 @@ import 'cypress-file-upload';
 
 import { getDomain, fetchAndSetCookie } from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
-import { deleteImages, getImageHash, getImageURL } from '../../utils/grid/api';
+import {
+  deleteImages,
+  getApiKey,
+  getImageHash,
+  getImageURL,
+} from '../../utils/grid/api';
 import * as uploads from '../../utils/grid/upload';
 import * as crops from '../../utils/grid/crop';
 import * as image from '../../utils/grid/image';
@@ -77,11 +82,17 @@ describe('Grid Key User Journeys', function () {
     cy.then(async () => {
       // Assert that image isn't usable before rights are added
       const imageUrl = `${getDomain('api')}images/${dragImageID}`;
-      let { usageRights } = (await cy.request('GET', imageUrl)).data.data;
-      expect(
-        JSON.stringify(usageRights),
-        'Usage rights before rights are added'
-      ).to.equal('{}');
+      cy.request({
+        method: 'GET',
+        url: imageUrl,
+        headers: { 'X-Gu-Media-Key': getApiKey(Cypress.env('STAGE')) },
+      }).then(({ body }) => {
+        const { usageRights } = body.data;
+        expect(
+          JSON.stringify(usageRights),
+          'Usage rights before rights are added'
+        ).to.equal('{}');
+      });
 
       uploads.setRights('screengrab', date);
       uploads.addLabel('integration test label');
@@ -93,9 +104,16 @@ describe('Grid Key User Journeys', function () {
         .should('equal', `${getDomain()}images/${dragImageID}`)
         .then(async () => {
           // Assert that image is usable after rights are added
-          usageRights = (await cy.request('GET', imageUrl)).data.data
-            .usageRights;
-          expect(usageRights).to.have.property('category', 'screengrab');
+
+          cy.request({
+            method: 'GET',
+            url: imageUrl,
+            headers: { 'X-Gu-Media-Key': getApiKey(Cypress.env('STAGE')) },
+          }).then(({ body }) => {
+            console.log(body);
+            const { usageRights } = body.data;
+            expect(usageRights).to.have.property('category', 'screengrab');
+          });
         });
     });
 
@@ -176,6 +194,8 @@ describe('Grid Key User Journeys', function () {
       .parent()
       .contains(childName)
       .should('not.exist');
+
+    cy.get('[data-cy=edit-collections-button]').click();
   });
 
   xit(
