@@ -24,7 +24,7 @@ export async function deleteImages(cy, images) {
           if (response.status !== 404) {
             console.log('ERROR', response, url);
             throw new Error(
-              `${response.status} (${response.statusText}) response from DELETE ${id}: ${response.body}`
+              `${response.status} (${response.statusText}) response from DELETE ${id}`
             );
           }
         });
