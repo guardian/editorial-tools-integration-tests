@@ -32,7 +32,7 @@ export async function deleteImages(cy, images) {
           failOnStatusCode: false,
           headers: { 'X-Gu-Media-Key': getApiKey(Cypress.env('STAGE')) },
         }).then((response) => {
-          if (!(response.status === '404') && !(response.status === '202')) {
+          if (response.status !== 404 && response.status !== 202) {
             console.log('DELETE ERROR', response, url);
             throw new Error(
               `${response.status} (${response.statusText}) response from DELETE ${id}`
