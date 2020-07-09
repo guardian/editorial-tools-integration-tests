@@ -1,5 +1,4 @@
 const { baseUrls } = require('../../cypress.env.json');
-const { cookie, domain } = require(`../../cookie.json`);
 
 export function getDomain(prefix, overrideApp) {
   const stage = Cypress.env('STAGE').toLowerCase();
@@ -11,11 +10,9 @@ export function getDomain(prefix, overrideApp) {
     : `https://${subdomain}.${stage}.dev-gutools.co.uk/`;
 }
 
-export function setCookie(cy, overrides, visitDomain = true) {
-  const cookieToSet = overrides ? overrides.cookie : cookie;
-  const domainToSet = overrides ? overrides.domain : domain;
-  cy.setCookie('gutoolsAuth-assym', cookieToSet, {
-    domain: `.${domainToSet}`,
+export function setCookie(cy, cookie, visitDomain = true) {
+  cy.setCookie('gutoolsAuth-assym', cookie.cookie, {
+    domain: `.${cookie.domain}`,
     path: '/',
     secure: true,
     httpOnly: true,
