@@ -53,15 +53,24 @@ module.exports = {
   },
 
   resetCollection(cy, rootCollection) {
-    const url = `${getDomain(null, 'media-collections')}collections`;
+    const url = `${getDomain(null, 'media-collections')}/collections`;
     // Delete collection
     const rootCollectionUrl = `${url}/${encodeURIComponent(rootCollection)}`;
-    cy.request('DELETE', rootCollectionUrl);
+    cy.request({
+      method: 'DELETE',
+      url: rootCollectionUrl,
+      headers: {
+        Origin: getDomain(null, "integration-tests")
+      },
+    });
     cy.request({
       url,
       method: 'POST',
       body: JSON.stringify({ data: rootCollection }),
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Origin: getDomain(null, "integration-tests")
+      },
     });
   },
 };

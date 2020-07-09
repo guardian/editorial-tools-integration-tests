@@ -2,16 +2,6 @@ import { getDomain } from '../networking';
 // hash of the image in assets/GridmonTestImage.png
 export const imageHash = 'fe052e21c4bc4d76a2c841d97c5b2281cccd19bd';
 
-export function getApiKey(stage) {
-  const key = env.apiKey[stage];
-  if (!key) {
-    throw new Error(
-      `API key for stage ${stage} missing, please ensure it is in env.json file`
-    );
-  }
-  return key;
-}
-
 export function getImageHash() {
   return imageHash;
 }
@@ -29,7 +19,9 @@ export async function deleteImages(cy, images) {
           method: 'DELETE',
           url,
           failOnStatusCode: false,
-          headers: { 'X-Gu-Media-Key': getApiKey(Cypress.env('STAGE')) },
+          headers: {
+            Origin: getDomain(null, "integration-tests")
+          },
         }).then((response) => {
           if (response.status !== 404 && response.status !== 202) {
             console.log('DELETE ERROR', response, url);
