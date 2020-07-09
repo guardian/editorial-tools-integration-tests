@@ -24,10 +24,10 @@ export function setCookie(cy, cookie, visitDomain = true) {
   }
 }
 
-export function fetchAndSetCookie() {
+export function fetchAndSetCookie(visitDomain) {
   return cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
     expect(cookie).to.have.property('cookie');
     expect(cookie).to.have.property('domain');
-    return setCookie(cy, cookie, false);
+    return setCookie(cy, cookie, visitDomain);
   });
 }
