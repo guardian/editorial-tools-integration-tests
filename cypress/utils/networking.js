@@ -6,8 +6,8 @@ export function getDomain(prefix) {
   const appName = baseUrls[app] || app;
   const subdomain = prefix ? prefix + '.' + appName : appName;
   return stage.toLowerCase() === 'prod'
-    ? `https://${subdomain}.gutools.co.uk/`
-    : `https://${subdomain}.${stage}.dev-gutools.co.uk/`;
+    ? `https://${subdomain}.gutools.co.uk`
+    : `https://${subdomain}.${stage}.dev-gutools.co.uk`;
 }
 
 export function setCookie(cy, cookie, visitDomain = true) {
