@@ -1,4 +1,4 @@
-import { fetchAndSetCookie, setCookie } from '../../utils/networking';
+import { fetchAndSetCookie } from '../../utils/networking';
 import { checkVars } from "../../utils/vars";
 import { expectPreview } from "../../utils/composer/expectPreview";
 import { inATemporaryArticle } from "../../utils/composer/inATemporaryArticle";
