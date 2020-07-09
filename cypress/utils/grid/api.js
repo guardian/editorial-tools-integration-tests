@@ -8,14 +8,14 @@ export function getImageHash() {
 }
 
 export function getImageURL() {
-  return `${getDomain()}images/${getImageHash()}`;
+  return `${getDomain()}/images/${getImageHash()}`;
 }
 
 export async function deleteImages(cy, images) {
   cy.then(async () => {
     await Promise.all(
       images.map((id) => {
-        const url = `${getDomain('api')}images/${id}`;
+        const url = `${getDomain('api')}/images/${id}`;
         axios
           .delete(url)
           .catch((err) => {
@@ -33,7 +33,7 @@ export async function deleteImages(cy, images) {
 
 export async function uploadImage(cy, image) {
   setCookie(cy);
-  const url = `${getDomain('loader')}images`;
+  const url = `${getDomain('loader')}/images`;
   const res = await axios
     .post(url, image, { withCredentials: true })
     .catch(async (err) => {

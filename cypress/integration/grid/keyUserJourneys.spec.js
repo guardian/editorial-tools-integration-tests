@@ -49,7 +49,7 @@ describe('Grid Key User Journeys', function () {
       yValue: '581',
     };
 
-    const cropsUrl = `${getDomain('cropper')}crops/${getImageHash()}`;
+    const cropsUrl = `${getDomain('cropper')}/crops/${getImageHash()}`;
 
     // For some reason, on production infrastructure, Cypress interacts with the browser differently and the crop.xValue gets reduced by 1.
     // This is a bug that should be investigated, but for now it's easier to just make a different assertion
@@ -72,7 +72,7 @@ describe('Grid Key User Journeys', function () {
     );
     cy.then(async () => {
       // Assert that image isn't usable before rights are added
-      const imageUrl = `${getDomain('api')}images/${dragImageID}`;
+      const imageUrl = `${getDomain('api')}/images/${dragImageID}`;
       let { usageRights } = (await axios.get(imageUrl)).data.data;
       expect(
         JSON.stringify(usageRights),
@@ -86,7 +86,7 @@ describe('Grid Key User Journeys', function () {
 
       cy.get(`ui-upload-jobs [href="/images/${dragImageID}"] img`).click();
       cy.url()
-        .should('equal', `${getDomain()}images/${dragImageID}`)
+        .should('equal', `${getDomain()}/images/${dragImageID}`)
         .then(async () => {
           // Assert that image is usable after rights are added
           usageRights = (await axios.get(imageUrl)).data.data.usageRights;
@@ -116,7 +116,7 @@ describe('Grid Key User Journeys', function () {
     );
 
     cy.then(async () => {
-      const url = `${getDomain('cropper')}crops/${getImageHash()}`;
+      const url = `${getDomain('cropper')}/crops/${getImageHash()}`;
       const cropsBeforeDelete = (await axios.get(url)).data.data;
       expect(
         cropsBeforeDelete.filter((ex) => ex.id === cropID).length,
