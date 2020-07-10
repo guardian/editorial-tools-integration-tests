@@ -1,4 +1,3 @@
-import axios from 'axios';
 import 'cypress-file-upload';
 
 import { getDomain, fetchAndSetCookie } from '../../utils/networking';
@@ -16,8 +15,6 @@ const dragImageID = getImageHash();
 const rootCollection = 'Cypress Integration Testing';
 const date = new Date().toString();
 const waits = { createCrop: 1000 };
-
-axios.defaults.withCredentials = true;
 
 function setupAliases() {
   cy.server();
