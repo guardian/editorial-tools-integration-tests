@@ -3,12 +3,7 @@ import 'cypress-file-upload';
 
 import { getDomain, fetchAndSetCookie } from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
-import {
-  deleteImages,
-  getApiKey,
-  getImageHash,
-  getImageURL,
-} from '../../utils/grid/api';
+import { deleteImages, getImageHash, getImageURL } from '../../utils/grid/api';
 import * as uploads from '../../utils/grid/upload';
 import * as crops from '../../utils/grid/crop';
 import * as image from '../../utils/grid/image';
@@ -51,6 +46,7 @@ describe('Grid Key User Journeys', function () {
   });
 
   it('Upload image, set rights, set metadata, create crop, delete all crops', function () {
+    const imageUrl = `${getDomain('api')}/images/${dragImageID}`;
     const crop = {
       width: '900',
       height: '540',
@@ -58,7 +54,7 @@ describe('Grid Key User Journeys', function () {
       yValue: '581',
     };
 
-    const cropsUrl = `${getDomain('cropper')}crops/${getImageHash()}`;
+    const cropsUrl = `${getDomain('cropper')}/crops/${getImageHash()}`;
 
     // For some reason, on production infrastructure, Cypress interacts with the browser differently and the crop.xValue gets reduced by 1.
     // This is a bug that should be investigated, but for now it's easier to just make a different assertion
@@ -81,41 +77,30 @@ describe('Grid Key User Journeys', function () {
     );
     cy.then(async () => {
       // Assert that image isn't usable before rights are added
-      const imageUrl = `${getDomain('api')}images/${dragImageID}`;
-      cy.request({
-        method: 'GET',
-        url: imageUrl,
-        headers: { 'X-Gu-Media-Key': getApiKey(Cypress.env('STAGE')) },
-      }).then(({ body }) => {
-        const { usageRights } = body.data;
+      cy.request('GET', imageUrl).then((res) => {
+        const { usageRights } = res.body.data;
         expect(
           JSON.stringify(usageRights),
           'Usage rights before rights are added'
         ).to.equal('{}');
       });
-
-      uploads.setRights('screengrab', date);
-      uploads.addLabel('integration test label');
-      uploads.addCredit('Editorial Tools Integration Tests');
-      uploads.addImageToCollection('Cypress Integration Testing');
-
-      cy.get(`ui-upload-jobs [href="/images/${dragImageID}"] img`).click();
-      cy.url()
-        .should('equal', `${getDomain()}images/${dragImageID}`)
-        .then(async () => {
-          // Assert that image is usable after rights are added
-
-          cy.request({
-            method: 'GET',
-            url: imageUrl,
-            headers: { 'X-Gu-Media-Key': getApiKey(Cypress.env('STAGE')) },
-          }).then(({ body }) => {
-            console.log(body);
-            const { usageRights } = body.data;
-            expect(usageRights).to.have.property('category', 'screengrab');
-          });
-        });
     });
+
+    uploads.setRights('screengrab', date);
+    uploads.addLabel('integration test label');
+    uploads.addCredit('Editorial Tools Integration Tests');
+    uploads.addImageToCollection('Cypress Integration Testing');
+
+    cy.get(`ui-upload-jobs [href="/images/${dragImageID}"] img`).click();
+    cy.url()
+      .should('equal', `${getDomain()}/images/${dragImageID}`)
+      .then(async () => {
+        cy.request('GET', imageUrl).then((res) => {
+          // Assert that image is usable after rights are added
+          const { usageRights } = res.body.data;
+          expect(usageRights).to.have.property('category', 'screengrab');
+        });
+      });
 
     // Click on Crop button
     cy.get('[data-cy=crop-image-button]', { timeout: 10000 })
@@ -139,23 +124,26 @@ describe('Grid Key User Journeys', function () {
     );
 
     cy.then(async () => {
-      const url = `${getDomain('cropper')}crops/${getImageHash()}`;
-      const cropsBeforeDelete = (await cy.request('GET', url)).data.data;
-      expect(
-        cropsBeforeDelete.filter((ex) => ex.id === cropID).length,
-        'Crop with correct ID'
-      ).to.be.greaterThan(0);
+      const url = `${getDomain('cropper')}/crops/${getImageHash()}`;
+      cy.request('GET', url).then((res) => {
+        const cropsBeforeDelete = res.body.data;
+        expect(
+          cropsBeforeDelete.filter((ex) => ex.id === cropID).length,
+          'Crop with correct ID'
+        ).to.be.greaterThan(0);
+      });
     });
 
     crops.deleteAllCrops();
 
     cy.then(async () => {
-      const cropsAfterDelete = (await cy.request('GET', cropsUrl)).data.data;
-
-      expect(
-        cropsAfterDelete.length,
-        'Number of crops after delete ALL'
-      ).to.equal(0);
+      cy.request('GET', cropsUrl).then((res) => {
+        const cropsAfterDelete = res.body.data;
+        expect(
+          cropsAfterDelete.length,
+          'Number of crops after delete ALL'
+        ).to.equal(0);
+      });
     });
   });
 
@@ -194,8 +182,6 @@ describe('Grid Key User Journeys', function () {
       .parent()
       .contains(childName)
       .should('not.exist');
-
-    cy.get('[data-cy=edit-collections-button]').click();
   });
 
   xit(

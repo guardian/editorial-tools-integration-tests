@@ -1,5 +1,4 @@
 import { getDomain } from '../networking';
-import { getApiKey } from './api';
 
 module.exports = {
   createChild(collection, name) {
@@ -54,13 +53,15 @@ module.exports = {
   },
 
   resetCollection(cy, rootCollection) {
-    const url = `${getDomain(null, 'media-collections')}collections`;
+    const url = `${getDomain(null, 'media-collections')}/collections`;
     // Delete collection
     const rootCollectionUrl = `${url}/${encodeURIComponent(rootCollection)}`;
     cy.request({
       method: 'DELETE',
       url: rootCollectionUrl,
-      headers: { 'X-Gu-Media-Key': getApiKey(Cypress.env('STAGE')) },
+      headers: {
+        Origin: getDomain(null, "integration-tests")
+      },
     });
     cy.request({
       url,
@@ -68,7 +69,7 @@ module.exports = {
       body: JSON.stringify({ data: rootCollection }),
       headers: {
         'Content-Type': 'application/json',
-        'X-Gu-Media-Key': getApiKey(Cypress.env('STAGE')),
+        Origin: getDomain(null, "integration-tests")
       },
     });
   },
