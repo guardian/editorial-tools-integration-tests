@@ -46,6 +46,7 @@ describe('Grid Key User Journeys', function () {
   });
 
   it('Upload image, set rights, set metadata, create crop, delete all crops', function () {
+    const imageUrl = `${getDomain('api')}/images/${dragImageID}`;
     const crop = {
       width: '900',
       height: '540',
@@ -76,37 +77,30 @@ describe('Grid Key User Journeys', function () {
     );
     cy.then(async () => {
       // Assert that image isn't usable before rights are added
-      const imageUrl = `${getDomain('api')}/images/${dragImageID}`;
-      await cy.request('GET', imageUrl).then(res => {
-        const { usageRights } = res.body.data
+      await cy.request('GET', imageUrl).then((res) => {
+        const { usageRights } = res.body.data;
         expect(
           JSON.stringify(usageRights),
           'Usage rights before rights are added'
         ).to.equal('{}');
-      })
-
-
-      uploads.setRights('screengrab', date);
-      uploads.addLabel('integration test label');
-      uploads.addCredit('Editorial Tools Integration Tests');
-      uploads.addImageToCollection('Cypress Integration Testing');
-
-      cy.get(`ui-upload-jobs [href="/images/${dragImageID}"] img`).click();
-      cy.url()
-        .should('equal', `${getDomain()}/images/${dragImageID}`)
-        .then(async () => {
-          await cy.request('GET', imageUrl).then(res => {
-            // Assert that image is usable after rights are added
-            const { usageRights } = res.body.data
-            expect(usageRights).to.have.property('category', 'screengrab');
-
-            expect(
-              JSON.stringify(usageRights),
-              'Usage rights before rights are added'
-            ).to.equal('{}');
-          })
-
+      });
     });
+
+    uploads.setRights('screengrab', date);
+    uploads.addLabel('integration test label');
+    uploads.addCredit('Editorial Tools Integration Tests');
+    uploads.addImageToCollection('Cypress Integration Testing');
+
+    cy.get(`ui-upload-jobs [href="/images/${dragImageID}"] img`).click();
+    cy.url()
+      .should('equal', `${getDomain()}/images/${dragImageID}`)
+      .then(async () => {
+        await cy.request('GET', imageUrl).then((res) => {
+          // Assert that image is usable after rights are added
+          const { usageRights } = res.body.data;
+          expect(usageRights).to.have.property('category', 'screengrab');
+        });
+      });
 
     // Click on Crop button
     cy.get('[data-cy=crop-image-button]', { timeout: 10000 })
