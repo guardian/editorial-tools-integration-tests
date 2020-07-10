@@ -75,15 +75,13 @@ describe('Grid Key User Journeys', function () {
     cy.get('ui-upload-jobs .result-editor__img', { timeout: 10000 }).should(
       'exist'
     );
-    cy.then(async () => {
-      // Assert that image isn't usable before rights are added
-      cy.request('GET', imageUrl).then((res) => {
-        const { usageRights } = res.body.data;
-        expect(
-          JSON.stringify(usageRights),
-          'Usage rights before rights are added'
-        ).to.equal('{}');
-      });
+    // Assert that image isn't usable before rights are added
+    cy.request('GET', imageUrl).then((res) => {
+      const { usageRights } = res.body.data;
+      expect(
+        JSON.stringify(usageRights),
+        'Usage rights before rights are added'
+      ).to.equal('{}');
     });
 
     uploads.setRights('screengrab', date);
@@ -92,15 +90,13 @@ describe('Grid Key User Journeys', function () {
     uploads.addImageToCollection('Cypress Integration Testing');
 
     cy.get(`ui-upload-jobs [href="/images/${dragImageID}"] img`).click();
-    cy.url()
-      .should('equal', `${getDomain()}/images/${dragImageID}`)
-      .then(async () => {
-        cy.request('GET', imageUrl).then((res) => {
-          // Assert that image is usable after rights are added
-          const { usageRights } = res.body.data;
-          expect(usageRights).to.have.property('category', 'screengrab');
-        });
-      });
+    cy.url().should('equal', `${getDomain()}/images/${dragImageID}`);
+
+    cy.request('GET', imageUrl).then((res) => {
+      // Assert that image is usable after rights are added
+      const { usageRights } = res.body.data;
+      expect(usageRights).to.have.property('category', 'screengrab');
+    });
 
     // Click on Crop button
     cy.get('[data-cy=crop-image-button]', { timeout: 10000 })
@@ -123,27 +119,23 @@ describe('Grid Key User Journeys', function () {
       `${getImageURL()}?crop=${cropID}`
     );
 
-    cy.then(async () => {
-      const url = `${getDomain('cropper')}/crops/${getImageHash()}`;
-      cy.request('GET', url).then((res) => {
-        const cropsBeforeDelete = res.body.data;
-        expect(
-          cropsBeforeDelete.filter((ex) => ex.id === cropID).length,
-          'Crop with correct ID'
-        ).to.be.greaterThan(0);
-      });
+    const url = `${getDomain('cropper')}/crops/${getImageHash()}`;
+    cy.request('GET', url).then((res) => {
+      const cropsBeforeDelete = res.body.data;
+      expect(
+        cropsBeforeDelete.filter((ex) => ex.id === cropID).length,
+        'Crop with correct ID'
+      ).to.be.greaterThan(0);
     });
 
     crops.deleteAllCrops();
 
-    cy.then(async () => {
-      cy.request('GET', cropsUrl).then((res) => {
-        const cropsAfterDelete = res.body.data;
-        expect(
-          cropsAfterDelete.length,
-          'Number of crops after delete ALL'
-        ).to.equal(0);
-      });
+    cy.request('GET', cropsUrl).then((res) => {
+      const cropsAfterDelete = res.body.data;
+      expect(
+        cropsAfterDelete.length,
+        'Number of crops after delete ALL'
+      ).to.equal(0);
     });
   });
 

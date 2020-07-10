@@ -11,26 +11,22 @@ export function getImageURL() {
 }
 
 export async function deleteImages(cy, images) {
-  cy.then(async () => {
-    await Promise.all(
-      images.map((id) => {
-        const url = `${getDomain('api')}/images/${id}`;
-        cy.request({
-          method: 'DELETE',
-          url,
-          failOnStatusCode: false,
-          headers: {
-            Origin: getDomain(null, "integration-tests")
-          },
-        }).then((response) => {
-          if (response.status !== 404 && response.status !== 202) {
-            console.log('DELETE ERROR', response, url);
-            throw new Error(
-              `${response.status} (${response.statusText}) response from DELETE ${id}`
-            );
-          }
-        });
-      })
-    );
+  images.map((id) => {
+    const url = `${getDomain('api')}/images/${id}`;
+    cy.request({
+      method: 'DELETE',
+      url,
+      failOnStatusCode: false,
+      headers: {
+        Origin: getDomain(null, 'integration-tests'),
+      },
+    }).then((response) => {
+      if (response.status !== 404 && response.status !== 202) {
+        console.log('DELETE ERROR', response, url);
+        throw new Error(
+          `${response.status} (${response.statusText}) response from DELETE ${id}`
+        );
+      }
+    });
   });
 }
