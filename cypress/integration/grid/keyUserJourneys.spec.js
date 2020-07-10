@@ -77,7 +77,7 @@ describe('Grid Key User Journeys', function () {
     );
     cy.then(async () => {
       // Assert that image isn't usable before rights are added
-      await cy.request('GET', imageUrl).then((res) => {
+      cy.request('GET', imageUrl).then((res) => {
         const { usageRights } = res.body.data;
         expect(
           JSON.stringify(usageRights),
@@ -95,7 +95,7 @@ describe('Grid Key User Journeys', function () {
     cy.url()
       .should('equal', `${getDomain()}/images/${dragImageID}`)
       .then(async () => {
-        await cy.request('GET', imageUrl).then((res) => {
+        cy.request('GET', imageUrl).then((res) => {
           // Assert that image is usable after rights are added
           const { usageRights } = res.body.data;
           expect(usageRights).to.have.property('category', 'screengrab');
@@ -125,22 +125,25 @@ describe('Grid Key User Journeys', function () {
 
     cy.then(async () => {
       const url = `${getDomain('cropper')}/crops/${getImageHash()}`;
-      const cropsBeforeDelete = (await cy.request('GET', url)).data.data;
-      expect(
-        cropsBeforeDelete.filter((ex) => ex.id === cropID).length,
-        'Crop with correct ID'
-      ).to.be.greaterThan(0);
+      cy.request('GET', url).then((res) => {
+        const cropsBeforeDelete = res.body.data;
+        expect(
+          cropsBeforeDelete.filter((ex) => ex.id === cropID).length,
+          'Crop with correct ID'
+        ).to.be.greaterThan(0);
+      });
     });
 
     crops.deleteAllCrops();
 
     cy.then(async () => {
-      const cropsAfterDelete = (await cy.request('GET', cropsUrl)).data.data;
-
-      expect(
-        cropsAfterDelete.length,
-        'Number of crops after delete ALL'
-      ).to.equal(0);
+      cy.request('GET', cropsUrl).then((res) => {
+        const cropsAfterDelete = res.body.data;
+        expect(
+          cropsAfterDelete.length,
+          'Number of crops after delete ALL'
+        ).to.equal(0);
+      });
     });
   });
 
