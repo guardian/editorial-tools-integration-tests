@@ -77,11 +77,14 @@ describe('Grid Key User Journeys', function () {
     cy.then(async () => {
       // Assert that image isn't usable before rights are added
       const imageUrl = `${getDomain('api')}/images/${dragImageID}`;
-      let { usageRights } = (await cy.request('GET', imageUrl)).data.data;
-      expect(
-        JSON.stringify(usageRights),
-        'Usage rights before rights are added'
-      ).to.equal('{}');
+      await cy.request('GET', imageUrl).then(res => {
+        const { usageRights } = res.body.data
+        expect(
+          JSON.stringify(usageRights),
+          'Usage rights before rights are added'
+        ).to.equal('{}');
+      })
+
 
       uploads.setRights('screengrab', date);
       uploads.addLabel('integration test label');
@@ -92,11 +95,17 @@ describe('Grid Key User Journeys', function () {
       cy.url()
         .should('equal', `${getDomain()}/images/${dragImageID}`)
         .then(async () => {
-          // Assert that image is usable after rights are added
-          usageRights = (await cy.request('GET', imageUrl)).data.data
-            .usageRights;
-          expect(usageRights).to.have.property('category', 'screengrab');
-        });
+          await cy.request('GET', imageUrl).then(res => {
+            // Assert that image is usable after rights are added
+            const { usageRights } = res.body.data
+            expect(usageRights).to.have.property('category', 'screengrab');
+
+            expect(
+              JSON.stringify(usageRights),
+              'Usage rights before rights are added'
+            ).to.equal('{}');
+          })
+
     });
 
     // Click on Crop button
