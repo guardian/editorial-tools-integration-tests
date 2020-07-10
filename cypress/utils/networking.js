@@ -1,8 +1,8 @@
 const { baseUrls } = require('../../cypress.env.json');
 
-export function getDomain(prefix) {
+export function getDomain(prefix, overrideApp) {
   const stage = Cypress.env('STAGE').toLowerCase();
-  const app = Cypress.env('APP');
+  const app = overrideApp || Cypress.env('APP');
   const appName = baseUrls[app] || app;
   const subdomain = prefix ? prefix + '.' + appName : appName;
   return stage.toLowerCase() === 'prod'

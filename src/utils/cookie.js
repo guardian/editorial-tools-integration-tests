@@ -73,3 +73,10 @@ async function cookie(stageArg = undefined) {
 }
 
 module.exports = { cookie };
+
+if (require.main === module) {
+  (async () => {
+    const cookie = await getCookie();
+    console.log(cookie);
+  })();
+}

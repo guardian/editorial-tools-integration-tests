@@ -37,7 +37,6 @@
   },
   "dependencies": {
     "aws-sdk": "^2.656.0",
-    "axios": "^0.19.2",
     "iniparser": "^1.0.5",
     "node-fetch": "^2.6.0"
   }

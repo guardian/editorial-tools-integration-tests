@@ -22,7 +22,8 @@ $ ./scripts/setup.sh # Fetches config
 $ npm run --silent <application>-<stage>
 
 # Or, if you haven't set up the npm script, you can use start.sh
-$ ./scripts/start.sh <application>-<stage>
+$ ./scripts/start.sh <application> <stage>
+$ ./scripts/start.sh grid test
 ```
 
 Running `scripts/start.sh` in essence does the same as the npm run script above, 
