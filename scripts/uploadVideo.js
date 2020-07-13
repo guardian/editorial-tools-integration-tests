@@ -1,10 +1,9 @@
-const AWS = require('aws-sdk');
-const path = require('path');
-const fs = require('fs');
-const { Logger } = require('../src/utils/logger');
-
-const { uploadVideoToS3 } = require('../src/utils/s3');
-const config = require('../env.json');
+import AWS from 'aws-sdk';
+import path from 'path';
+import fs from 'fs';
+import { Logger } from '../src/utils/logger';
+import { uploadVideoToS3 } from '../src/utils/s3';
+import config from '../env.json';
 
 const suite = process.env.SUITE;
 

@@ -1,10 +1,10 @@
-const mocha = require('mocha');
-const fs = require('fs');
-const path = require('path');
-const fetch = require('node-fetch');
+import mocha from 'mocha';
+import fs from 'fs';
+import path from 'path';
+import fetch from 'node-fetch';
 
-const { Logger } = require('../src/utils/logger');
-const env = require('../env.json');
+import { Logger } from '../src/utils/logger';
+import env from '../env.json';
 
 const logDir = path.join(__dirname, '../logs');
 const logFile = 'tests.json.log';
@@ -83,7 +83,7 @@ function Pagerduty(runner) {
     await callPagerduty(test, 'trigger', {
       error: err.message,
       videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
-      videosAccount: env.aws.profile
+      videosAccount: env.aws.profile,
     });
   });
 
