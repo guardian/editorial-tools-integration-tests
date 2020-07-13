@@ -1,14 +1,14 @@
 const { baseUrls } = require('../../cypress.env.json');
 const { cookie, domain } = require(`../../cookie.json`);
 
-export function getDomain(prefix, overrideApp) {
-  const stage = Cypress.env('STAGE').toLowerCase();
-  const app = overrideApp || Cypress.env('APP');
-  const appName = baseUrls[app] || app;
+export function getDomain(prefix, app, stage) {
+  const argOrEnvStage = stage || Cypress.env('STAGE').toLowerCase();
+  const argOrEnvApp = app || Cypress.env('APP');
+  const appName = baseUrls[argOrEnvApp] || argOrEnvApp;
   const subdomain = prefix ? prefix + '.' + appName : appName;
-  return stage.toLowerCase() === 'prod'
+  return argOrEnvStage.toLowerCase() === 'prod'
     ? `https://${subdomain}.gutools.co.uk/`
-    : `https://${subdomain}.${stage}.dev-gutools.co.uk/`;
+    : `https://${subdomain}.${argOrEnvStage}.dev-gutools.co.uk/`;
 }
 
 export function setCookie(cy, overrides, visitDomain = true) {

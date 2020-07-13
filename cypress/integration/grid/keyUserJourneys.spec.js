@@ -188,8 +188,14 @@ describe('Grid Key User Journeys', function () {
       .should('not.exist');
   });
 
-  xit('Use Grid from within Composer to crop and import and image into an article', () => {
-    cy.visit(getDomain(null, 'composer'));
+  it.only('Use Grid from within Composer to crop and import and image into an article', () => {
+    cy.visit(
+      getDomain(
+        null,
+        'composer',
+        Cypress.env('STAGE').toLowerCase() === 'test' ? 'code' : null
+      )
+    );
     cy.then(() => createAndEditArticle())
       .url()
       .then((url) => {
@@ -197,7 +203,7 @@ describe('Grid Key User Journeys', function () {
         cy.log('Article id is ', id);
 
         // Click into article
-        cy.get('[data-cy=article-body-block-mode]').click();
+        cy.get('.body-block-layout').click();
 
         // Click on Add Image button
         cy.get('.add-item__icon__svg--image').should('exist').click();
