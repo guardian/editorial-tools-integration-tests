@@ -1,10 +1,10 @@
-import mocha from 'mocha';
-import fs from 'fs';
-import path from 'path';
-import fetch from 'node-fetch';
+const mocha = require('mocha');
+const fs = require('fs');
+const path = require('path');
+const fetch = require('node-fetch');
 
-import { Logger } from '../src/utils/logger';
-import env from '../env.json';
+const { Logger } = require('../src/utils/logger');
+const env = require('../env.json');
 
 const logDir = path.join(__dirname, '../logs');
 const logFile = 'tests.json.log';
