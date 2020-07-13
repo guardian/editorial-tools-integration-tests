@@ -28,6 +28,7 @@
     "@cypress/browserify-preprocessor": "^3.0.0",
     "@guardian/node-riffraff-artifact": "^0.1.8",
     "@guardian/pan-domain-node": "^0.4.2",
+    "@types/node": "^14.0.22",
     "@types/node-fetch": "^2.5.6",
     "cypress": "^4.3.0",
     "cypress-file-upload": "^4.0.7",

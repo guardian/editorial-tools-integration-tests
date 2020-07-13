@@ -1,6 +1,6 @@
 import { getDomain } from '../networking';
 
-export function deleteArticle(id) {
+export function deleteArticle(id: string) {
   return cy
     .get(`a[href*="/content/${id}"]`)
     .click()

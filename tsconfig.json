@@ -1,9 +1,16 @@
 {
   "compilerOptions": {
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
     "strict": true,
     "baseUrl": "../node_modules",
     "target": "es5",
-    "lib": ["es5", "dom"],
+    "lib": [
+      "es5",
+      "dom",
+      "ES2015.Promise"
+    ],
     "types": ["cypress"]
   },
   "include": ["**/*.ts"]
