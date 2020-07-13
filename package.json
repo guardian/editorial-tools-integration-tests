@@ -25,6 +25,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@cypress/browserify-preprocessor": "^3.0.0",
     "@guardian/node-riffraff-artifact": "^0.1.8",
     "@guardian/pan-domain-node": "^0.4.2",
     "@types/node-fetch": "^2.5.6",
@@ -38,6 +39,7 @@
   "dependencies": {
     "aws-sdk": "^2.656.0",
     "iniparser": "^1.0.5",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "typescript": "^3.9.6"
   }
 }
