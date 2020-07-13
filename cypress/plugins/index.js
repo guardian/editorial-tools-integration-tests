@@ -1,3 +1,5 @@
+const browserify = require('@cypress/browserify-preprocessor');
+
 module.exports = (on) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
@@ -14,4 +16,10 @@ module.exports = (on) => {
       return undefined;
     },
   });
+  on(
+    'file:preprocessor',
+    browserify({
+      typescript: require.resolve('typescript'),
+    })
+  );
 };
