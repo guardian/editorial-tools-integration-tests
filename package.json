@@ -17,7 +17,7 @@
     "cy:run-dev": "cypress run --reporter spec",
     "cy:run": "cypress run",
     "cy:open": "cypress open --env APP=$APP,STAGE=$STAGE",
-    "lint": "eslint cypress/integration/* src/* reporters",
+    "lint": "eslint cypress/integration/* src/* reporters --ext .ts --ext .js",
     "riffraff": "node-riffraff-artifact",
     "upload-video": "node scripts/uploadVideo.js"
   },
