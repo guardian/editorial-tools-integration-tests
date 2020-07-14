@@ -8,7 +8,7 @@ import * as crops from '../../utils/grid/crop';
 import * as image from '../../utils/grid/image';
 import * as collections from '../../utils/grid/collections';
 import { resetCollection } from '../../utils/grid/collections';
-const config = require('../../../env.json');
+import config from '../../../env.json';
 
 // ID of `cypress/fixtures/GridmonTestImage.png`
 const dragImageID = getImageHash();
@@ -26,24 +26,24 @@ function setupAliases() {
 describe('Grid Key User Journeys', function () {
   before(() => {
     checkVars();
-    fetchAndSetCookie();
+    fetchAndSetCookie(false);
     deleteImages(cy, [getImageHash()]);
     resetCollection(cy, rootCollection);
   });
 
   beforeEach(() => {
-    fetchAndSetCookie();
+    fetchAndSetCookie(false);
     setupAliases();
   });
 
   after(() => {
-    fetchAndSetCookie();
+    fetchAndSetCookie(false);
     deleteImages(cy, [getImageHash()]);
     resetCollection(cy, rootCollection);
   });
 
   it('Upload image, set rights, set metadata, create crop, delete all crops', function () {
-    const imageUrl = `${getDomain('api')}/images/${dragImageID}`;
+    const imageUrl = `${getDomain({ prefix: 'api' })}/images/${dragImageID}`;
     const crop = {
       width: '900',
       height: '540',
@@ -51,13 +51,15 @@ describe('Grid Key User Journeys', function () {
       yValue: '581',
     };
 
-    const cropsUrl = `${getDomain('cropper')}/crops/${getImageHash()}`;
+    const cropsUrl = `${getDomain({
+      prefix: 'cropper',
+    })}/crops/${getImageHash()}`;
 
     // For some reason, on production infrastructure, Cypress interacts with the browser differently and the crop.xValue gets reduced by 1.
     // This is a bug that should be investigated, but for now it's easier to just make a different assertion
-    const cropID = `${config.isDev ? crop.xValue : crop.xValue - 1}_${
-      crop.yValue
-    }_${crop.width}_${crop.height}`;
+    const cropID = `${
+      config.isDev ? Number(crop.xValue) : Number(crop.xValue) - 1
+    }_${crop.yValue}_${crop.width}_${crop.height}`;
 
     cy.visit(getDomain(), {
       onBeforeLoad(win) {
@@ -116,11 +118,12 @@ describe('Grid Key User Journeys', function () {
       `${getImageURL()}?crop=${cropID}`
     );
 
-    const url = `${getDomain('cropper')}/crops/${getImageHash()}`;
+    const url = `${getDomain({ prefix: 'cropper' })}/crops/${getImageHash()}`;
     cy.request('GET', url).then((res) => {
       const cropsBeforeDelete = res.body.data;
       expect(
-        cropsBeforeDelete.filter((ex) => ex.id === cropID).length,
+        cropsBeforeDelete.filter((ex: { id: string }) => ex.id === cropID)
+          .length,
         'Crop with correct ID'
       ).to.be.greaterThan(0);
     });

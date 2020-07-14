@@ -1,15 +1,15 @@
 const browserify = require('@cypress/browserify-preprocessor');
+const fs = require('fs');
+const { cookie } = require('../../src/utils/cookie');
 
 module.exports = (on) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
   on('task', {
     async getCookie(stage) {
-      const { cookie } = require('../../src/utils/cookie.js');
       return await cookie(stage, false);
     },
     readFileMaybe(filename) {
-      const fs = require('fs');
       if (fs.existsSync(filename)) {
         return fs.readFileSync(filename);
       }

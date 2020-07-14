@@ -2,7 +2,6 @@ const AWS = require('aws-sdk');
 const path = require('path');
 const fs = require('fs');
 const { Logger } = require('../src/utils/logger');
-
 const { uploadVideoToS3 } = require('../src/utils/s3');
 const config = require('../env.json');
 

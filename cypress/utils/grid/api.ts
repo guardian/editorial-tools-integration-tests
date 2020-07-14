@@ -10,15 +10,18 @@ export function getImageURL() {
   return `${getDomain()}/images/${getImageHash()}`;
 }
 
-export async function deleteImages(cy, images) {
-  images.map((id) => {
-    const url = `${getDomain('api')}/images/${id}`;
+export async function deleteImages(
+  cy: Cypress.cy & EventEmitter,
+  images: string[]
+) {
+  images.map((id: string) => {
+    const url = `${getDomain({ prefix: 'api' })}/images/${id}`;
     cy.request({
       method: 'DELETE',
       url,
       failOnStatusCode: false,
       headers: {
-        Origin: getDomain(null, 'integration-tests'),
+        Origin: getDomain({ app: 'integration-tests' }),
       },
     }).then((response) => {
       if (response.status !== 404 && response.status !== 202) {
