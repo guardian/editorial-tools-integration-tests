@@ -26,18 +26,18 @@ function setupAliases() {
 describe('Grid Key User Journeys', function () {
   before(() => {
     checkVars();
-    fetchAndSetCookie();
+    fetchAndSetCookie(false);
     deleteImages(cy, [getImageHash()]);
     resetCollection(cy, rootCollection);
   });
 
   beforeEach(() => {
-    fetchAndSetCookie();
+    fetchAndSetCookie(false);
     setupAliases();
   });
 
   after(() => {
-    fetchAndSetCookie();
+    fetchAndSetCookie(false);
     deleteImages(cy, [getImageHash()]);
     resetCollection(cy, rootCollection);
   });
