@@ -1,10 +1,7 @@
 import { getDomain } from '../networking';
 
-export function getId(
-  url: string,
-  { app, stage }: { app?: string; stage?: string }
-) {
-  const domain = getDomain({ app, stage });
+export function getId(url: string, options?: { app?: string; stage?: string }) {
+  const domain = getDomain(options);
   expect(url).to.match(new RegExp(`${domain}/content\/`));
   return url.split('/')[4];
 }

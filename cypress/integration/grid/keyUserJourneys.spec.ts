@@ -191,7 +191,6 @@ describe('Grid Key User Journeys', function () {
       stage: composerStage,
     });
 
-    cy.log(composerUrl);
     fetchAndSetCookie({ stage: composerStage, visitDomain: false });
     cy.visit(composerUrl);
     cy.then(() => createAndEditArticle())

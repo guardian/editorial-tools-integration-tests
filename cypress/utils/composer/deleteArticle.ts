@@ -2,7 +2,7 @@ import { getDomain } from '../networking';
 
 export function deleteArticle(
   id: string,
-  { app, stage }: { app?: string; stage?: string }
+  options?: { app?: string; stage?: string }
 ) {
   return cy
     .get(`a[href*="/content/${id}"]`)
@@ -16,5 +16,5 @@ export function deleteArticle(
     .click({ force: true })
     .wait(2000)
     .url()
-    .should('equal', `${getDomain({ app, stage })}/`);
+    .should('equal', `${getDomain(options)}/`);
 }
