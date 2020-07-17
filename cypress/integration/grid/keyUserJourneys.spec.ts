@@ -3,12 +3,7 @@ import 'cypress-iframe';
 
 import { getDomain, fetchAndSetCookie } from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
-import {
-  deleteImages,
-  getImageHash,
-  getImageURL,
-  readAndUploadImage,
-} from '../../utils/grid/api';
+import { deleteImages, getImageHash, getImageURL } from '../../utils/grid/api';
 import * as uploads from '../../utils/grid/upload';
 import * as crops from '../../utils/grid/crop';
 import * as image from '../../utils/grid/image';
@@ -186,13 +181,7 @@ describe('Grid Key User Journeys', function () {
       .should('not.exist');
   });
 
-  it.only('Use Grid from within Composer to crop and import and image into an article', () => {
-    // TODO: Upload image to the Grid via the API
-    // TODO: to ensure image is available for Composer tests
-    // TODO: WITHOUT needing the other tests to pass
-    fetchAndSetCookie({ visitDomain: false });
-    readAndUploadImage(cy);
-
+  it('Use Grid from within Composer to crop and import and image into an article', () => {
     const composerStage =
       Cypress.env('STAGE').toLowerCase() === 'test'
         ? 'code'
@@ -218,7 +207,7 @@ describe('Grid Key User Journeys', function () {
 
         cy.frameLoaded('.embedded-grid-iframe', { url: getDomain() });
 
-        const imageID = '6a746a4d80dd36fb0dafa82309a266fe1514ac14';
+        const imageID = getImageHash();
 
         cy.enter('.embedded-grid-iframe').then((getBody) => {
           getBody()
