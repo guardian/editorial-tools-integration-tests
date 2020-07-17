@@ -4,6 +4,5 @@
   "viewportWidth": 1280,
   "viewportHeight": 720,
   "videoCompression": false,
-  "defaultCommandTimeout": 10000,
-  "chromeWebSecurity": true
+  "defaultCommandTimeout": 10000
 }

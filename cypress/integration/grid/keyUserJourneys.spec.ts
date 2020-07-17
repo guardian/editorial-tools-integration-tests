@@ -231,7 +231,7 @@ describe('Grid Key User Journeys', function () {
         getBody()
           .find(`[href="/images/${imageID}"]`)
           .find('.preview__image')
-          .click();
+          .click({ force: true });
 
         getBody()
           .find('[data-cy=crop-image-button]', { timeout: 10000 })
