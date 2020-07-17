@@ -34,27 +34,47 @@ export async function deleteImages(
   });
 }
 
-export async function uploadImages(
+export async function uploadImage(
   cy: Cypress.cy & EventEmitter,
-  images: string[]
+  image: { type: string; data: any }
 ) {
   const url = `${getDomain({ prefix: 'loader' })}/images`;
-
-  images.map((id: string) => {
-    cy.request({
-      method: 'POST',
-      url,
-      failOnStatusCode: false,
-      headers: {
-        Origin: getDomain({ app: 'integration-tests' }),
-      },
-    }).then((response) => {
-      if (response.status !== 404 && response.status !== 202) {
-        console.log('UPLOAD ERROR', response, url);
-        throw new Error(
-          `${response.status} (${response.statusText}) response from DELETE ${id}`
-        );
-      }
-    });
+  const buffer = Buffer.from(image.data);
+  cy.request({
+    method: 'POST',
+    body: buffer,
+    url,
+    failOnStatusCode: false,
+    headers: {
+      Origin: getDomain({ app: 'integration-tests' }),
+    },
+  }).then((response) => {
+    if (response.status !== 202) {
+      console.log('UPLOAD ERROR');
+      console.log(response, url);
+      throw new Error(
+        `${response.status} (${response.statusText}) response from UPLOAD`
+      );
+    }
   });
+
+  // const res = await axios
+  //   .post(url, image, { withCredentials: true })
+  //   .catch(async (err) => {
+  //     console.error('uploadImage error', url);
+  //     console.error(err);
+  //     throw err;
+  //   });
+  // expect(res.status, 'Upload test image').to.equal(202);
+  // cy.log(`Uploaded test image was ${res.statusText}`);
+  // return null;
+}
+
+export function readAndUploadImage(cy: Cypress.cy & EventEmitter) {
+  cy.task('readFileMaybe', 'assets/GridmonTestImage.png').then(
+    async (contents: { type: string; data: any }) => {
+      console.log('contents', contents);
+      await uploadImage(cy, contents);
+    }
+  );
 }
