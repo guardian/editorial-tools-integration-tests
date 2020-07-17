@@ -83,6 +83,7 @@ function Pagerduty(runner) {
     await callPagerduty(test, 'trigger', {
       error: err.message,
       videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
+      videosAccount: env.aws.profile,
     });
   });
 

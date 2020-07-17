@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "cookie": "node ./src/utils/cookie.js",
     "test": "./scripts/setup.sh $ENV && npm run cy:run-dev",
     "grid-prod": "APP=grid STAGE=prod npm run start",
     "grid-code": "APP=grid STAGE=test npm run start",
@@ -13,12 +12,12 @@
     "composer-prod": "APP=composer STAGE=prod npm run start",
     "composer-code": "APP=composer STAGE=code npm run start",
     "composer-local": "APP=composer STAGE=local npm run start",
-    "start": "npm run cookie && cypress run --reporter spec --env APP=$APP,STAGE=$STAGE --spec cypress/integration/$APP/*",
-    "cy:live": "npm run cookie && cypress run --env APP=$SUITE,STAGE=$STAGE --spec cypress/integration/$SUITE/*",
+    "start": "cypress run --reporter spec --env APP=$APP,STAGE=$STAGE --spec cypress/integration/$APP/*",
+    "cy:live": "cypress run --env APP=$SUITE,STAGE=$STAGE --spec cypress/integration/$SUITE/*",
     "cy:run-dev": "cypress run --reporter spec",
-    "cy:run": "npm run cookie && cypress run",
-    "cy:open": "npm run cookie && cypress open --env APP=$APP,STAGE=$STAGE",
-    "lint": "eslint cypress/integration/* src/* reporters",
+    "cy:run": "cypress run",
+    "cy:open": "cypress open --env APP=$APP,STAGE=$STAGE",
+    "lint": "eslint cypress/integration/* src/* reporters --ext .ts --ext .js",
     "riffraff": "node-riffraff-artifact",
     "upload-video": "node scripts/uploadVideo.js"
   },
@@ -26,9 +25,13 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@cypress/browserify-preprocessor": "^3.0.0",
     "@guardian/node-riffraff-artifact": "^0.1.8",
     "@guardian/pan-domain-node": "^0.4.2",
+    "@types/node": "^14.0.22",
     "@types/node-fetch": "^2.5.6",
+    "@typescript-eslint/eslint-plugin": "^3.6.1",
+    "@typescript-eslint/parser": "^3.6.0",
     "cypress": "^4.3.0",
     "cypress-file-upload": "^4.0.7",
     "eslint": "^6.8.0",
@@ -38,8 +41,8 @@
   },
   "dependencies": {
     "aws-sdk": "^2.656.0",
-    "axios": "^0.19.2",
     "iniparser": "^1.0.5",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "typescript": "^3.9.6"
   }
 }

@@ -2,7 +2,7 @@ import { getDomain } from "../networking";
 import { getContent } from "./getContent";
 
 export async function expectPreview(id, regex) {
-    const url = `${getDomain()}api/content/${id}/preview`;
+    const url = `${getDomain()}/api/content/${id}/preview`;
     const data = await getContent(url);
     expect(data, "the data").to.not.be.null;
     const content1 = JSON.parse(data);
