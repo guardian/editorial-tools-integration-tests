@@ -33,3 +33,28 @@ export async function deleteImages(
     });
   });
 }
+
+export async function uploadImages(
+  cy: Cypress.cy & EventEmitter,
+  images: string[]
+) {
+  const url = `${getDomain({ prefix: 'loader' })}/images`;
+
+  images.map((id: string) => {
+    cy.request({
+      method: 'POST',
+      url,
+      failOnStatusCode: false,
+      headers: {
+        Origin: getDomain({ app: 'integration-tests' }),
+      },
+    }).then((response) => {
+      if (response.status !== 404 && response.status !== 202) {
+        console.log('UPLOAD ERROR', response, url);
+        throw new Error(
+          `${response.status} (${response.statusText}) response from DELETE ${id}`
+        );
+      }
+    });
+  });
+}

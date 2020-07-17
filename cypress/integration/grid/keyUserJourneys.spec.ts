@@ -182,6 +182,10 @@ describe('Grid Key User Journeys', function () {
   });
 
   it('Use Grid from within Composer to crop and import and image into an article', () => {
+    // TODO: Upload image to the Grid via the API
+    // TODO: to ensure image is available for Composer tests
+    // TODO: WITHOUT needing the other tests to pass
+
     const composerStage =
       Cypress.env('STAGE').toLowerCase() === 'test'
         ? 'code'
