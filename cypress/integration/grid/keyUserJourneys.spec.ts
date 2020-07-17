@@ -1,4 +1,5 @@
 import 'cypress-file-upload';
+import 'cypress-iframe';
 
 import { getDomain, fetchAndSetCookie } from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
@@ -9,6 +10,10 @@ import * as image from '../../utils/grid/image';
 import * as collections from '../../utils/grid/collections';
 import { resetCollection } from '../../utils/grid/collections';
 import config from '../../../env.json';
+import { createAndEditArticle } from '../../utils/composer/createArticle';
+import { getId } from '../../utils/composer/getId';
+import { deleteArticle } from '../../utils/composer/deleteArticle';
+import { stopEditingAndClose } from '../../utils/composer/stopEditingAndClose';
 
 // ID of `cypress/fixtures/GridmonTestImage.png`
 const dragImageID = getImageHash();
@@ -26,18 +31,18 @@ function setupAliases() {
 describe('Grid Key User Journeys', function () {
   before(() => {
     checkVars();
-    fetchAndSetCookie(false);
+    fetchAndSetCookie({ visitDomain: false });
     deleteImages(cy, [getImageHash()]);
     resetCollection(cy, rootCollection);
   });
 
   beforeEach(() => {
-    fetchAndSetCookie(false);
+    fetchAndSetCookie({ visitDomain: false });
     setupAliases();
   });
 
   after(() => {
-    fetchAndSetCookie(false);
+    fetchAndSetCookie({ visitDomain: false });
     deleteImages(cy, [getImageHash()]);
     resetCollection(cy, rootCollection);
   });
@@ -176,7 +181,61 @@ describe('Grid Key User Journeys', function () {
       .should('not.exist');
   });
 
-  xit(
-    'Use Grid from within Composer to crop and import and image into an article'
-  );
+  it('Use Grid from within Composer to crop and import and image into an article', () => {
+    const composerStage =
+      Cypress.env('STAGE').toLowerCase() === 'test'
+        ? 'code'
+        : Cypress.env('STAGE');
+    const composerUrl = getDomain({
+      app: 'composer',
+      stage: composerStage,
+    });
+
+    cy.log(composerUrl);
+    fetchAndSetCookie({ stage: composerStage, visitDomain: false });
+    cy.visit(composerUrl);
+    cy.then(() => createAndEditArticle())
+      .url()
+      .then(async (url) => {
+        const id = getId(url, { app: 'composer', stage: composerStage });
+        cy.log('Article id is ', id);
+
+        // Click into article
+        cy.get('.body-block-layout').click();
+
+        // Click on Add Image button
+        cy.get('.add-item__icon__svg--image').should('exist').click();
+
+        cy.frameLoaded('.embedded-grid-iframe', { url: getDomain() });
+
+        const imageID = '6a746a4d80dd36fb0dafa82309a266fe1514ac14';
+
+        cy.enter('.embedded-grid-iframe').then((getBody) => {
+          getBody()
+            .find('[data-cy="image-search-input"]')
+            .click({ force: true })
+            .type(`${imageID}{enter}`, {
+              force: true,
+            });
+
+          getBody()
+            .find(`[href="/images/${imageID}"]`)
+            .find('.preview__image')
+            .click();
+
+          getBody()
+            .find('[data-cy=crop-image-button]', { timeout: 10000 })
+            .should('exist')
+            .click();
+
+          // Wait for cropper image to exist before continuing
+          getBody().find('.cropper-face', { timeout: 10000 }).should('exist');
+          getBody().find('.button').click();
+        });
+
+        cy.get(`[src*="${imageID}"]`).should('exist');
+        stopEditingAndClose().log('Closed the article');
+        deleteArticle(id, { app: 'composer', stage: composerStage });
+      });
+  });
 });

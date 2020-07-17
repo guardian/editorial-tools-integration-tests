@@ -39,8 +39,11 @@ export function setCookie(
   }
 }
 
-export function fetchAndSetCookie(visitDomain = true) {
-  return cy.task('getCookie', Cypress.env('STAGE')).then((cookie) => {
+export function fetchAndSetCookie({
+  visitDomain = true,
+  stage = Cypress.env('STAGE'),
+}) {
+  return cy.task('getCookie', stage).then((cookie) => {
     expect(cookie).to.have.property('cookie');
     expect(cookie).to.have.property('domain');
     return setCookie(cy, (cookie as unknown) as Cookie, visitDomain);
