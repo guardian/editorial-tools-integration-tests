@@ -27,70 +27,74 @@ function Pagerduty(runner) {
   let passes = 0;
   let failures = 0;
 
-  runner.on('start', async function () {
-    // `scripts/run.sh` is responsible for cleaning up the failures file
-    // If one exists on start, it's because a
-    // previous test suite in the same app has run before this
-    if (fs.existsSync(failuresFile)) {
-      failures = fs.readFileSync(failuresFile);
-    } else {
-      fs.writeFileSync(failuresFile, '0');
-    }
-  });
-
-  runner.on('pending', async function (test) {
-    const message = generateMessage('Pending', test);
-    passes++;
-    console.log('Pending:', test.fullTitle());
-    logger.log({
-      testTitle: test.title,
-      message,
-      testContext: test.titlePath()[0],
-      testState: 'pending',
+  try {
+    runner.on('start', async function () {
+      // `scripts/run.sh` is responsible for cleaning up the failures file
+      // If one exists on start, it's because a
+      // previous test suite in the same app has run before this
+      if (fs.existsSync(failuresFile)) {
+        failures = fs.readFileSync(failuresFile);
+      } else {
+        fs.writeFileSync(failuresFile, '0');
+      }
     });
-    await callPagerduty(test, 'resolve');
-  });
 
-  runner.on('pass', async function (test) {
-    const message = generateMessage('Pass', test);
-    passes++;
-    console.log('Pass:', test.fullTitle());
-    logger.log({
-      testTitle: test.title,
-      message,
-      testContext: test.titlePath()[0],
-      testState: 'pass',
+    runner.on('pending', async function (test) {
+      const message = generateMessage('Pending', test);
+      passes++;
+      console.log('Pending:', test.fullTitle());
+      logger.log({
+        testTitle: test.title,
+        message,
+        testContext: test.titlePath()[0],
+        testState: 'pending',
+      });
+      await callPagerduty(test, 'resolve');
     });
-    await callPagerduty(test, 'resolve');
-  });
 
-  runner.on('fail', async function (test, err) {
-    const message = generateMessage('Failure', test);
-    const now = new Date();
-    const region = 'eu-west-1';
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    const date = now.getDate();
-    failures++;
-    console.error('Failure:', test.fullTitle(), err.message, '\n');
-    logger.error({
-      testTitle: test.title,
-      message,
-      testContext: test.titlePath()[0],
-      testState: 'failure',
-      error: err.message,
+    runner.on('pass', async function (test) {
+      const message = generateMessage('Pass', test);
+      passes++;
+      console.log('Pass:', test.fullTitle());
+      logger.log({
+        testTitle: test.title,
+        message,
+        testContext: test.titlePath()[0],
+        testState: 'pass',
+      });
+      await callPagerduty(test, 'resolve');
     });
-    await callPagerduty(test, 'trigger', {
-      error: err.message,
-      videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
-      videosAccount: env.aws.profile,
-    });
-  });
 
-  runner.on('end', async function () {
-    console.log('end: %d/%d', passes, passes + failures);
-    fs.writeFileSync(failuresFile, failures);
-  });
+    runner.on('fail', async function (test, err) {
+      const message = generateMessage('Failure', test);
+      const now = new Date();
+      const region = 'eu-west-1';
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+      const date = now.getDate();
+      failures++;
+      console.error('Failure:', test.fullTitle(), err.message, '\n');
+      logger.error({
+        testTitle: test.title,
+        message,
+        testContext: test.titlePath()[0],
+        testState: 'failure',
+        error: err.message,
+      });
+      await callPagerduty(test, 'trigger', {
+        error: err.message,
+        videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
+        videosAccount: env.aws.profile,
+      });
+    });
+
+    runner.on('end', async function () {
+      console.log('end: %d/%d', passes, passes + failures);
+      fs.writeFileSync(failuresFile, failures);
+    });
+  } catch (e) {
+    logger.error(e);
+  }
 }
 
 async function callPagerduty(test, action, details = {}) {
