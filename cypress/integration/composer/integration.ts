@@ -27,12 +27,10 @@ describe('Composer Integration Tests', () => {
           .wait(1000);
       },
       function (id) {
-        return cy.then(async () =>
-          expectPreview(
-            id,
-            new RegExp(
-              `<p>${id} is a <gu-correct class=".*" title="Correct: .*" data-gu-mark="true" data-note-edited-by=".*" data-note-edited-date=".*" data-type="correct" data-note-id=".*">test article<\/gu-correct><\/p>`
-            )
+        expectPreview(
+          id,
+          new RegExp(
+            `<p>${id} is a <gu-correct class=".*" title="Correct: .*" data-gu-mark="true" data-note-edited-by=".*" data-note-edited-date=".*" data-type="correct" data-note-id=".*">test article<\/gu-correct><\/p>`
           )
         );
       }
@@ -54,12 +52,10 @@ describe('Composer Integration Tests', () => {
           .wait(1000);
       },
       function (id) {
-        return cy.then(async () =>
-          expectPreview(
-            id,
-            new RegExp(
-              `<p>${id} is a <gu-correct class=".*" title="Correct: .*" data-gu-mark="true" data-note-edited-by=".*" data-note-edited-date=".*" data-type="correct" data-note-id=".*">test article<\/gu-correct><\/p>`
-            )
+        expectPreview(
+          id,
+          new RegExp(
+            `<p>${id} is a <gu-correct class=".*" title="Correct: .*" data-gu-mark="true" data-note-edited-by=".*" data-note-edited-date=".*" data-type="correct" data-note-id=".*">test article<\/gu-correct><\/p>`
           )
         );
       }
@@ -81,12 +77,10 @@ describe('Composer Integration Tests', () => {
           .wait(1000);
       },
       function (id) {
-        return cy.then(async () =>
-          expectPreview(
-            id,
-            new RegExp(
-              `<p>${id} is a <gu-flag class=".*" title="Flag: .*" data-gu-mark="true" data-note-edited-by=".*" data-note-edited-date=".*" data-type="flag" data-note-id=".*">test article<\/gu-flag><\/p>`
-            )
+        expectPreview(
+          id,
+          new RegExp(
+            `<p>${id} is a <gu-flag class=".*" title="Flag: .*" data-gu-mark="true" data-note-edited-by=".*" data-note-edited-date=".*" data-type="flag" data-note-id=".*">test article<\/gu-flag><\/p>`
           )
         );
       }
