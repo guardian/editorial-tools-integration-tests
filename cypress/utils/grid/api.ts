@@ -15,6 +15,28 @@ export async function deleteImages(
   images: string[]
 ) {
   images.map((id: string) => {
+    const cropper = `${getDomain({
+      prefix: 'cropper',
+    })}/crops/${id}`;
+    cy.request({
+      method: 'DELETE',
+      url: cropper,
+      headers: {
+        Origin: getDomain({ app: 'integration-tests' }),
+      },
+    });
+
+    const usages = `${getDomain({
+      app: 'media-usage',
+    })}/usages/media/${id}`;
+    cy.request({
+      method: 'DELETE',
+      url: usages,
+      headers: {
+        Origin: getDomain({ app: 'integration-tests' }),
+      },
+    });
+
     const url = `${getDomain({ prefix: 'api' })}/images/${id}`;
     cy.request({
       method: 'DELETE',
