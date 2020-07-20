@@ -8,12 +8,8 @@ type fnArg = (id: string) => void;
 
 export function inATemporaryArticle(
   title: string,
-  editFn: fnArg = (id) => {
-    return cy.log('Typed nothing');
-  },
-  assertFn: fnArg = (id) => {
-    return cy.log(`Checked nothing for id ${id}`);
-  }
+  editFn: fnArg = (id) => cy.log('Typed nothing'),
+  assertFn: fnArg = (id) => cy.log(`Checked nothing for id ${id}`)
 ) {
   it(`(In a temporary article) ${title}`, () => {
     createAndEditArticle()
