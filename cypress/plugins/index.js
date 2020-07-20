@@ -1,4 +1,3 @@
-const browserify = require('@cypress/browserify-preprocessor');
 const fs = require('fs');
 const { cookie } = require('../../src/utils/cookie');
 
@@ -16,10 +15,4 @@ module.exports = (on) => {
       return undefined;
     },
   });
-  on(
-    'file:preprocessor',
-    browserify({
-      typescript: require.resolve('typescript'),
-    })
-  );
 };
