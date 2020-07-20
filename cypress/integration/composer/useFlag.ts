@@ -6,7 +6,7 @@ import { inATemporaryArticle } from '../../utils/composer/inATemporaryArticle';
 describe('Composer Noting Tests', () => {
   beforeEach(() => {
     checkVars();
-    fetchAndSetCookie(true);
+    fetchAndSetCookie({ visitDomain: true });
   });
 
   inATemporaryArticle(

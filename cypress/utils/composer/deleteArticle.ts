@@ -1,6 +1,9 @@
 import { getDomain } from '../networking';
 
-export function deleteArticle(id: string) {
+export function deleteArticle(
+  id: string,
+  options?: { app?: string; stage?: string }
+) {
   return cy
     .get(`a[href*="/content/${id}"]`)
     .click()
@@ -13,5 +16,5 @@ export function deleteArticle(id: string) {
     .click({ force: true })
     .wait(2000)
     .url()
-    .should('equal', `${getDomain()}/`);
+    .should('equal', `${getDomain(options)}/`);
 }
