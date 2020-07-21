@@ -9,11 +9,9 @@ import * as crops from '../../utils/grid/crop';
 import * as image from '../../utils/grid/image';
 import * as collections from '../../utils/grid/collections';
 import { resetCollection } from '../../utils/grid/collections';
-import config from '../../../env.json';
 import { createAndEditArticle } from '../../utils/composer/createArticle';
 import { getId } from '../../utils/composer/getId';
-import { deleteArticle } from '../../utils/composer/deleteArticle';
-import { stopEditingAndClose } from '../../utils/composer/stopEditingAndClose';
+import { deleteArticleFromManagement } from '../../utils/composer/deleteArticle';
 
 // ID of `cypress/fixtures/GridmonTestImage.png`
 const dragImageID = getImageHash();
@@ -207,9 +205,6 @@ describe('Grid Key User Journeys', function () {
       const id = getId(url, { app: 'composer', stage: composerStage });
       cy.log('Article id is ', id);
 
-      // Click into article
-      cy.get('.body-block-layout').click();
-
       // Click on Add Image button
       cy.get('.add-item__icon__svg--image').should('exist').click();
 
@@ -247,17 +242,10 @@ describe('Grid Key User Journeys', function () {
         .click({ force: true })
         .click({ force: true }); // Confirm delete by clicking twice
 
-      stopEditingAndClose();
-      deleteArticle(id, { app: 'composer', stage: composerStage });
-
-      cy.visit(getImageURL(), {
-        onBeforeLoad(win) {
-          cy.stub(win, 'prompt').returns('DELETE');
-        },
+      deleteArticleFromManagement(id, {
+        app: 'composer',
+        stage: composerStage,
       });
-
-      // Go to image and delete crops
-      crops.deleteAllCrops();
     });
   });
 });
