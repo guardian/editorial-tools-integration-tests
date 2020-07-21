@@ -18,7 +18,7 @@ import { stopEditingAndClose } from '../../utils/composer/stopEditingAndClose';
 // ID of `cypress/fixtures/GridmonTestImage.png`
 const dragImageID = getImageHash();
 const rootCollection = 'Cypress Integration Testing';
-const date = new Date().toString();
+const date = Date.now().toString();
 const waits = { createCrop: 1000 };
 
 function setupAliases() {
@@ -60,11 +60,7 @@ describe('Grid Key User Journeys', function () {
       prefix: 'cropper',
     })}/crops/${getImageHash()}`;
 
-    // For some reason, on production infrastructure, Cypress interacts with the browser differently and the crop.xValue gets reduced by 1.
-    // This is a bug that should be investigated, but for now it's easier to just make a different assertion
-    const cropID = `${
-      config.isDev ? Number(crop.xValue) : Number(crop.xValue) - 1
-    }_${crop.yValue}_${crop.width}_${crop.height}`;
+    const cropID = `${crop.xValue}_${crop.yValue}_${crop.width}_${crop.height}`;
 
     cy.visit(getDomain(), {
       onBeforeLoad(win) {
