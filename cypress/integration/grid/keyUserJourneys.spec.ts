@@ -9,10 +9,12 @@ import * as crops from '../../utils/grid/crop';
 import * as image from '../../utils/grid/image';
 import * as collections from '../../utils/grid/collections';
 import { resetCollection } from '../../utils/grid/collections';
-import config from '../../../env.json';
 import { createAndEditArticle } from '../../utils/composer/createArticle';
 import { getId } from '../../utils/composer/getId';
-import { deleteArticle } from '../../utils/composer/deleteArticle';
+import {
+  deleteArticle,
+  deleteArticlesViaApi,
+} from '../../utils/composer/deleteArticle';
 import { stopEditingAndClose } from '../../utils/composer/stopEditingAndClose';
 
 // ID of `cypress/fixtures/GridmonTestImage.png`
@@ -20,6 +22,7 @@ const dragImageID = getImageHash();
 const rootCollection = 'Cypress Integration Testing';
 const date = Date.now().toString();
 const waits = { createCrop: 1000 };
+const articlesToDelete: string[] = [];
 
 function setupAliases() {
   cy.server();
@@ -32,6 +35,7 @@ describe('Grid Key User Journeys', function () {
   before(() => {
     checkVars();
     fetchAndSetCookie({ visitDomain: false });
+    deleteArticlesViaApi(articlesToDelete);
     deleteImages(cy, [getImageHash()]);
     resetCollection(cy, rootCollection);
   });
@@ -44,6 +48,7 @@ describe('Grid Key User Journeys', function () {
   after(() => {
     fetchAndSetCookie({ visitDomain: false });
     deleteImages(cy, [getImageHash()]);
+    deleteArticlesViaApi(articlesToDelete);
     resetCollection(cy, rootCollection);
   });
 
@@ -206,6 +211,7 @@ describe('Grid Key User Journeys', function () {
     cy.url().then(async (url) => {
       const id = getId(url, { app: 'composer', stage: composerStage });
       cy.log('Article id is ', id);
+      articlesToDelete.push(id);
 
       // Click into article
       cy.get('.body-block-layout').click();

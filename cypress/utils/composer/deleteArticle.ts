@@ -18,3 +18,16 @@ export function deleteArticle(
     .url()
     .should('equal', `${getDomain(options)}/`);
 }
+
+export function deleteArticlesViaApi(articles: string[]) {
+  articles.map((article) => {
+    const endpoint = `${getDomain({ app: 'composer' })}/api/content/${article}`;
+    cy.request({
+      method: 'DELETE',
+      url: endpoint,
+      headers: {
+        Origin: getDomain({ app: 'integration-tests' }),
+      },
+    });
+  });
+}
