@@ -1,3 +1,14 @@
+export function dragImageToGrid(fixture: string) {
+  cy.get('[data-cy="upload-button"]').attachFile(fixture, {
+    subjectType: 'drag-n-drop',
+  });
+}
+
+export function ensureImageUploadedCorrectly() {
+  cy.get('.job-status').should('not.contain', 'uploading');
+  cy.get('.job-status').should('not.contain', ' upload error (unknown) ');
+}
+
 export function setRights(rightsType: string, usage: string) {
   cy.get('ui-upload-jobs [data-cy=edit-rights-button]')
     .click({ force: true })

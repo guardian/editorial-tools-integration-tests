@@ -66,10 +66,9 @@ describe('Grid Key User Journeys', function () {
       },
     });
 
-    // Drag image to Grid
-    cy.get('[data-cy="upload-button"]').attachFile('GridmonTestImage.png', {
-      subjectType: 'drag-n-drop',
-    });
+    uploads.dragImageToGrid('GridmonTestImage.png');
+    uploads.ensureImageUploadedCorrectly();
+
     cy.get('ui-upload-jobs .result-editor__img', { timeout: 10000 }).should(
       'exist'
     );
@@ -139,7 +138,12 @@ describe('Grid Key User Journeys', function () {
   });
 
   it('User can edit the image rights, description, byline, credit, copyright, label', () => {
-    cy.visit(getImageURL()).wait('@getImage');
+    cy.visit(getImageURL());
+
+    cy.wait('@getImage').should((xhr) => {
+      expect(xhr.status, 'Image is found').to.equal(200);
+      // assert any other XHR properties
+    });
 
     image.editRights('screengrab', date);
     image.editDescription(date);
@@ -175,7 +179,9 @@ describe('Grid Key User Journeys', function () {
       .should('not.exist');
   });
 
-  it('Use Grid from within Composer to crop and import and image into an article', () => {
+  xit('Use Grid from within Composer to crop and import and image into an article', () => {
+    // TODO: Fix the issue where iframing gives us a cross-origin error between grid and composer
+
     const composerStage =
       Cypress.env('STAGE').toLowerCase() === 'test'
         ? 'code'
@@ -187,10 +193,9 @@ describe('Grid Key User Journeys', function () {
 
     cy.visit(getDomain());
 
-    // Drag image to Grid
-    cy.get('[data-cy="upload-button"]').attachFile('GridmonTestImage.png', {
-      subjectType: 'drag-n-drop',
-    });
+    uploads.dragImageToGrid('GridmonTestImage.png');
+    uploads.ensureImageUploadedCorrectly();
+
     cy.get('ui-upload-jobs .result-editor__img', { timeout: 10000 }).should(
       'exist'
     );
