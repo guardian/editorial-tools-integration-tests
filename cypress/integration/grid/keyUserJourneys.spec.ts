@@ -175,7 +175,7 @@ describe('Grid Key User Journeys', function () {
       .should('not.exist');
   });
 
-  it.only('Use Grid from within Composer to crop and import and image into an article', () => {
+  it('Use Grid from within Composer to crop and import and image into an article', () => {
     const composerStage =
       Cypress.env('STAGE').toLowerCase() === 'test'
         ? 'code'
@@ -204,34 +204,6 @@ describe('Grid Key User Journeys', function () {
     cy.url().then(async (url) => {
       const id = getId(url, { app: 'composer', stage: composerStage });
       cy.log('Article id is ', id);
-
-      // Click into article
-      cy.get('.ProseMirror').click();
-
-      cy.get('body')
-        .then(($body) => {
-          const thingToFind =
-            '.margin-right-small .ng-pristine ng-untouched ng-valid ng-empty';
-          // synchronously query from body
-          // to find which element was created
-          if ($body.find(thingToFind).length) {
-            console.log('here', $body.find(thingToFind));
-            cy.log('here', $body.find(thingToFind));
-            return thingToFind;
-          } else {
-            console.log('did not find it!');
-            return undefined;
-          }
-        })
-        .then((selector) => {
-          if (selector.selector !== 'body') {
-            console.log(selector);
-            cy.get(selector).click();
-            cy.get('.btn .btn--danger').click();
-          } else {
-            console.log('no presence indicated');
-          }
-        });
 
       // Click on Add Image button
       cy.get('.add-item__icon__svg--image').should('exist').click();
