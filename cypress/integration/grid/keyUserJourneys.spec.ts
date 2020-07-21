@@ -9,11 +9,9 @@ import * as crops from '../../utils/grid/crop';
 import * as image from '../../utils/grid/image';
 import * as collections from '../../utils/grid/collections';
 import { resetCollection } from '../../utils/grid/collections';
-import config from '../../../env.json';
 import { createAndEditArticle } from '../../utils/composer/createArticle';
 import { getId } from '../../utils/composer/getId';
-import { deleteArticle } from '../../utils/composer/deleteArticle';
-import { stopEditingAndClose } from '../../utils/composer/stopEditingAndClose';
+import { deleteArticleFromManagement } from '../../utils/composer/deleteArticle';
 
 // ID of `cypress/fixtures/GridmonTestImage.png`
 const dragImageID = getImageHash();
@@ -177,7 +175,7 @@ describe('Grid Key User Journeys', function () {
       .should('not.exist');
   });
 
-  it('Use Grid from within Composer to crop and import and image into an article', () => {
+  it.only('Use Grid from within Composer to crop and import and image into an article', () => {
     const composerStage =
       Cypress.env('STAGE').toLowerCase() === 'test'
         ? 'code'
@@ -208,7 +206,32 @@ describe('Grid Key User Journeys', function () {
       cy.log('Article id is ', id);
 
       // Click into article
-      cy.get('.body-block-layout').click();
+      cy.get('.ProseMirror').click();
+
+      cy.get('body')
+        .then(($body) => {
+          const thingToFind =
+            '.margin-right-small .ng-pristine ng-untouched ng-valid ng-empty';
+          // synchronously query from body
+          // to find which element was created
+          if ($body.find(thingToFind).length) {
+            console.log('here', $body.find(thingToFind));
+            cy.log('here', $body.find(thingToFind));
+            return thingToFind;
+          } else {
+            console.log('did not find it!');
+            return undefined;
+          }
+        })
+        .then((selector) => {
+          if (selector.selector !== 'body') {
+            console.log(selector);
+            cy.get(selector).click();
+            cy.get('.btn .btn--danger').click();
+          } else {
+            console.log('no presence indicated');
+          }
+        });
 
       // Click on Add Image button
       cy.get('.add-item__icon__svg--image').should('exist').click();
@@ -247,17 +270,10 @@ describe('Grid Key User Journeys', function () {
         .click({ force: true })
         .click({ force: true }); // Confirm delete by clicking twice
 
-      stopEditingAndClose();
-      deleteArticle(id, { app: 'composer', stage: composerStage });
-
-      cy.visit(getImageURL(), {
-        onBeforeLoad(win) {
-          cy.stub(win, 'prompt').returns('DELETE');
-        },
+      deleteArticleFromManagement(id, {
+        app: 'composer',
+        stage: composerStage,
       });
-
-      // Go to image and delete crops
-      crops.deleteAllCrops();
     });
   });
 });

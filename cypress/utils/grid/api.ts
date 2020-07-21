@@ -37,6 +37,8 @@ export async function deleteImages(
       },
     });
 
+    cy.wait(500);
+
     const url = `${getDomain({ prefix: 'api' })}/images/${id}`;
     cy.request({
       method: 'DELETE',
