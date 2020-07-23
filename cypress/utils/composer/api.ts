@@ -10,7 +10,7 @@ interface Content {
 }
 
 export const deleteAllArticles = () => {
-  const apiBaseUrl = `${getDomain()}/api`;
+  const apiBaseUrl = `${getDomain({ app: 'composer' })}/api`;
 
   cy.request({
     url: `${apiBaseUrl}/content?collaboratorEmail=${env.user.email}`,
