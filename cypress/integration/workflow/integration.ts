@@ -26,7 +26,7 @@ describe('Workflow Integration Tests', () => {
     cy.get('[wf-dropdown-toggle]').contains('Create new').click();
     cy.get('#testing-dashboard-create-dropdown-Article').click();
     cy.get('#stub_title').type(articleTitle);
-    cy.get('#stub_section').select('UK News');
+    cy.get('#stub_section').select('Training');
     cy.get('#testing-create-in-composer').click();
     cy.get('.modal-dialog')
       .contains('Completed successfully!')
