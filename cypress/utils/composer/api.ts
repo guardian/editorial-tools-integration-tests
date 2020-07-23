@@ -29,9 +29,9 @@ export const deleteAllArticles = () => {
       `${data.length} articles by ${env.user.email}, attempting to delete ${deletable.length} unpublished`
     );
 
-    deletable.forEach((article) => {
+    deletable.forEach(({ data }) => {
       cy.request({
-        url: `${apiBaseUrl}/content/${article.id}`,
+        url: `${apiBaseUrl}/content/${data.id}`,
         method: 'DELETE',
         headers: {
           Origin: getDomain({ app: 'integration-tests' }),
