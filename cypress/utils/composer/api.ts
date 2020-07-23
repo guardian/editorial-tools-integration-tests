@@ -21,9 +21,9 @@ export const deleteAllArticles = () => {
       Origin: getDomain({ app: 'integration-tests' }),
     },
   }).then(({ body: { data: data } }: { body: { data: ContentResponse[] } }) => {
-    const deletable: Partial<Content>[] = data
-      .filter(({ data }) => !data.published && data.collaborators.length < 2)
-      .map(({ data }) => ({ id: data.id, collaborators: data.collaborators }));
+    const deletable = data.filter(
+      ({ data }) => !data.published && data.collaborators.length < 2
+    );
 
     cy.log(
       `${data.length} articles by ${env.user.email}, attempting to delete ${deletable.length} unpublished`
