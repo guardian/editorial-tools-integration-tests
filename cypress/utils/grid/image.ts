@@ -1,9 +1,11 @@
+import config from '../../../cypress.json';
+
 export function editRights(rightsType: string, usage: string) {
   cy.get('[data-cy=it-edit-usage-rights-button]').click({ force: true });
   cy.get('[data-cy=it-rights-select]').select(rightsType);
   cy.get('[data-cy=it-edit-usage-input]').type(usage);
   cy.get('.ure__bar > .button-save')
-    .click({ timeout: 10000 }) // Why do we need to wait?
+    .click({ timeout: config.defaultCommandTimeout }) // Why do we need to wait?
     .should('not.exist');
 }
 
