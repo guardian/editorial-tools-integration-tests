@@ -2,12 +2,18 @@ import { checkVars } from '../../utils/vars';
 import { fetchAndSetCookie } from '../../utils/networking';
 import { inATemporaryArticle } from '../../utils/composer/inATemporaryArticle';
 import { expectPreview } from '../../utils/composer/expectPreview';
+import { deleteAllArticles } from '../../utils/composer/api';
 
 describe('Composer Integration Tests', () => {
   beforeEach(() => {
     checkVars();
     fetchAndSetCookie({ visitDomain: true });
   });
+
+  after(() => {
+    deleteAllArticles();
+  });
+
   describe('Composer Basic Behaviour Tests', () => {
     inATemporaryArticle('Do nothing but create and delete');
   });
