@@ -1,14 +1,12 @@
 import { getDomain } from '../networking';
 import env from '../../../env.json';
 
-interface ContentResponse {
-  data: Content;
-}
-
 interface Content {
-  published: boolean;
-  id: string;
-  collaborators: [];
+  data: {
+    published: boolean;
+    id: string;
+    collaborators: [];
+  };
 }
 
 export const deleteAllArticles = () => {
@@ -20,13 +18,13 @@ export const deleteAllArticles = () => {
     headers: {
       Origin: getDomain({ app: 'integration-tests' }),
     },
-  }).then(({ body: { data: data } }: { body: { data: ContentResponse[] } }) => {
-    const deletable = data.filter(
+  }).then(({ body: { data: contents } }: { body: { data: Content[] } }) => {
+    const deletable = contents.filter(
       ({ data }) => !data.published && data.collaborators.length < 2
     );
 
     cy.log(
-      `${data.length} articles by ${env.user.email}, attempting to delete ${deletable.length} unpublished`
+      `${contents.length} articles by ${env.user.email}, attempting to delete ${deletable.length} unpublished`
     );
 
     deletable.forEach(({ data }) => {
