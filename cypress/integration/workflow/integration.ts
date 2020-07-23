@@ -1,11 +1,6 @@
 import { checkVars } from '../../utils/vars';
 import { fetchAndSetCookie, getDomain } from '../../utils/networking';
 import { deleteAllArticles } from '../../utils/composer/api';
-import { createAndEditArticle } from '../../utils/composer/createArticle';
-import { getId } from '../../utils/composer/getId';
-import { startEditing } from '../../utils/composer/startEditing';
-import { stopEditingAndClose } from '../../utils/composer/stopEditingAndClose';
-import { deleteArticle } from '../../utils/composer/deleteArticle';
 
 describe('Workflow Integration Tests', () => {
   beforeEach(() => {
@@ -28,15 +23,14 @@ describe('Workflow Integration Tests', () => {
     cy.visit(getDomain());
 
     // Create article
-    cy.get('[wf-dropdown-toggle]')
-      .contains('Create new')
-      .click()
-      .get('#testing-dashboard-create-dropdown-Article')
-      .click()
-      .get('#stub_title')
-      .type(articleTitle)
-      .get('#testing-create-in-composer')
-      .click()
+    cy.get('[wf-dropdown-toggle]').contains('Create new').click();
+    cy.get('#testing-dashboard-create-dropdown-Article').click();
+    cy.get('#stub_title').type(articleTitle);
+    cy.get('#stub_section').select('UK News');
+    cy.get('#testing-create-in-composer').click();
+    cy.get('.modal-dialog')
+      .contains('Completed successfully!')
+      .should('exist')
       .get('.close')
       .click();
 
