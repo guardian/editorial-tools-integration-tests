@@ -19,6 +19,12 @@ describe('Workflow Integration Tests', () => {
   });
 
   it('Create an article from within Workflow', function () {
+    const articleTitle = `Cypress Integration Testing Article ${Date.now()}`;
+    cy.server();
+    cy.route(`/api/content?text=${articleTitle.split(' ').join('+')}`).as(
+      'searchForArticle'
+    );
+
     cy.visit(getDomain());
 
     // Create article
@@ -28,17 +34,24 @@ describe('Workflow Integration Tests', () => {
       .get('#testing-dashboard-create-dropdown-Article')
       .click()
       .get('#stub_title')
-      .type(`Cypress Integration Testing Article ${Date.now()}`)
+      .type(articleTitle)
       .get('#testing-create-in-composer')
+      .click()
+      .get('.close')
       .click();
-  });
 
-  xit('Delete an article from within Workflow', function () {
-    cy.visit(getDomain({ app: 'composer' }));
-    createAndEditArticle();
-    cy.url().then((url) => {
-      const id = getId(url, { app: 'composer' });
-    });
-    cy.pause();
+    // Search for it in Workflow
+    cy.get('#testing-dashboard-toolbar-section-search').type(
+      articleTitle + '{enter}'
+    );
+
+    // Delete from within Workflow
+    cy.wait('@searchForArticle')
+      .get('#testing-content-list-item-title-anchor-text')
+      .contains(articleTitle)
+      .parent()
+      .click();
+
+    cy.get('.drawer__toolbar-item--danger').click();
   });
 });
