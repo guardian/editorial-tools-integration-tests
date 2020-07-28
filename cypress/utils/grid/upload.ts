@@ -10,9 +10,8 @@ export function ensureImageUploadedCorrectly() {
 }
 
 export function setRights(rightsType: string, usage: string) {
-  cy.get('ui-upload-jobs [data-cy=edit-rights-button]')
-    .click({ force: true })
-    .get('ui-upload-jobs [data-cy=it-rights-select]')
+  cy.get('ui-upload-jobs [data-cy=it-rights-select]')
+    .should('be.visible')
     .select(rightsType)
     .get('ui-upload-jobs [data-cy=it-edit-usage-input]')
     .type(usage)
