@@ -6,11 +6,22 @@ interface Content {
     published: boolean;
     id: string;
     collaborators: [];
+    contentChangeDetails: {
+      data: {
+        created: {
+          user: {
+            email: string;
+            firstName: string;
+            lastName: string;
+          };
+        };
+      };
+    };
   };
 }
 
 export const deleteAllArticles = () => {
-  const apiBaseUrl = `${getDomain()}/api`;
+  const apiBaseUrl = `${getDomain({ app: 'composer' })}/api`;
 
   cy.request({
     url: `${apiBaseUrl}/content?collaboratorEmail=${env.user.email}`,
@@ -20,7 +31,10 @@ export const deleteAllArticles = () => {
     },
   }).then(({ body: { data: contents } }: { body: { data: Content[] } }) => {
     const deletable = contents.filter(
-      ({ data }) => !data.published && data.collaborators.length < 2
+      ({ data }) =>
+        !data.published &&
+        data.collaborators.length < 2 &&
+        data.contentChangeDetails.data.created.user.email === env.user.email
     );
 
     cy.log(
