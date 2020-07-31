@@ -21,5 +21,6 @@ pushd "${DIR}"/../ > /dev/null
 
 runTests grid
 runTests composer
+runTests workflow
 
 popd > /dev/null
