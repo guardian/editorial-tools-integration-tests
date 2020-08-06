@@ -13,7 +13,8 @@ describe('Workflow Integration Tests', () => {
     deleteAllArticles();
   });
 
-  it('Create an article from within Workflow', function () {
+  // Skipping for now, as search bar behaviour makes this flappy
+  xit('Create an article from within Workflow', function () {
     const articleTitle = `Cypress Integration Testing Article ${Date.now()}`;
     cy.server();
     cy.route(`/api/content?text=${articleTitle.split(' ').join('+')}`).as(
@@ -39,13 +40,16 @@ describe('Workflow Integration Tests', () => {
       articleTitle + '{enter}'
     );
 
-    // Delete from within Workflow
+    // TODO: Anticipate weird search bar behaviour in Workflow
+
+    // Select article in Workflow
     cy.wait('@searchForArticle')
       .get('#testing-content-list-item-title-anchor-text')
       .contains(articleTitle)
       .parent()
       .click();
 
+    // Delete from within Workflow
     cy.get('.drawer__toolbar-item--danger').click();
   });
 });
