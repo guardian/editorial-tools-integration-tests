@@ -4,5 +4,5 @@
   "viewportWidth": 1280,
   "viewportHeight": 720,
   "videoCompression": false,
-  "defaultCommandTimeout": 10000
+  "defaultCommandTimeout": 20000
 }
