@@ -19,8 +19,6 @@ echo "$(date): Running integration tests"
 
 pushd "${DIR}"/../ > /dev/null
 
-# To make a test suite run in prod, add it here
-# runTests <APP>
 runTests grid
 runTests composer
 runTests workflow
