@@ -9,7 +9,7 @@ function runTests() {
     SUITE=$1
     FAILURES_FILE="${DIR}/../${SUITE}.failures.txt"
     rm "${FAILURES_FILE}" || true
-    SUITE=${SUITE} STAGE="${STAGE}" npm run cy:live || true
+    SUITE=${SUITE} STAGE="${STAGE}" npm run --silent cy:live || true
     SUITE=${SUITE} STAGE="${STAGE}" node scripts/uploadVideo.js
 }
 
