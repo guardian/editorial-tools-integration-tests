@@ -15,4 +15,4 @@ if [[ -z "${APP}" || -z "${STAGE}" ]]; then
   exit 1
 fi
 
-APP="${APP}" STAGE="${STAGE}" npm run --silent start
+APP="${APP}" STAGE="${STAGE}" yarn start

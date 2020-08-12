@@ -12,35 +12,35 @@ For more Composer and Workflow testing, see [editorial-tools-production-monitori
 ## Setup
 
 ```shell script
-$ npm install # Fetches the node modules
+$ yarn # Fetches the node modules
 $ ./scripts/setup.sh # Fetches config
 ```
 
 ## Run against remote service
 
 ```shell script
-$ npm run --silent <application>-<stage>
+$ yarn <application>-<stage>
 
-# Or, if you haven't set up the npm script, you can use start.sh
+# Or, if you haven't set up the yarn script, you can use start.sh
 $ ./scripts/start.sh <application> <stage>
 $ ./scripts/start.sh grid test
 ```
 
-Running `scripts/start.sh` in essence does the same as the npm run script above, 
-but doesn't require you to define the npm script first if you do not want to.
+Running `scripts/start.sh` in essence does the same as the yarn script above, 
+but doesn't require you to define the yarn script first if you do not want to.
 
-Note that not all applications and environments are supported!  Use `npm run` to list. 
+Note that not all applications and environments are supported!  Use `yarn` to list. 
 
 For example: 
 
 ```shell script
-$ npm run --silent grid-prod
+$ yarn grid-prod
 ```
 
 ## Run locally
 
 1. Spin up a local instance of the Grid
-2. Run `npm run --silent grid-local`
+2. Run `yarn grid-local`
 
 ## To develop
 
