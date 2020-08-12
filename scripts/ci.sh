@@ -3,7 +3,7 @@
 set -e
 
 echo "##teamcity[blockOpened name='npm']"
-npm ci
+yarn
 echo "##teamcity[blockClosed name='npm']"
 
 echo "##teamcity[testSuiteStarted name='lint']"
