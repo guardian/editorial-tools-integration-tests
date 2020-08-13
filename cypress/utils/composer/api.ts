@@ -54,9 +54,7 @@ export const deleteAllArticles = () => {
       `${contents.length} articles by ${env.user.email}, attempting to delete ${deletable.length} unpublished`
     );
 
-    deletable.forEach(({ data }) => {
-      deleteContent(data.id);
-    });
+    deletable.forEach(({ data }) => deleteContent(data.id));
   });
 };
 
@@ -72,9 +70,7 @@ export const deleteArticlesFromWorkflow = (contentPrefix: string) => {
   cy.request({
     url: urlWithParams,
     method: 'GET',
-    headers: {
-      Origin: origin,
-    },
+    headers: { Origin: origin },
   }).then((response) => {
     const ids =
       JSON.parse(response.body)
@@ -82,7 +78,7 @@ export const deleteArticlesFromWorkflow = (contentPrefix: string) => {
           (content: { published: boolean; wordCount: number }) =>
             !content.published && content.wordCount === 0
         )
-        .map((_) => _.composerId) || [];
+        .map((content: { composerId: string }) => content.composerId) || [];
 
     cy.log(
       `${ids.length} articles by ${env.user.email}, attempting to delete...`
