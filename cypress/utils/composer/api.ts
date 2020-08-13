@@ -27,17 +27,9 @@ function deleteContent(id: string) {
   cy.request({
     url,
     method: 'DELETE',
-    failOnStatusCode: false,
     headers: {
       Origin: getDomain({ app: 'integration-tests' }),
     },
-  }).then((response) => {
-    if (response.status !== 404 && response.status !== 202) {
-      console.log('DELETE ERROR', response, url);
-      throw new Error(
-        `${response.status} (${response.statusText}) response from DELETE ${id}`
-      );
-    }
   });
 }
 
@@ -76,7 +68,6 @@ export const deleteArticlesFromWorkflow = (contentPrefix: string) => {
     '+'
   )}`;
   const origin = getDomain({ app: 'integration-tests' });
-  console.log(urlWithParams, origin);
 
   cy.request({
     url: urlWithParams,
@@ -85,11 +76,13 @@ export const deleteArticlesFromWorkflow = (contentPrefix: string) => {
       Origin: origin,
     },
   }).then((response) => {
-    const ids = JSON.parse(response.body)
-      .content?.Writers.filter(
-        (content: { published: boolean }) => !content.published
-      )
-      .map((_) => _.composerId);
+    const ids =
+      JSON.parse(response.body)
+        .content?.Writers?.filter(
+          (content: { published: boolean; wordCount: number }) =>
+            !content.published && content.wordCount === 0
+        )
+        .map((_) => _.composerId) || [];
 
     cy.log(
       `${ids.length} articles by ${env.user.email}, attempting to delete...`

@@ -9,7 +9,6 @@ describe('Workflow Integration Tests', () => {
   beforeEach(() => {
     checkVars();
     fetchAndSetCookie({ visitDomain: false });
-    deleteArticlesFromWorkflow(contentTitlePrefix);
   });
 
   after(() => {
