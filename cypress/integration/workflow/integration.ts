@@ -50,6 +50,7 @@ describe('Workflow Integration Tests', () => {
 
     // Click on search result
     cy.wait('@searchForArticle')
+      .wait(2000)
       .get('#testing-content-list-item-title-anchor-text')
       .contains(articleTitle)
       .should('exist')
