@@ -42,7 +42,7 @@ describe('Workflow Integration Tests', () => {
       .contains('Completed successfully!')
       .should('be.visible')
       .get('.alert-danger')
-      .should('not.exist')
+      .should('not.be.visible')
       .get('.close')
       .click()
       .wait('@stubs');
