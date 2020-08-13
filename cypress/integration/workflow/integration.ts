@@ -1,17 +1,20 @@
 import { checkVars } from '../../utils/vars';
 import { fetchAndSetCookie, getDomain } from '../../utils/networking';
-import { deleteAllArticles } from '../../utils/composer/api';
+import { deleteArticlesFromWorkflow } from '../../utils/composer/api';
 
-const articleTitle = `Cypress Integration Testing Article ${Date.now()}`;
+const contentTitlePrefix = `Cypress Integration Testing Article`;
+const uniqueContentTitle = `${contentTitlePrefix} ${Date.now()}`;
+
 describe('Workflow Integration Tests', () => {
   beforeEach(() => {
     checkVars();
     fetchAndSetCookie({ visitDomain: false });
+    deleteArticlesFromWorkflow(contentTitlePrefix);
   });
 
   after(() => {
     fetchAndSetCookie({ visitDomain: false });
-    deleteAllArticles();
+    deleteArticlesFromWorkflow(contentTitlePrefix);
   });
 
   it('Create an article from within Workflow', function () {
@@ -21,7 +24,7 @@ describe('Workflow Integration Tests', () => {
       method: 'POST',
       url: '/api/stubs',
     }).as('stubs');
-    cy.route(`/api/content?text=${articleTitle.replace(/\s/g, '+')}`).as(
+    cy.route(`/api/content?text=${uniqueContentTitle.replace(/\s/g, '+')}`).as(
       'searchForArticle'
     );
 
@@ -33,25 +36,27 @@ describe('Workflow Integration Tests', () => {
     // Create article
     cy.get('[wf-dropdown-toggle]').contains('Create new').click();
     cy.get('#testing-dashboard-create-dropdown-Article').click();
-    cy.get('#stub_title').type(articleTitle);
+    cy.get('#stub_title').type(uniqueContentTitle);
     cy.get('#stub_section').select('Training');
     cy.get('#testing-create-in-composer').click();
     cy.get('.modal-dialog')
       .contains('Completed successfully!')
-      .should('exist')
+      .should('be.visible')
+      .get('.alert-danger')
+      .should('not.exist')
       .get('.close')
       .click()
       .wait('@stubs');
 
     // Search for it in Workflow
     cy.get('#testing-dashboard-toolbar-section-search').type(
-      articleTitle + '{enter}'
+      uniqueContentTitle + '{enter}'
     );
 
     // Click on search result
     cy.wait('@searchForArticle')
       .get('#testing-content-list-item-title-anchor-text')
-      .contains(articleTitle)
+      .contains(uniqueContentTitle)
       .should('exist')
       .parent()
       .click();

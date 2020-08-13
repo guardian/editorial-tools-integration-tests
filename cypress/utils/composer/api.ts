@@ -20,6 +20,27 @@ interface Content {
   };
 }
 
+function deleteContent(id: string) {
+  const apiBaseUrl = `${getDomain({ app: 'composer' })}/api`;
+  const url = `${apiBaseUrl}/content/${id}`;
+
+  cy.request({
+    url,
+    method: 'DELETE',
+    failOnStatusCode: false,
+    headers: {
+      Origin: getDomain({ app: 'integration-tests' }),
+    },
+  }).then((response) => {
+    if (response.status !== 404 && response.status !== 202) {
+      console.log('DELETE ERROR', response, url);
+      throw new Error(
+        `${response.status} (${response.statusText}) response from DELETE ${id}`
+      );
+    }
+  });
+}
+
 export const deleteAllArticles = () => {
   const apiBaseUrl = `${getDomain({ app: 'composer' })}/api`;
 
@@ -42,13 +63,37 @@ export const deleteAllArticles = () => {
     );
 
     deletable.forEach(({ data }) => {
-      cy.request({
-        url: `${apiBaseUrl}/content/${data.id}`,
-        method: 'DELETE',
-        headers: {
-          Origin: getDomain({ app: 'integration-tests' }),
-        },
-      });
+      deleteContent(data.id);
     });
+  });
+};
+
+export const deleteArticlesFromWorkflow = (contentPrefix: string) => {
+  const workflowBaseUrl = `${getDomain({ app: 'workflow' })}/api/content`;
+
+  const urlWithParams = `${workflowBaseUrl}?text=${contentPrefix.replace(
+    /\s/g,
+    '+'
+  )}`;
+  const origin = getDomain({ app: 'integration-tests' });
+  console.log(urlWithParams, origin);
+
+  cy.request({
+    url: urlWithParams,
+    method: 'GET',
+    headers: {
+      Origin: origin,
+    },
+  }).then((response) => {
+    const ids = JSON.parse(response.body)
+      .content?.Writers.filter(
+        (content: { published: boolean }) => !content.published
+      )
+      .map((_) => _.composerId);
+
+    cy.log(
+      `${ids.length} articles by ${env.user.email}, attempting to delete...`
+    );
+    ids.map((id: string) => deleteContent(id));
   });
 };
