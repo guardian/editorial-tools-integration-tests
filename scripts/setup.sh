@@ -13,7 +13,7 @@ plain='\x1B[0m' # No Color
 
 checkForNodeModules() {
   if [[ ! -d ${DIR}/../node_modules ]]; then
-    echo -e "${red}No node_modules found, please run npm install.${plain}"
+    echo -e "${red}No node_modules found, please run yarn.${plain}"
     exit 1
   fi
 }
