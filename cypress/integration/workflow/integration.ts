@@ -3,7 +3,6 @@ import { fetchAndSetCookie, getDomain } from '../../utils/networking';
 import { deleteAllArticles } from '../../utils/composer/api';
 
 const articleTitle = `Cypress Integration Testing Article ${Date.now()}`;
-
 describe('Workflow Integration Tests', () => {
   beforeEach(() => {
     checkVars();
@@ -22,7 +21,7 @@ describe('Workflow Integration Tests', () => {
       method: 'POST',
       url: '/api/stubs',
     }).as('stubs');
-    cy.route(`/api/content?text=${articleTitle.split(' ').join('+')}`).as(
+    cy.route(`/api/content?text=${articleTitle.replace(/\s/g, '+')}`).as(
       'searchForArticle'
     );
 
