@@ -16,7 +16,7 @@ describe('Workflow Integration Tests', () => {
 
   it('Create an article from within Workflow', function () {
     cy.server();
-    cy.route('/api/content').as('content');
+    cy.route('/api/content?status=Writers').as('content');
     cy.route({
       method: 'POST',
       url: '/api/stubs',
@@ -25,7 +25,7 @@ describe('Workflow Integration Tests', () => {
       'searchForArticle'
     );
 
-    cy.visit(getDomain())
+    cy.visit(`${getDomain()}/dashboard?status=Writers`)
       .wait('@content')
       .get('.wf-loader', { timeout: 30000 })
       .should('not.exist');
