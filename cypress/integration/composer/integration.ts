@@ -7,7 +7,7 @@ import { deleteAllArticles } from '../../utils/composer/api';
 describe('Composer Integration Tests', () => {
   beforeEach(() => {
     checkVars();
-    fetchAndSetCookie({ visitDomain: true });
+    fetchAndSetCookie({ visitDomain: false });
   });
 
   after(() => {

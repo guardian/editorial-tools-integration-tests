@@ -12,18 +12,17 @@ export function inATemporaryArticle(
   assertFn: fnArg = (id) => cy.log(`Checked nothing for id ${id}`)
 ) {
   it(`(In a temporary article) ${title}`, () => {
-    createAndEditArticle()
-      .url()
-      .then((url) => {
-        const id = getId(url);
-        startEditing();
-        cy.log('Article id is ', id);
-        editFn(id);
-        stopEditingAndClose();
-        cy.log('Closed the article');
-        assertFn(id);
-        // Go ahead and delete the article
-        deleteArticle(id);
-      });
+    createAndEditArticle();
+    cy.url().then((url) => {
+      const id = getId(url);
+      startEditing();
+      cy.log('Article id is ', id);
+      editFn(id);
+      stopEditingAndClose();
+      cy.log('Closed the article');
+      assertFn(id);
+      // Go ahead and delete the article
+      deleteArticle(id);
+    });
   });
 }
