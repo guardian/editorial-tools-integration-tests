@@ -13,5 +13,7 @@ export function createAndEditArticle() {
     .get('#js-dashboard-create-article')
     .click()
     .wait(2000)
+    .url()
+    .should('include', '/content/')
     .log('Article created');
 }
