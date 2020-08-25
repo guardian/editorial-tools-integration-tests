@@ -2,7 +2,7 @@ import { getDomain } from '../networking';
 
 export const visitWorkflow = (params = '') => {
   cy.visit(getDomain({ app: 'workflow' }) + params)
-    .wait('@content')
+    .wait('@content' + (!!params ? 'WithDefaultQuery' : ''))
     .get('.wf-loader', { timeout: 30000 })
     .should('not.exist');
 };

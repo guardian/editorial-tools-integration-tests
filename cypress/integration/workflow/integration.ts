@@ -7,6 +7,7 @@ import {
   searchInWorkflow,
   clickOnArticle,
 } from '../../utils/workflow/utils';
+import env from '../../../env.json';
 
 const contentTitlePrefix = `Cypress Integration Testing Article`;
 const uniqueContentTitle = `${contentTitlePrefix} ${Date.now()}`;
@@ -17,7 +18,8 @@ const defaultQueryString = '?status=Writers';
 
 function setupRoutes() {
   cy.server();
-  cy.route(`/api/content${defaultQueryString}`).as('content');
+  cy.route('/api/content').as('content');
+  cy.route(`/api/content${defaultQueryString}`).as('contentWithDefaultQuery');
   cy.route({
     method: 'POST',
     url: '/api/stubs',
@@ -25,6 +27,12 @@ function setupRoutes() {
   cy.route(`/api/content?text=${uniqueContentTitle.replace(/\s/g, '+')}`).as(
     'searchForArticle'
   );
+
+  cy.route({
+    method: 'GET',
+    url: `/preferences/${env.user.email}/workflow**`,
+    response: [],
+  });
 }
 
 describe('Workflow Integration Tests', () => {
@@ -69,6 +77,20 @@ describe('Workflow Integration Tests', () => {
     cy.get('#testing-dashboard-toolbar-section-search').clear().type('{enter}');
 
     // Search for just Desk articles
+    cy.get('.top-toolbar')
+      .find('[ui-view=view-toolbar]')
+      .contains('Section')
+      .click()
+      .parent()
+      .contains('Training')
+      .click();
+
+    // Search for just Desk articles
+    cy.get('.top-toolbar')
+      .find('[ui-view=view-toolbar]')
+      .contains('Section')
+      .click();
+
     cy.get('.sidebar').contains('Desk').click();
     searchInWorkflow(uniqueContentTitle);
     clickOnArticle(uniqueContentTitle);
