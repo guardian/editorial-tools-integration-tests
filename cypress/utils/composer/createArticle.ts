@@ -1,9 +1,19 @@
+import { getDomain } from '../networking';
+import env from '../../../env.json';
+
 export function createAndEditArticle() {
-  return cy
-    .get('#js-dashboard-create-dropdown')
+  cy.server();
+  cy.route(`/api/content?collaboratorEmail=${env.user.email}**`).as(
+    'apiCollaborator'
+  );
+
+  cy.visit(getDomain()).wait('@apiCollaborator');
+  cy.get('#js-dashboard-create-dropdown')
     .click()
     .get('#js-dashboard-create-article')
     .click()
     .wait(2000)
+    .url()
+    .should('include', '/content/')
     .log('Article created');
 }
