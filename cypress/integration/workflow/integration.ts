@@ -16,6 +16,9 @@ describe('Workflow Integration Tests', () => {
 
   it('Create an article from within Workflow', function () {
     cy.server();
+    // We restrict our initial query to the Writers' status, which limits the amount
+    // of data the server returns. Unrestricted queries can yield responses of 10MB+,
+    // which take a long time to load and can cause tests to time out.
     cy.route('/api/content?status=Writers').as('content');
     cy.route({
       method: 'POST',
