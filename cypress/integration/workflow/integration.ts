@@ -1,6 +1,12 @@
 import { checkVars } from '../../utils/vars';
-import { fetchAndSetCookie, getDomain } from '../../utils/networking';
+import { fetchAndSetCookie } from '../../utils/networking';
 import { deleteArticlesFromWorkflow } from '../../utils/composer/api';
+import {
+  visitWorkflow,
+  createArticleInWorkflow,
+  searchInWorkflow,
+  clickOnArticle,
+} from '../../utils/workflow/utils';
 
 const contentTitlePrefix = `Cypress Integration Testing Article`;
 const uniqueContentTitle = `${contentTitlePrefix} ${Date.now()}`;
@@ -9,8 +15,21 @@ const uniqueContentTitle = `${contentTitlePrefix} ${Date.now()}`;
 // which take a long time to load and can cause tests to time out.
 const defaultQueryString = '?status=Writers'
 
+function setupRoutes() {
+  cy.server();
+  cy.route(`/api/content${defaultQueryString}`).as('content');
+  cy.route({
+    method: 'POST',
+    url: '/api/stubs',
+  }).as('stubs');
+  cy.route(`/api/content?text=${uniqueContentTitle.replace(/\s/g, '+')}`).as(
+    'searchForArticle'
+  );
+}
+
 describe('Workflow Integration Tests', () => {
   beforeEach(() => {
+    setupRoutes();
     checkVars();
     fetchAndSetCookie({ visitDomain: false });
   });
@@ -21,51 +40,28 @@ describe('Workflow Integration Tests', () => {
   });
 
   it('Create an article from within Workflow', function () {
-    cy.server();
-    cy.route(`/api/content${defaultQueryString}`).as('content');
-    cy.route({
-      method: 'POST',
-      url: '/api/stubs',
-    }).as('stubs');
-    cy.route(`/api/content?text=${uniqueContentTitle.replace(/\s/g, '+')}`).as(
-      'searchForArticle'
-    );
-
     cy.visit(`${getDomain()}/dashboard${defaultQueryString}`)
       .wait('@content')
       .get('.wf-loader', { timeout: 30000 })
       .should('not.exist');
 
-    // Create article
-    cy.get('[wf-dropdown-toggle]').contains('Create new').click();
-    cy.get('#testing-dashboard-create-dropdown-Article').click();
-    cy.get('#stub_title').type(uniqueContentTitle);
-    cy.get('#stub_section').select('Training');
-    cy.get('#testing-create-in-composer').click();
-    cy.get('.modal-dialog')
-      .contains('Completed successfully!')
-      .should('be.visible')
-      .get('.alert-danger')
-      .should('not.be.visible')
-      .get('.close')
-      .click()
-      .wait('@stubs');
+  after(() => {
+    fetchAndSetCookie({ visitDomain: false });
+    deleteArticlesFromWorkflow(contentTitlePrefix);
+  });
 
-    // Search for it in Workflow
-    cy.get('#testing-dashboard-toolbar-section-search').type(
-      uniqueContentTitle + '{enter}'
-    );
-
-    // Click on search result
-    cy.wait('@searchForArticle')
-      .wait(2000)
-      .get('#testing-content-list-item-title-anchor-text')
-      .contains(uniqueContentTitle)
-      .should('exist')
-      .parent()
-      .click();
+  it('Create an article from within Workflow and delete it', function () {
+    visitWorkflow();
+    createArticleInWorkflow(uniqueContentTitle);
+    searchInWorkflow(uniqueContentTitle);
+    clickOnArticle(uniqueContentTitle);
 
     // Delete from within Workflow
     cy.get('.drawer__toolbar-item--danger').click();
+  });
+
+  it('Create an article in Workflow, change status within Composer and delete it', function () {
+    visitWorkflow();
+    createArticleInWorkflow(uniqueContentTitle + 'A');
   });
 });
