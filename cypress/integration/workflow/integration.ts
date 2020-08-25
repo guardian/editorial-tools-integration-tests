@@ -4,6 +4,10 @@ import { deleteArticlesFromWorkflow } from '../../utils/composer/api';
 
 const contentTitlePrefix = `Cypress Integration Testing Article`;
 const uniqueContentTitle = `${contentTitlePrefix} ${Date.now()}`;
+// We restrict our initial query to the Writers' status, which limits the amount
+// of data the server returns. Unrestricted queries can yield responses of 10MB+,
+// which take a long time to load and can cause tests to time out.
+const defaultQueryString = '?status=Writers'
 
 describe('Workflow Integration Tests', () => {
   beforeEach(() => {
@@ -18,7 +22,7 @@ describe('Workflow Integration Tests', () => {
 
   it('Create an article from within Workflow', function () {
     cy.server();
-    cy.route('/api/content').as('content');
+    cy.route(`/api/content${defaultQueryString}`).as('content');
     cy.route({
       method: 'POST',
       url: '/api/stubs',
@@ -27,7 +31,7 @@ describe('Workflow Integration Tests', () => {
       'searchForArticle'
     );
 
-    cy.visit(getDomain())
+    cy.visit(`${getDomain()}/dashboard${defaultQueryString}`)
       .wait('@content')
       .get('.wf-loader', { timeout: 30000 })
       .should('not.exist');
