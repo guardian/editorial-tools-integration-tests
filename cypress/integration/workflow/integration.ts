@@ -27,6 +27,7 @@ function setupRoutes() {
   cy.route(`/api/content?text=${uniqueContentTitle.replace(/\s/g, '+')}`).as(
     'searchForArticle'
   );
+  cy.route(`/api/content?text=**`).as('searchForText');
 
   cy.route({
     method: 'GET',
@@ -40,11 +41,6 @@ describe('Workflow Integration Tests', () => {
     setupRoutes();
     checkVars();
     fetchAndSetCookie({ visitDomain: false });
-  });
-
-  after(() => {
-    fetchAndSetCookie({ visitDomain: false });
-    deleteArticlesFromWorkflow(contentTitlePrefix);
   });
 
   after(() => {
@@ -67,8 +63,8 @@ describe('Workflow Integration Tests', () => {
 
     visitWorkflow();
     createArticleInWorkflow(articleTitle);
-    searchInWorkflow(uniqueContentTitle);
-    clickOnArticle(uniqueContentTitle);
+    searchInWorkflow(articleTitle);
+    cy.wait('@searchForText');
 
     // Move to Desk status
     cy.get('#testing-content-list-item__field--status--select').select('Desk');
@@ -92,7 +88,17 @@ describe('Workflow Integration Tests', () => {
       .click();
 
     cy.get('.sidebar').contains('Desk').click();
-    searchInWorkflow(uniqueContentTitle);
-    clickOnArticle(uniqueContentTitle);
+    searchInWorkflow(articleTitle);
+    clickOnArticle(articleTitle);
+
+    // Click on Management tab
+    cy.get('[data-cy=management-drawer]').click();
+    cy.get('li .drawer__item').contains('Status');
+    cy.pause();
+
+    // Assert status is Desk
+
+    // Delete from within Workflow
+    cy.get('.drawer__toolbar-item--danger').click();
   });
 });

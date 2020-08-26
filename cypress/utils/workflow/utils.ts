@@ -28,7 +28,7 @@ export function searchInWorkflow(query: string) {
 }
 
 export function clickOnArticle(title: string) {
-  cy.wait('@searchForArticle')
+  cy.wait('@searchForText')
     .wait(2000)
     .get('#testing-content-list-item-title-anchor-text')
     .contains(title)
