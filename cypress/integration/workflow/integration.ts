@@ -3,20 +3,23 @@ import { fetchAndSetCookie } from '../../utils/networking';
 import { deleteArticlesFromWorkflow } from '../../utils/composer/api';
 import {
   visitWorkflow,
-  createArticleInWorkflow,
-  searchInWorkflow,
+  createArticle,
+  searchFor,
   clickOnArticle,
+  toggleToolbarDropdown,
+  assertStatusInManagementTab,
+  clearSearch,
 } from '../../utils/workflow/utils';
 import env from '../../../env.json';
 
 const contentTitlePrefix = `Cypress Integration Testing Article`;
-const uniqueContentTitle = `${contentTitlePrefix} ${Date.now()}`;
+let uniqueContentTitle: string;
 // We restrict our initial query to the Writers' status, which limits the amount
 // of data the server returns. Unrestricted queries can yield responses of 10MB+,
 // which take a long time to load and can cause tests to time out.
-const defaultQueryString = '?status=Writers';
+export const defaultQueryString = '?status=Writers';
 
-function setupRoutes() {
+function setupRoutes(contentTitle: string) {
   cy.server();
   cy.route('/api/content').as('content');
   cy.route(`/api/content${defaultQueryString}`).as('contentWithDefaultQuery');
@@ -24,7 +27,7 @@ function setupRoutes() {
     method: 'POST',
     url: '/api/stubs',
   }).as('stubs');
-  cy.route(`/api/content?text=${uniqueContentTitle.replace(/\s/g, '+')}`).as(
+  cy.route(`/api/content?text=${contentTitle.replace(/\s/g, '+')}`).as(
     'searchForArticle'
   );
   cy.route(`/api/content?text=**`).as('searchForText');
@@ -38,7 +41,8 @@ function setupRoutes() {
 
 describe('Workflow Integration Tests', () => {
   beforeEach(() => {
-    setupRoutes();
+    uniqueContentTitle = `${contentTitlePrefix} ${Date.now()}`;
+    setupRoutes(uniqueContentTitle);
     checkVars();
     fetchAndSetCookie({ visitDomain: false });
   });
@@ -50,55 +54,48 @@ describe('Workflow Integration Tests', () => {
 
   it('Create an article from within Workflow and delete it', function () {
     visitWorkflow(`/dashboard${defaultQueryString}`);
-    createArticleInWorkflow(uniqueContentTitle);
-    searchInWorkflow(uniqueContentTitle);
+    createArticle(uniqueContentTitle);
+    searchFor(uniqueContentTitle);
     clickOnArticle(uniqueContentTitle);
 
     // Delete from within Workflow
     cy.get('.drawer__toolbar-item--danger').click();
   });
 
-  it.only('Create an article in Workflow, change status within Composer and delete it', function () {
-    const articleTitle = uniqueContentTitle + 'change-status';
+  it('Create an article in Workflow, change status within Composer and delete it', function () {
+    const articleTitle = uniqueContentTitle + 'change-status'; // Just to make it
 
     visitWorkflow();
-    createArticleInWorkflow(articleTitle);
-    searchInWorkflow(articleTitle);
+    createArticle(articleTitle);
+    searchFor(articleTitle);
     cy.wait('@searchForText');
 
     // Move to Desk status
     cy.get('#testing-content-list-item__field--status--select').select('Desk');
 
-    // Clear search
-    cy.get('#testing-dashboard-toolbar-section-search').clear().type('{enter}');
+    // Assert that article has moved from Writers to Desk section
+    cy.get('[data-cy=content-list-writers]').should(
+      'not.contain',
+      articleTitle
+    );
+    cy.get('[data-cy=content-list-desk]').should('contain', articleTitle);
+
+    // Clear search so we can interact with filters again
+    clearSearch();
 
     // Search for just Training section articles
-    cy.get('.top-toolbar')
-      .find('[ui-view=view-toolbar]')
-      .contains('Section')
-      .click()
-      .parent()
-      .contains('Training')
-      .click()
-      .get('.top-toolbar')
-      .find('[ui-view=view-toolbar]')
-      .contains('Section')
-      .click(); // Close the top dropdown
+    toggleToolbarDropdown('Section'); // opens dropdown
+    cy.get('[ui-view=view-toolbar]').parent().contains('Training').click();
+    toggleToolbarDropdown('Section'); // closes dropdown
 
     // Filter for only Desk articles
     // This doesn't actually affect the search, but good to know this works?
     cy.get('.sidebar').contains('Desk').click();
-    searchInWorkflow(articleTitle);
-    clickOnArticle(articleTitle);
+    searchFor(articleTitle);
 
-    // Click on Management tab
-    cy.get('[data-cy=management-drawer]').click();
-    cy.get('.drawer__item')
-      .contains('Status')
-      .parent()
-      .find('select')
-      // Assert status is Desk
-      .should('have.value', 'string:Desk');
+    cy.get('[data-cy=content-list-desk]').should('contain', articleTitle);
+    clickOnArticle(articleTitle);
+    assertStatusInManagementTab('Desk');
 
     // Delete from within Workflow
     cy.get('.drawer__toolbar-item--danger').click();
