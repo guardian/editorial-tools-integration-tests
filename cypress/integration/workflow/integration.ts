@@ -63,11 +63,9 @@ describe('Workflow Integration Tests', () => {
   });
 
   it('Create an article in Workflow, change status within Composer and delete it', function () {
-    const articleTitle = uniqueContentTitle + 'change-status'; // Just to make it
-
     visitWorkflow();
-    createArticle(articleTitle);
-    searchFor(articleTitle);
+    createArticle(uniqueContentTitle);
+    searchFor(uniqueContentTitle);
     cy.wait('@searchForText');
 
     // Move to Desk status
@@ -76,9 +74,9 @@ describe('Workflow Integration Tests', () => {
     // Assert that article has moved from Writers to Desk section
     cy.get('[data-cy=content-list-writers]').should(
       'not.contain',
-      articleTitle
+      uniqueContentTitle
     );
-    cy.get('[data-cy=content-list-desk]').should('contain', articleTitle);
+    cy.get('[data-cy=content-list-desk]').should('contain', uniqueContentTitle);
 
     // Clear search so we can interact with filters again
     clearSearch();
@@ -91,10 +89,10 @@ describe('Workflow Integration Tests', () => {
     // Filter for only Desk articles
     // This doesn't actually affect the search, but good to know this works?
     cy.get('.sidebar').contains('Desk').click();
-    searchFor(articleTitle);
+    searchFor(uniqueContentTitle);
 
-    cy.get('[data-cy=content-list-desk]').should('contain', articleTitle);
-    clickOnArticle(articleTitle);
+    cy.get('[data-cy=content-list-desk]').should('contain', uniqueContentTitle);
+    clickOnArticle(uniqueContentTitle);
     assertStatusInManagementTab('Desk');
 
     // Delete from within Workflow
