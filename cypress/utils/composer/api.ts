@@ -76,7 +76,6 @@ export const deleteArticlesFromWorkflow = (contentPrefix: string) => {
     const content: WorkflowResponse = JSON.parse(response.body).content;
     const ids: string[] = [];
     Object.keys(content).forEach((status) => {
-      console.log(status, content[status]);
       content[status]
         .filter(
           (content) =>

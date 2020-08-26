@@ -72,31 +72,33 @@ describe('Workflow Integration Tests', () => {
     // Clear search
     cy.get('#testing-dashboard-toolbar-section-search').clear().type('{enter}');
 
-    // Search for just Desk articles
+    // Search for just Training section articles
     cy.get('.top-toolbar')
       .find('[ui-view=view-toolbar]')
       .contains('Section')
       .click()
       .parent()
       .contains('Training')
-      .click();
-
-    // Search for just Desk articles
-    cy.get('.top-toolbar')
+      .click()
+      .get('.top-toolbar')
       .find('[ui-view=view-toolbar]')
       .contains('Section')
-      .click();
+      .click(); // Close the top dropdown
 
+    // Filter for only Desk articles
+    // This doesn't actually affect the search, but good to know this works?
     cy.get('.sidebar').contains('Desk').click();
     searchInWorkflow(articleTitle);
     clickOnArticle(articleTitle);
 
     // Click on Management tab
     cy.get('[data-cy=management-drawer]').click();
-    cy.get('li .drawer__item').contains('Status');
-    cy.pause();
-
-    // Assert status is Desk
+    cy.get('.drawer__item')
+      .contains('Status')
+      .parent()
+      .find('select')
+      // Assert status is Desk
+      .should('have.value', 'string:Desk');
 
     // Delete from within Workflow
     cy.get('.drawer__toolbar-item--danger').click();
