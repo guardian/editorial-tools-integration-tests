@@ -6,6 +6,9 @@ import {
   createArticle,
   searchFor,
   clickOnArticle,
+  toggleToolbarDropdown,
+  assertStatusInManagementTab,
+  clearSearch,
 } from '../../utils/workflow/utils';
 import env from '../../../env.json';
 
@@ -54,6 +57,47 @@ describe('Workflow Integration Tests', () => {
     createArticle(uniqueContentTitle);
     searchFor(uniqueContentTitle);
     clickOnArticle(uniqueContentTitle);
+
+    // Delete from within Workflow
+    cy.get('.drawer__toolbar-item--danger').click();
+  });
+
+  it('Create an article in Workflow, change status within Composer and delete it', function () {
+    visitWorkflow();
+    createArticle(uniqueContentTitle);
+    searchFor(uniqueContentTitle);
+    cy.wait('@searchForText');
+
+    // Move to Desk status
+    cy.get('#testing-content-list-item__field--status--select').select('Desk');
+
+    // Assert that article has moved from Writers to Desk section
+    cy.get('[data-cy=content-list-writers]').should(
+      'not.contain',
+      uniqueContentTitle
+    );
+    cy.get('[data-cy=content-list-desk]').should('contain', uniqueContentTitle);
+
+    // Clear search so we can interact with filters again
+    clearSearch();
+
+    // Search for just Training section articles
+    toggleToolbarDropdown('Section'); // opens dropdown
+    cy.get('[ui-view=view-toolbar]').parent().contains('Training').click();
+    toggleToolbarDropdown('Section'); // closes dropdown
+
+    // Filter for only Desk articles
+    cy.get('[data-cy=content-list-writers]').should('be.visible');
+    cy.get('.sidebar').contains('Desk').click();
+    cy.url().should('contain', '?status=Desk');
+    cy.get('[data-cy=content-list-writers]').should('not.be.visible');
+    cy.get('[data-cy=content-list-desk]').should('be.visible');
+
+    searchFor(uniqueContentTitle);
+
+    cy.get('[data-cy=content-list-desk]').should('contain', uniqueContentTitle);
+    clickOnArticle(uniqueContentTitle);
+    assertStatusInManagementTab('Desk');
 
     // Delete from within Workflow
     cy.get('.drawer__toolbar-item--danger').click();

@@ -41,3 +41,22 @@ export function clickOnArticle(title: string) {
     .parent()
     .click();
 }
+
+export function toggleToolbarDropdown(dropdown: string) {
+  cy.get('[ui-view=view-toolbar]').contains(dropdown).click();
+}
+
+export function assertStatusInManagementTab(status: string) {
+  cy.get('[data-cy=management-drawer]')
+    .click()
+    .get('.drawer__item')
+    .contains('Status')
+    .parent()
+    .find('select')
+    // Assert status is Desk
+    .should('have.value', `string:${status}`);
+}
+
+export function clearSearch() {
+  cy.get('#testing-dashboard-toolbar-section-search').clear().type('{enter}');
+}
