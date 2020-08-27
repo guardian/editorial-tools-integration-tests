@@ -1,6 +1,6 @@
 import { getDomain } from '../networking';
 import env from '../../../env.json';
-import { WorkflowResponse } from './interfaces';
+import { WorkflowResponse } from '../workflow/interfaces';
 
 interface Content {
   data: {
