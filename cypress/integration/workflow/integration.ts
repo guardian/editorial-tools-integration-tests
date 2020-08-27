@@ -1,16 +1,45 @@
 import { checkVars } from '../../utils/vars';
-import { fetchAndSetCookie, getDomain } from '../../utils/networking';
+import { fetchAndSetCookie } from '../../utils/networking';
 import { deleteArticlesFromWorkflow } from '../../utils/composer/api';
+import {
+  visitWorkflow,
+  createArticle,
+  searchFor,
+  clickOnArticle,
+} from '../../utils/workflow/utils';
+import env from '../../../env.json';
 
 const contentTitlePrefix = `Cypress Integration Testing Article`;
-const uniqueContentTitle = `${contentTitlePrefix} ${Date.now()}`;
+let uniqueContentTitle: string;
 // We restrict our initial query to the Writers' status, which limits the amount
 // of data the server returns. Unrestricted queries can yield responses of 10MB+,
 // which take a long time to load and can cause tests to time out.
-const defaultQueryString = '?status=Writers'
+export const defaultQueryString = '?status=Writers';
+
+function setupRoutes(contentTitle: string) {
+  cy.server();
+  cy.route('/api/content').as('content');
+  cy.route(`/api/content${defaultQueryString}`).as('contentWithDefaultQuery');
+  cy.route({
+    method: 'POST',
+    url: '/api/stubs',
+  }).as('stubs');
+  cy.route(`/api/content?text=${contentTitle.replace(/\s/g, '+')}`).as(
+    'searchForArticle'
+  );
+  cy.route(`/api/content?text=**`).as('searchForText');
+
+  cy.route({
+    method: 'GET',
+    url: `/preferences/${env.user.email}/workflow**`,
+    response: [],
+  });
+}
 
 describe('Workflow Integration Tests', () => {
   beforeEach(() => {
+    uniqueContentTitle = `${contentTitlePrefix} ${Date.now()}`;
+    setupRoutes(uniqueContentTitle);
     checkVars();
     fetchAndSetCookie({ visitDomain: false });
   });
@@ -20,50 +49,11 @@ describe('Workflow Integration Tests', () => {
     deleteArticlesFromWorkflow(contentTitlePrefix);
   });
 
-  it('Create an article from within Workflow', function () {
-    cy.server();
-    cy.route(`/api/content${defaultQueryString}`).as('content');
-    cy.route({
-      method: 'POST',
-      url: '/api/stubs',
-    }).as('stubs');
-    cy.route(`/api/content?text=${uniqueContentTitle.replace(/\s/g, '+')}`).as(
-      'searchForArticle'
-    );
-
-    cy.visit(`${getDomain()}/dashboard${defaultQueryString}`)
-      .wait('@content')
-      .get('.wf-loader', { timeout: 30000 })
-      .should('not.exist');
-
-    // Create article
-    cy.get('[wf-dropdown-toggle]').contains('Create new').click();
-    cy.get('#testing-dashboard-create-dropdown-Article').click();
-    cy.get('#stub_title').type(uniqueContentTitle);
-    cy.get('#stub_section').select('Training');
-    cy.get('#testing-create-in-composer').click();
-    cy.get('.modal-dialog')
-      .contains('Completed successfully!')
-      .should('be.visible')
-      .get('.alert-danger')
-      .should('not.be.visible')
-      .get('.close')
-      .click()
-      .wait('@stubs');
-
-    // Search for it in Workflow
-    cy.get('#testing-dashboard-toolbar-section-search').type(
-      uniqueContentTitle + '{enter}'
-    );
-
-    // Click on search result
-    cy.wait('@searchForArticle')
-      .wait(2000)
-      .get('#testing-content-list-item-title-anchor-text')
-      .contains(uniqueContentTitle)
-      .should('exist')
-      .parent()
-      .click();
+  it('Create an article from within Workflow and delete it', function () {
+    visitWorkflow(`/dashboard${defaultQueryString}`);
+    createArticle(uniqueContentTitle);
+    searchFor(uniqueContentTitle);
+    clickOnArticle(uniqueContentTitle);
 
     // Delete from within Workflow
     cy.get('.drawer__toolbar-item--danger').click();

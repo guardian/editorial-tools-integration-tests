@@ -1,5 +1,6 @@
 import { getDomain } from '../networking';
 import env from '../../../env.json';
+import { WorkflowResponse } from '../workflow/interfaces';
 
 interface Content {
   data: {
@@ -72,13 +73,19 @@ export const deleteArticlesFromWorkflow = (contentPrefix: string) => {
     method: 'GET',
     headers: { Origin: origin },
   }).then((response) => {
-    const ids =
-      JSON.parse(response.body)
-        .content?.Writers?.filter(
-          (content: { published: boolean; wordCount: number }) =>
-            !content.published && content.wordCount === 0
+    const content: WorkflowResponse = JSON.parse(response.body).content;
+    const ids: string[] = [];
+    Object.keys(content).forEach((status) => {
+      content[status]
+        .filter(
+          (content) =>
+            !content.published &&
+            content.wordCount === 0 &&
+            content.lastModifiedBy ===
+              `${env.user.firstName} ${env.user.lastName}`
         )
-        .map((content: { composerId: string }) => content.composerId) || [];
+        .forEach((content) => ids.push(content.composerId));
+    });
 
     cy.log(
       `${ids.length} articles by ${env.user.email}, attempting to delete...`
