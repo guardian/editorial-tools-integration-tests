@@ -87,8 +87,12 @@ describe('Workflow Integration Tests', () => {
     toggleToolbarDropdown('Section'); // closes dropdown
 
     // Filter for only Desk articles
-    // This doesn't actually affect the search, but good to know this works?
+    cy.get('[data-cy=content-list-writers]').should('be.visible');
     cy.get('.sidebar').contains('Desk').click();
+    cy.url().should('contain', '?status=Desk');
+    cy.get('[data-cy=content-list-writers]').should('not.be.visible');
+    cy.get('[data-cy=content-list-desk]').should('be.visible');
+
     searchFor(uniqueContentTitle);
 
     cy.get('[data-cy=content-list-desk]').should('contain', uniqueContentTitle);
