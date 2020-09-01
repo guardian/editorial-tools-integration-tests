@@ -10,6 +10,7 @@ const suite = process.env.SUITE;
 const logFile = 'tests.json.log';
 const logDir = path.join(__dirname, '../logs');
 const failuresFile = path.join(__dirname, `../${suite}.failures.txt`);
+const idFile = path.join(__dirname, `../${suite}.id.txt`);
 const videoDir = path.join(__dirname, `../cypress/videos/${suite}`);
 
 const now = new Date();
@@ -22,6 +23,7 @@ const date = now.getDate();
 
   try {
     const failures = fs.readFileSync(failuresFile);
+    const uid = fs.readFileSync(idFile);
 
     if (failures > 0) {
       const credentials = config.isDev
@@ -34,7 +36,9 @@ const date = now.getDate();
 
       await Promise.all(
         videos.map(async (video) => {
-          const key = `videos/${year}/${month}/${date}/${new Date().toISOString()}-${suite}-${video}`;
+          // Videos run every 5 minutes, so adding anything past the minute is unnecessary
+
+          const key = `videos/${year}/${month}/${date}/${uid}-${suite}-${video}`;
 
           await uploadVideoToS3({
             credentials,
