@@ -9,6 +9,7 @@ node_modules
 videos
 screenshots
 *failures.txt
+*id.txt
 
 # Config
 *cookie.json

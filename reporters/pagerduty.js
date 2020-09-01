@@ -5,13 +5,14 @@ const fetch = require('node-fetch');
 
 const { Logger } = require('../src/utils/logger');
 const env = require('../env.json');
+const suite = process.env.SUITE;
 
 const logDir = path.join(__dirname, '../logs');
 const logFile = 'tests.json.log';
-const failuresFile = path.join(
-  __dirname,
-  `../${process.env.SUITE}.failures.txt`
-);
+const failuresFile = path.join(__dirname, `../${suite}.failures.txt`);
+const runIDFile = path.join(__dirname, `../${suite}.id.txt`);
+// Yields `YYYY-DD-MMTHH-MM`
+const uid = new Date().toISOString().substr(0, 16);
 
 const routingKey = env.pagerduty.routingKey;
 const logger = new Logger({ logDir, logFile });
@@ -37,6 +38,9 @@ function Pagerduty(runner) {
       } else {
         fs.writeFileSync(failuresFile, '0');
       }
+
+      // Create run ID file that can be used by `uploadVideo.js`
+      fs.writeFileSync(runIDFile, uid);
     });
 
     runner.on('pending', async function (test) {
@@ -81,10 +85,15 @@ function Pagerduty(runner) {
         testState: 'failure',
         error: err.message,
       });
+
+      const testFile = test.invocationDetails.relativeFile.split('/');
+      const video = testFile[testFile.length - 1]; // yields <filename>.ts
+
       await callPagerduty(test, 'trigger', {
         error: err.message,
         videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
         videosAccount: env.aws.profile,
+        video: `https://s3.console.aws.amazon.com/s3/object/${env.videoBucket}/videos/${year}/${month}/${date}/${uid}-${suite}-${video}`,
       });
     });
 
