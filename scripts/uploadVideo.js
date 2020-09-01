@@ -34,7 +34,10 @@ const date = now.getDate();
 
       await Promise.all(
         videos.map(async (video) => {
-          const key = `videos/${year}/${month}/${date}/${new Date().toISOString()}-${suite}-${video}`;
+          // Videos run every 5 minutes, so adding anything past the minute is unnecessary
+          const uid = new Date().toISOString().substr(0, 16);
+
+          const key = `videos/${year}/${month}/${date}/${uid}-${suite}-${video}`;
 
           await uploadVideoToS3({
             credentials,
