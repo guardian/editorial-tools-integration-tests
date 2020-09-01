@@ -69,7 +69,9 @@ describe('Workflow Integration Tests', () => {
     cy.wait('@searchForText');
 
     // Move to Desk status
-    cy.get('#testing-content-list-item__field--status--select').select('Desk');
+    cy.get(`[data-cy="content-list-item-${uniqueContentTitle}"]`)
+      .find('#testing-content-list-item__field--status--select')
+      .select('Desk');
 
     // Assert that article has moved from Writers to Desk section
     cy.get('[data-cy=content-list-writers]').should(
