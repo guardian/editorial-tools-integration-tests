@@ -86,14 +86,14 @@ function Pagerduty(runner) {
         error: err.message,
       });
 
-      const testFile = test.invocationDetails.relativeFile.split('/');
+      const testFile = test.invocationDetails.originalFile.split('/');
       const video = testFile[testFile.length - 1]; // yields <filename>.ts
 
       await callPagerduty(test, 'trigger', {
         error: err.message,
         videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
         videosAccount: env.aws.profile,
-        video: `https://s3.console.aws.amazon.com/s3/object/${env.videoBucket}/videos/${year}/${month}/${date}/${uid}-${suite}-${video}`,
+        video: `https://s3.console.aws.amazon.com/s3/object/${env.videoBucket}/videos/${year}/${month}/${date}/${uid}-${suite}-${video}.mp4`,
       });
     });
 
