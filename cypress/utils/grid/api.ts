@@ -14,9 +14,15 @@ export async function deleteImages(
   cy: Cypress.cy & EventEmitter,
   images: string[]
 ) {
+  const stage =
+    Cypress.env('STAGE').toLowerCase() === 'code'
+      ? 'test'
+      : Cypress.env('STAGE');
+
   images.map((id: string) => {
     const cropper = `${getDomain({
       prefix: 'cropper',
+      stage: stage,
     })}/crops/${id}`;
     cy.request({
       method: 'DELETE',
