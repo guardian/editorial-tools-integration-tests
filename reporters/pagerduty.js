@@ -124,6 +124,7 @@ function Pagerduty(runner) {
     logger.error({
       message: `Error - ${suite} [${uid}]: ${e.message}`,
       stackTrace: e.stack,
+      uid,
     });
   }
 }
@@ -160,6 +161,7 @@ async function callPagerduty(test, action, details = {}) {
       message: `PagerdutyReportError: ${json.message}`,
       error: json.errors,
       data,
+      uid,
     });
   }
 }

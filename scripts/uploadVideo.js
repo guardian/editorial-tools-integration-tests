@@ -29,6 +29,7 @@ const date = now.getDate();
       error: e.message,
       message: `Failure to upload video ${videoDir}: Error reading UID file from ${idFile}: ${e.message}`,
       stackTrace: e.stack,
+      uid,
     });
     return;
   }
@@ -59,17 +60,20 @@ const date = now.getDate();
           });
 
           logger.log({
+            uid,
             message: `Video [${key}] uploaded to ${config.videoBucket}`,
           });
         })
       );
     } else {
       logger.log({
+        uid,
         message: `No failures for suite ${suite}, not uploading video`,
       });
     }
   } catch (e) {
     logger.error({
+      uid,
       message: `Error when attempting to upload video {${uid}} from [${videoDir}]: ${e.message}`,
       stackTrace: e.stack,
       error: e.message,
