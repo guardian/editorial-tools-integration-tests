@@ -58,7 +58,10 @@ const date = now.getDate();
       });
     }
   } catch (e) {
-    logger.error({ message: e.message, stackTrace: e.stack });
+    logger.error({
+      message: `Error when attempting to upload video from [${videoDir}]: ${e.message}`,
+      stackTrace: e.stack,
+    });
     console.error(e);
   }
 })();
