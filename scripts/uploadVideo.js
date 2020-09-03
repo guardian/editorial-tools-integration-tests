@@ -20,10 +20,21 @@ const date = now.getDate();
 
 (async function f() {
   const logger = new Logger({ logDir, logFile });
+  let uid = null;
+
+  try {
+    uid = fs.readFileSync(idFile);
+  } catch (e) {
+    logger.error({
+      error: e.message,
+      message: `Failure to upload video ${videoDir}: Error reading UID file from ${idFile}: ${e.message}`,
+      stackTrace: e.stack,
+    });
+    return;
+  }
 
   try {
     const failures = fs.readFileSync(failuresFile);
-    const uid = fs.readFileSync(idFile);
 
     if (failures > 0) {
       const credentials = config.isDev
@@ -59,8 +70,9 @@ const date = now.getDate();
     }
   } catch (e) {
     logger.error({
-      message: `Error when attempting to upload video from [${videoDir}]: ${e.message}`,
+      message: `Error when attempting to upload video {${uid}} from [${videoDir}]: ${e.message}`,
       stackTrace: e.stack,
+      error: e.message,
     });
     console.error(e);
   }
