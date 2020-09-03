@@ -41,6 +41,10 @@ function Pagerduty(runner) {
 
       // Create run ID file that can be used by `uploadVideo.js`
       fs.writeFileSync(runIDFile, uid);
+      logger.log({
+        message: `Started - ${suite} with uid ${uid}`,
+        uid,
+      });
     });
 
     runner.on('pending', async function (test) {
@@ -48,6 +52,7 @@ function Pagerduty(runner) {
       passes++;
       console.log('Pending:', test.fullTitle());
       logger.log({
+        uid,
         testTitle: test.title,
         message,
         testContext: test.titlePath()[0],
@@ -61,6 +66,7 @@ function Pagerduty(runner) {
       passes++;
       console.log('Pass:', test.fullTitle());
       logger.log({
+        uid,
         testTitle: test.title,
         message,
         testContext: test.titlePath()[0],
@@ -79,6 +85,7 @@ function Pagerduty(runner) {
       failures++;
       console.error('Failure:', test.fullTitle(), err.message, '\n');
       logger.error({
+        uid,
         testTitle: test.title,
         message,
         testContext: test.titlePath()[0],
@@ -94,6 +101,7 @@ function Pagerduty(runner) {
         videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
         videosAccount: env.aws.profile,
         video: `https://s3.console.aws.amazon.com/s3/object/${env.videoBucket}/videos/${year}/${month}/${date}/${uid}-${suite}-${video}.mp4`,
+        uid,
       });
     });
 
