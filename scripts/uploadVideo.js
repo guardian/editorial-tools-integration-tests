@@ -20,10 +20,22 @@ const date = now.getDate();
 
 (async function f() {
   const logger = new Logger({ logDir, logFile });
+  let uid = null;
+
+  try {
+    uid = fs.readFileSync(idFile);
+  } catch (e) {
+    logger.error({
+      error: e.message,
+      message: `Failure to upload video ${videoDir}: Error reading UID file from ${idFile}: ${e.message}`,
+      stackTrace: e.stack,
+      uid,
+    });
+    return;
+  }
 
   try {
     const failures = fs.readFileSync(failuresFile);
-    const uid = fs.readFileSync(idFile);
 
     if (failures > 0) {
       const credentials = config.isDev
@@ -48,17 +60,24 @@ const date = now.getDate();
           });
 
           logger.log({
+            uid,
             message: `Video [${key}] uploaded to ${config.videoBucket}`,
           });
         })
       );
     } else {
       logger.log({
+        uid,
         message: `No failures for suite ${suite}, not uploading video`,
       });
     }
   } catch (e) {
-    logger.error({ message: e.message, stackTrace: e.stack });
+    logger.error({
+      uid,
+      message: `Error when attempting to upload video {${uid}} from [${videoDir}]: ${e.message}`,
+      stackTrace: e.stack,
+      error: e.message,
+    });
     console.error(e);
   }
 })();

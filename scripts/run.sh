@@ -9,8 +9,15 @@ function runTests() {
     SUITE=$1
     FAILURES_FILE="${DIR}/../${SUITE}.failures.txt"
     rm "${FAILURES_FILE}" || true
-    SUITE=${SUITE} STAGE="${STAGE}" npm run --silent cy:live || true
-    SUITE=${SUITE} STAGE="${STAGE}" node scripts/uploadVideo.js
+
+    if [[ $SUITE == "grid" && ($STAGE == "CODE" || $STAGE == "code")]]; then
+      REALSTAGE="test"
+    else
+      REALSTAGE="code"
+    fi
+
+    SUITE=${SUITE} STAGE="${REALSTAGE}" npm run --silent cy:live || true
+    SUITE=${SUITE} STAGE="${REALSTAGE}" node scripts/uploadVideo.js
 }
 
 "${DIR}"/setup.sh "${STAGE}"

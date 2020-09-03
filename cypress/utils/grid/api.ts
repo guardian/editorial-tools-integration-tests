@@ -14,27 +14,23 @@ export async function deleteImages(
   cy: Cypress.cy & EventEmitter,
   images: string[]
 ) {
+  const cropperDomain = getDomain({ prefix: 'cropper' });
+  const originDomain = getDomain({ app: 'integration-tests' });
+  const usagesDomain = getDomain({ app: 'media-usage' });
+
   images.map((id: string) => {
-    const cropper = `${getDomain({
-      prefix: 'cropper',
-    })}/crops/${id}`;
+    const cropperUrl = `${cropperDomain}/crops/${id}`;
     cy.request({
       method: 'DELETE',
-      url: cropper,
-      headers: {
-        Origin: getDomain({ app: 'integration-tests' }),
-      },
+      url: cropperUrl,
+      headers: { Origin: originDomain },
     });
 
-    const usages = `${getDomain({
-      app: 'media-usage',
-    })}/usages/media/${id}`;
+    const usagesUrl = `${usagesDomain}/usages/media/${id}`;
     cy.request({
       method: 'DELETE',
-      url: usages,
-      headers: {
-        Origin: getDomain({ app: 'integration-tests' }),
-      },
+      url: usagesUrl,
+      headers: { Origin: originDomain },
     });
 
     cy.wait(500);
@@ -44,9 +40,7 @@ export async function deleteImages(
       method: 'DELETE',
       url,
       failOnStatusCode: false,
-      headers: {
-        Origin: getDomain({ app: 'integration-tests' }),
-      },
+      headers: { Origin: originDomain },
     }).then((response) => {
       if (response.status !== 404 && response.status !== 202) {
         console.log('DELETE ERROR', response, url);
