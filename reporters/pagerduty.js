@@ -108,6 +108,10 @@ function Pagerduty(runner) {
     runner.on('end', async function () {
       console.log('end: %d/%d', passes, passes + failures);
       fs.writeFileSync(failuresFile, failures);
+      logger.log({
+        message: `Ended - ${suite} with uid ${uid}`,
+        uid,
+      });
     });
   } catch (e) {
     logger.error(e);
