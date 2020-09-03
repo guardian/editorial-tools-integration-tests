@@ -23,6 +23,15 @@ function generateMessage(state, test) {
   return `${state} - ${test.titlePath().join(' - ')}`;
 }
 
+function getVideoName(parent) {
+  if (parent.root) {
+    const testFile = parent.file.split('/');
+    return testFile[testFile.length - 1]; // yields <filename>.ts
+  } else {
+    return getVideoName(parent.parent);
+  }
+}
+
 function Pagerduty(runner) {
   mocha.reporters.Base.call(this, runner);
   let passes = 0;
@@ -93,9 +102,7 @@ function Pagerduty(runner) {
         error: err.message,
       });
 
-      const testFile = test.invocationDetails.originalFile.split('/');
-      const video = testFile[testFile.length - 1]; // yields <filename>.ts
-
+      const video = getVideoName(test.parent);
       await callPagerduty(test, 'trigger', {
         error: err.message,
         videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
@@ -114,7 +121,10 @@ function Pagerduty(runner) {
       });
     });
   } catch (e) {
-    logger.error(e);
+    logger.error({
+      message: `Error - ${suite} [${uid}]: ${e.message}`,
+      stackTrace: e.stack,
+    });
   }
 }
 
