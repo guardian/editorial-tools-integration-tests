@@ -13,7 +13,7 @@ function runTests() {
     if [[ $SUITE == "grid" && ($STAGE == "CODE" || $STAGE == "code")]]; then
       REALSTAGE="test"
     else
-      REALSTAGE="code"
+      REALSTAGE=$STAGE
     fi
 
     SUITE=${SUITE} STAGE="${REALSTAGE}" npm run --silent cy:live || true
