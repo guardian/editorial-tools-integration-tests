@@ -23,7 +23,7 @@ const date = now.getDate();
   let uid = null;
 
   try {
-    uid = fs.readFileSync(idFile);
+    uid = fs.readFileSync(idFile).toString();
   } catch (e) {
     logger.error({
       error: e.message,
