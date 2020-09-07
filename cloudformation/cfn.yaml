@@ -155,7 +155,7 @@ Resources:
           files:
             /etc/cron.d/run-integration-tests:
               content: !Sub |
-                */5 * * * * root /data/editorial-tools-integration-tests/scripts/run.sh ${Stage} >> /var/log/tests.log 2>&1
+                */10 * * * * root /data/editorial-tools-integration-tests/scripts/run.sh ${Stage} >> /var/log/tests.log 2>&1
 
             "/etc/logstash/conf.d/logstash.conf":
               content: !Sub |
