@@ -20,16 +20,16 @@ const date = now.getDate();
 
 (async function f() {
   const logger = new Logger({ logDir, logFile });
-  let uid = null;
+  let guid = null;
 
   try {
-    uid = fs.readFileSync(idFile, { encoding: 'utf8' });
+    guid = fs.readFileSync(idFile, { encoding: 'utf8' });
   } catch (e) {
     logger.error({
       error: e.message,
-      message: `Failure to upload video ${videoDir}: Error reading UID file from ${idFile}: ${e.message}`,
+      message: `Failure to upload video ${videoDir}: Error reading GUID file from ${idFile}: ${e.message}`,
       stackTrace: e.stack,
-      uid,
+      guid: guid,
     });
     return;
   }
@@ -50,7 +50,7 @@ const date = now.getDate();
         videos.map(async (video) => {
           // Videos run every 5 minutes, so adding anything past the minute is unnecessary
 
-          const key = `videos/${year}/${month}/${date}/${uid}-${suite}-${video}`;
+          const key = `videos/${year}/${month}/${date}/${guid}-${suite}-${video}`;
 
           await uploadVideoToS3({
             credentials,
@@ -60,21 +60,21 @@ const date = now.getDate();
           });
 
           logger.log({
-            uid,
+            guid: guid,
             message: `Video [${key}] uploaded to ${config.videoBucket}`,
           });
         })
       );
     } else {
       logger.log({
-        uid,
+        guid: guid,
         message: `No failures for suite ${suite}, not uploading video`,
       });
     }
   } catch (e) {
     logger.error({
-      uid,
-      message: `Error when attempting to upload video {${uid}} from [${videoDir}]: ${e.message}`,
+      guid: guid,
+      message: `Error when attempting to upload video {${guid}} from [${videoDir}]: ${e.message}`,
       stackTrace: e.stack,
       error: e.message,
     });

@@ -12,7 +12,7 @@ const logFile = 'tests.json.log';
 const failuresFile = path.join(__dirname, `../${suite}.failures.txt`);
 const runIDFile = path.join(__dirname, `../${suite}.id.txt`);
 // Yields `YYYY-DD-MMTHH-MM`
-const uid = new Date().toISOString().substr(0, 16);
+const guid = new Date().toISOString().substr(0, 16);
 
 const routingKey = env.pagerduty.routingKey;
 const logger = new Logger({ logDir, logFile });
@@ -49,10 +49,10 @@ function Pagerduty(runner) {
       }
 
       // Create run ID file that can be used by `uploadVideo.js`
-      fs.writeFileSync(runIDFile, uid);
+      fs.writeFileSync(runIDFile, guid);
       logger.log({
-        message: `Started - ${suite} with uid ${uid}`,
-        uid,
+        message: `Started - ${suite} with guid ${guid}`,
+        guid: guid,
       });
     });
 
@@ -61,7 +61,7 @@ function Pagerduty(runner) {
       passes++;
       console.log('Pending:', test.fullTitle());
       logger.log({
-        uid,
+        guid: guid,
         testTitle: test.title,
         message,
         testContext: test.titlePath()[0],
@@ -75,7 +75,7 @@ function Pagerduty(runner) {
       passes++;
       console.log('Pass:', test.fullTitle());
       logger.log({
-        uid,
+        guid: guid,
         testTitle: test.title,
         message,
         testContext: test.titlePath()[0],
@@ -94,7 +94,7 @@ function Pagerduty(runner) {
       failures++;
       console.error('Failure:', test.fullTitle(), err.message, '\n');
       logger.error({
-        uid,
+        guid: guid,
         testTitle: test.title,
         message,
         testContext: test.titlePath()[0],
@@ -107,8 +107,8 @@ function Pagerduty(runner) {
         error: err.message,
         videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
         videosAccount: env.aws.profile,
-        video: `https://s3.console.aws.amazon.com/s3/object/${env.videoBucket}/videos/${year}/${month}/${date}/${uid}-${suite}-${video}.mp4`,
-        uid,
+        video: `https://s3.console.aws.amazon.com/s3/object/${env.videoBucket}/videos/${year}/${month}/${date}/${guid}-${suite}-${video}.mp4`,
+        guid: guid,
       });
     });
 
@@ -116,15 +116,15 @@ function Pagerduty(runner) {
       console.log('end: %d/%d', passes, passes + failures);
       fs.writeFileSync(failuresFile, failures);
       logger.log({
-        message: `Ended - ${suite} with uid ${uid}`,
-        uid,
+        message: `Ended - ${suite} with guid ${guid}`,
+        guid: guid,
       });
     });
   } catch (e) {
     logger.error({
-      message: `Error - ${suite} [${uid}]: ${e.message}`,
+      message: `Error - ${suite} [${guid}]: ${e.message}`,
       stackTrace: e.stack,
-      uid,
+      guid: guid,
     });
   }
 }
@@ -161,7 +161,7 @@ async function callPagerduty(test, action, details = {}) {
       message: `PagerdutyReportError: ${json.message}`,
       error: json.errors,
       data,
-      uid,
+      guid: guid,
     });
   }
 }
