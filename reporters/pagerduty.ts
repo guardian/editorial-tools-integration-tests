@@ -1,10 +1,10 @@
-const mocha = require('mocha');
-const fs = require('fs');
-const path = require('path');
-const fetch = require('node-fetch');
+import mocha from 'mocha';
+import fs from 'fs';
+import path from 'path';
+import fetch from 'node-fetch';
 
-const { Logger } = require('../src/utils/logger');
-const env = require('../env.json');
+import { Logger } from '../src/utils/logger';
+import env from '../env.json';
 const suite = process.env.SUITE;
 
 const logDir = path.join(__dirname, '../logs');
@@ -19,12 +19,12 @@ const logger = new Logger({ logDir, logFile });
 
 module.exports = Pagerduty;
 
-function generateMessage(state, test) {
+function generateMessage(state: string, test: Mocha.Test) {
   return `${state} - ${test.titlePath().join(' - ')}`;
 }
 
-function getVideoName(parent) {
-  if (parent.root) {
+function getVideoName(parent: Mocha.Suite): string {
+  if (parent.root && parent.file) {
     const testFile = parent.file.split('/');
     return testFile[testFile.length - 1]; // yields <filename>.ts
   } else {
@@ -32,7 +32,7 @@ function getVideoName(parent) {
   }
 }
 
-function Pagerduty(runner) {
+function Pagerduty(runner: Mocha.Runner) {
   mocha.reporters.Base.call(this, runner);
   let passes = 0;
   let failures = 0;
@@ -43,12 +43,12 @@ function Pagerduty(runner) {
       // If one exists on start, it's because a
       // previous test suite in the same app has run before this
       if (fs.existsSync(failuresFile)) {
-        failures = fs.readFileSync(failuresFile);
+        failures = Number(fs.readFileSync(failuresFile));
       } else {
         fs.writeFileSync(failuresFile, '0');
       }
 
-      // Create run ID file that can be used by `uploadVideo.js`
+      // Create run ID file that can be used by `uploadVideo.ts`
       fs.writeFileSync(runIDFile, uid);
       logger.log({
         message: `Started - ${suite} with uid ${uid}`,
@@ -114,7 +114,7 @@ function Pagerduty(runner) {
 
     runner.on('end', async function () {
       console.log('end: %d/%d', passes, passes + failures);
-      fs.writeFileSync(failuresFile, failures);
+      fs.writeFileSync(failuresFile, failures.toString());
       logger.log({
         message: `Ended - ${suite} with uid ${uid}`,
         uid,
@@ -129,7 +129,7 @@ function Pagerduty(runner) {
   }
 }
 
-async function callPagerduty(test, action, details = {}) {
+async function callPagerduty(test: mocha.Test, action: string, details = {}) {
   const url = 'https://events.pagerduty.com/v2/enqueue';
 
   const data = {

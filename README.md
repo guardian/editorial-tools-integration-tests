@@ -47,7 +47,7 @@ $ yarn grid-prod
 Tests are located in `cypress/integration`. They are written in mocha/chai with Cypress commands to navigate the DOM. 
 Any `spec` files within the `cypress/integration` folder will be picked up by the test runner automatically.
 
-An example test for MyCoolService in a file located in `cypress/integration/myCoolService.js` looks like the following:
+An example test for MyCoolService in a file located in `cypress/integration/myCoolService.ts` looks like the following:
 
 ```js
 describe('MyCoolService Integration Tests', () => { // It's good to have the service name in your top describe block
@@ -74,13 +74,13 @@ and either add a new test to the pre-existing suite or create a new test suite f
 
 In the interests of keeping this repository organised, the best practice for adding a new service is to do the following (using a service called `my-new-service` as an example):
 
-1. Add the required information to `cypress.env.json`. Keys in the file are ingested by the cookie generator script `src/utils/cookie.js`, 
+1. Add the required information to `cypress.env.json`. Keys in the file are ingested by the cookie generator script `src/utils/cookie.ts`, 
 with the `baseUrl` of each being used to create a cookie. 
 Note that if you don't need a `gutools` cookie for your service, you can skip this step and reference the URL directly in the tests.
     - In the below example, a `cookie.json` would be created in the root of 
 the repository, given the necessary `.settings` configuration file is found in the S3 bucket referenced in `env.json`.
     - The `.settings` config file looks at the third-level domain of the URL you are looking to hit, so, if your domain was `my-new-service.gutools.co.uk`, it would look for a settings file called `gutools.settings`.
-    - For further information on how the cookie gets validated, please see the [pan-domain-node repository](https://github.com/guardian/pan-domain-authentication/#to-verify-login-in-nodejs) that `cookie.js` leverages to authenticate itself with Guardian domains.
+    - For further information on how the cookie gets validated, please see the [pan-domain-node repository](https://github.com/guardian/pan-domain-authentication/#to-verify-login-in-nodejs) that `cookie.ts` leverages to authenticate itself with Guardian domains.
 ```json
 { 
   "baseUrls": { 
@@ -92,14 +92,14 @@ the repository, given the necessary `.settings` configuration file is found in t
 2. Create a subfolder and test file for the service in `cypress/integration`. For example:
 ```bash
 $ mkdir cypress/integration/my-new-service
-$ touch cypress/integration/my-new-service/spec.js
+$ touch cypress/integration/my-new-service/spec.ts
 ```
 3. Follow the example in `To develop` above to create your first test
     - In order to ensure you're using the same URL as the cookie you generated for it, you can use `const baseUrl = Cypress.env('my-new-service').baseUrl`
     to get the URL used in the cookie generation step in your tests.
     - In order to set the cookie before running your tests, you can import the cookie and set it like so:
 ```js
-// In `cypress/integration/myNewService/spec.js
+// In `cypress/integration/myNewService/spec.ts
 import { setCookie } from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
 

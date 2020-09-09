@@ -17,7 +17,7 @@ function runTests() {
     fi
 
     SUITE=${SUITE} STAGE="${REALSTAGE}" npm run --silent cy:live || true
-    SUITE=${SUITE} STAGE="${REALSTAGE}" node scripts/uploadVideo.js
+    SUITE=${SUITE} STAGE="${REALSTAGE}" npm run upload-video
 }
 
 "${DIR}"/setup.sh "${STAGE}"

@@ -2,7 +2,6 @@
   "name": "editorial-tools-integration-tests",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "test": "./scripts/setup.sh $ENV && yarn cy:run-dev",
     "grid-prod": "APP=grid STAGE=prod yarn start",
@@ -19,7 +18,7 @@
     "cy:open": "cypress open --env APP=$APP,STAGE=$STAGE",
     "lint": "eslint cypress/integration/* src/* reporters --ext .ts --ext .js",
     "riffraff": "node-riffraff-artifact",
-    "upload-video": "node scripts/uploadVideo.js"
+    "upload-video": "ts-node scripts/uploadVideo.ts"
   },
   "keywords": [],
   "author": "",

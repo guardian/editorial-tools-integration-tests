@@ -1,8 +1,11 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
-class Logger {
-  constructor({ logDir, logFile }) {
+type LogData = { [key: string]: any };
+
+export class Logger {
+  file: string;
+  constructor({ logDir, logFile }: { logDir: string; logFile: string }) {
     this.file = path.join(logDir, logFile);
     if (!fs.existsSync(logDir)) {
       fs.mkdirSync(logDir, { recursive: true });
@@ -13,7 +16,7 @@ class Logger {
     return new Date().toISOString();
   }
 
-  prepopulated(json, level) {
+  prepopulated(json: LogData, level: string) {
     return JSON.stringify({
       level,
       ...json,
@@ -21,12 +24,12 @@ class Logger {
     });
   }
 
-  log(json) {
+  log(json: LogData) {
     const data = this.prepopulated(json, 'INFO');
     fs.appendFileSync(this.file, data + '\n');
   }
 
-  error(json) {
+  error(json: LogData) {
     const data = this.prepopulated(json, 'ERROR');
     fs.appendFileSync(this.file, data + '\n');
   }
