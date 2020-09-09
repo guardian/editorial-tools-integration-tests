@@ -34,5 +34,3 @@ export class Logger {
     fs.appendFileSync(this.file, data + '\n');
   }
 }
-
-module.exports = { Logger };
