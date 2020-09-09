@@ -1,13 +1,14 @@
-const AWS = require('aws-sdk');
+import AWS from 'aws-sdk';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const iniparser = require('iniparser');
-const { base64ToPEM } = require('@guardian/pan-domain-node/dist/src/utils');
-const { createCookie } = require('@guardian/pan-domain-node/dist/src/panda');
-const env = require('../../env.json');
-const { getS3Client } = require('./s3');
+import { base64ToPEM } from '@guardian/pan-domain-node/dist/src/utils';
+import { createCookie } from '@guardian/pan-domain-node/dist/src/panda';
+import env from '../../env.json';
+import { getS3Client } from './s3';
 
 const user = { ...env.user, expires: Date.now() + 1800000 };
 
-async function getCookie(domain) {
+async function getCookie(domain: string) {
   const credentials = env.isDev
     ? new AWS.SharedIniFileCredentials({
         profile: env.aws.profile,
@@ -30,7 +31,7 @@ async function getCookie(domain) {
       process.exit(1);
     });
 
-  const { privateKey } = iniparser.parseString(settings.Body.toString());
+  const { privateKey } = iniparser.parseString(settings?.Body?.toString());
 
   if (privateKey) {
     const pemEncodedPrivateKey = base64ToPEM(privateKey, 'RSA PRIVATE');
@@ -40,8 +41,8 @@ async function getCookie(domain) {
   }
 }
 
-function getDomain(stage) {
-  const lowercasedStage = stage.toLowerCase();
+function getDomain(stage: string | undefined) {
+  const lowercasedStage = stage?.toLowerCase();
   if (lowercasedStage === 'prod') {
     return 'gutools.co.uk';
   } else {

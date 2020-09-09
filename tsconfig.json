@@ -11,7 +11,7 @@
       "dom",
       "ES2015.Promise"
     ],
-    "types": ["cypress"]
+    "types": ["cypress", "node"]
   },
   "include": [
     "**/*.ts",
