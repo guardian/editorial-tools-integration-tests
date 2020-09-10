@@ -7,6 +7,7 @@ import config from '../env.json';
 
 const logFile = 'tests.json.log';
 const logDir = path.join(__dirname, '../logs');
+const tmpDir = path.join(__dirname, '../tmp');
 
 const now = new Date();
 const year = now.getFullYear();
@@ -18,8 +19,8 @@ const date = now.getDate();
   const suites = fs.readdirSync(videosDir);
   await Promise.all(
     suites.map((suite) => {
-      const failuresFile = path.join(__dirname, `../${suite}.failures.txt`);
-      const idFile = path.join(__dirname, `../${suite}.id.txt`);
+      const failuresFile = `${tmpDir}/${suite}.failures.txt`;
+      const idFile = `${tmpDir}/${suite}.id.txt`;
 
       const logger = new Logger({ logDir, logFile });
       let uid: string | null = null;

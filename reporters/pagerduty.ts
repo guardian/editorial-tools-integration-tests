@@ -6,6 +6,7 @@ import fetch from 'node-fetch';
 import { Logger } from '../src/utils/logger';
 import env from '../env.json';
 const logDir = path.join(__dirname, '../logs');
+const tmpDir = path.join(__dirname, '../tmp');
 const logFile = 'tests.json.log';
 const timestamp = new Date().toISOString().substr(0, 16); // Yields `YYYY-DD-MMTHH-MM`
 
@@ -41,6 +42,9 @@ function getFailuresFile(failuresFile: string, failures: number) {
   if (fs.existsSync(failuresFile)) {
     failures = Number(fs.readFileSync(failuresFile));
   } else {
+    if (!fs.existsSync(tmpDir)) {
+      fs.mkdirSync(tmpDir);
+    }
     fs.writeFileSync(failuresFile, '0');
   }
   return failures;
@@ -56,8 +60,8 @@ function Pagerduty(this: any, runner: Mocha.Runner) {
 
   const app = getAppName(this.runner.suite);
   const uid = getUID(this.runner.suite, timestamp);
-  const failuresFile = path.join(__dirname, `../${app}.failures.txt`);
-  const runIDFile = path.join(__dirname, `../${app}.id.txt`);
+  const failuresFile = `${tmpDir}/${app}.failures.txt`;
+  const runIDFile = `${tmpDir}/${app}.id.txt`;
   getFailuresFile(failuresFile, failures);
   fs.writeFileSync(runIDFile, uid); // Create run ID file that can be used by `uploadVideo.ts`
 
@@ -132,6 +136,8 @@ function Pagerduty(this: any, runner: Mocha.Runner) {
       console.log('end: %d/%d', passes, passes + failures);
       fs.writeFileSync(failuresFile, failures.toString());
       logger.log({
+        failures,
+        passes,
         message: `Ended - ${app} with uid ${uid}`,
         uid,
       });
