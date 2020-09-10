@@ -1,4 +1,7 @@
 import { getDomain } from '../networking';
+import { apps } from '../values';
+const { grid } = apps;
+
 // hash of the image in assets/GridmonTestImage.png
 export const imageHash = 'fe052e21c4bc4d76a2c841d97c5b2281cccd19bd';
 
@@ -7,16 +10,16 @@ export function getImageHash() {
 }
 
 export function getImageURL() {
-  return `${getDomain()}/images/${getImageHash()}`;
+  return `${getDomain(grid)}/images/${getImageHash()}`;
 }
 
 export async function deleteImages(
   cy: Cypress.cy & EventEmitter,
   images: string[]
 ) {
-  const cropperDomain = getDomain({ prefix: 'cropper' });
-  const originDomain = getDomain({ app: 'integration-tests' });
-  const usagesDomain = getDomain({ app: 'media-usage' });
+  const cropperDomain = getDomain(grid, { prefix: 'cropper' });
+  const originDomain = getDomain('integration-tests');
+  const usagesDomain = getDomain('media-usage');
 
   images.map((id: string) => {
     const cropperUrl = `${cropperDomain}/crops/${id}`;
@@ -35,7 +38,7 @@ export async function deleteImages(
 
     cy.wait(500);
 
-    const url = `${getDomain({ prefix: 'api' })}/images/${id}`;
+    const url = `${getDomain(grid, { prefix: 'api' })}/images/${id}`;
     cy.request({
       method: 'DELETE',
       url,

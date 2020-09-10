@@ -12,9 +12,11 @@ import { resetCollection } from '../../utils/grid/collections';
 import { createAndEditArticle } from '../../utils/composer/createArticle';
 import { getId } from '../../utils/composer/getId';
 import { deleteArticleFromManagement } from '../../utils/composer/deleteArticle';
+import { apps } from '../../utils/values';
 
-// ID of `cypress/fixtures/GridmonTestImage.png`
-const dragImageID = getImageHash();
+const { grid } = apps;
+
+const dragImageID = getImageHash(); // ID of `cypress/fixtures/GridmonTestImage.png`
 const rootCollection = 'Cypress Integration Testing';
 const date = Date.now().toString();
 const waits = { createCrop: 1000 };
@@ -46,7 +48,9 @@ describe('Grid Key User Journeys', function () {
   });
 
   it('Upload image, set rights, set metadata, create crop, delete all crops', function () {
-    const imageUrl = `${getDomain({ prefix: 'api' })}/images/${dragImageID}`;
+    const imageUrl = `${getDomain(grid, {
+      prefix: 'api',
+    })}/images/${dragImageID}`;
     const crop = {
       width: '900',
       height: '540',
@@ -54,13 +58,13 @@ describe('Grid Key User Journeys', function () {
       yValue: '581',
     };
 
-    const cropsUrl = `${getDomain({
+    const cropsUrl = `${getDomain(grid, {
       prefix: 'cropper',
     })}/crops/${getImageHash()}`;
 
     const cropID = `${crop.xValue}_${crop.yValue}_${crop.width}_${crop.height}`;
 
-    cy.visit(getDomain(), {
+    cy.visit(getDomain(grid), {
       onBeforeLoad(win) {
         cy.stub(win, 'prompt').returns('DELETE');
       },
@@ -87,7 +91,7 @@ describe('Grid Key User Journeys', function () {
     uploads.addImageToCollection('Cypress Integration Testing');
 
     cy.get(`ui-upload-jobs [href="/images/${dragImageID}"] img`).click();
-    cy.url().should('equal', `${getDomain()}/images/${dragImageID}`);
+    cy.url().should('equal', `${getDomain(grid)}/images/${dragImageID}`);
 
     cy.request('GET', imageUrl).then((res) => {
       // Assert that image is usable after rights are added
@@ -116,7 +120,9 @@ describe('Grid Key User Journeys', function () {
       `${getImageURL()}?crop=${cropID}`
     );
 
-    const url = `${getDomain({ prefix: 'cropper' })}/crops/${getImageHash()}`;
+    const url = `${getDomain(grid, {
+      prefix: 'cropper',
+    })}/crops/${getImageHash()}`;
     cy.request('GET', url).then((res) => {
       const cropsBeforeDelete = res.body.data;
       expect(
@@ -157,7 +163,7 @@ describe('Grid Key User Journeys', function () {
   it('User can create a child collection and delete it', () => {
     const childName = Date.now().toString();
 
-    cy.visit(getDomain());
+    cy.visit(getDomain(grid));
 
     // Click on collections panel
     cy.get('[data-cy=show-collections-panel]').should('exist').click();
@@ -186,12 +192,9 @@ describe('Grid Key User Journeys', function () {
       Cypress.env('STAGE').toLowerCase() === 'test'
         ? 'code'
         : Cypress.env('STAGE');
-    const composerUrl = getDomain({
-      app: 'composer',
-      stage: composerStage,
-    });
+    const composerUrl = getDomain(apps.composer, { stage: composerStage });
 
-    cy.visit(getDomain());
+    cy.visit(getDomain(grid));
 
     uploads.dragImageToGrid('GridmonTestImage.png');
     uploads.ensureImageUploadedCorrectly();
@@ -214,7 +217,7 @@ describe('Grid Key User Journeys', function () {
       cy.get('.add-item__icon__svg--image').should('exist').click();
 
       // Check Grid iframe is loaded
-      cy.frameLoaded('.embedded-grid-iframe', { url: getDomain() });
+      cy.frameLoaded('.embedded-grid-iframe', { url: getDomain(grid) });
 
       const imageID = getImageHash();
 

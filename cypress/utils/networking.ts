@@ -1,4 +1,4 @@
-import { baseUrls } from '../../cypress.env.json';
+import { apps } from './values';
 
 interface Cookie {
   cookie: string;
@@ -6,15 +6,13 @@ interface Cookie {
 }
 
 interface GetDomainOptions {
-  app?: string;
   prefix?: string;
   stage?: string;
 }
 
-export function getDomain(options?: GetDomainOptions) {
+export function getDomain(app: string, options?: GetDomainOptions) {
   const stage = options?.stage || Cypress.env('STAGE').toLowerCase();
-  const app = options?.app || Cypress.env('APP');
-  const appName = baseUrls[app] || app;
+  const appName = apps[app] || app;
   const subdomain = options?.prefix ? options.prefix + '.' + appName : appName;
   return stage.toLowerCase() === 'prod'
     ? `https://${subdomain}.gutools.co.uk`
