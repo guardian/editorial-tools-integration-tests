@@ -212,6 +212,7 @@ Resources:
           # Install Cypress dependencies
           apt install -y npm
           npm install --global yarn
+          apt-get update
           apt-get -y install libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
           /data/editorial-tools-integration-tests/node_modules/cypress/bin/cypress install
 
