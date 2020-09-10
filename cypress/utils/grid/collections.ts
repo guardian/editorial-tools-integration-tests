@@ -52,14 +52,14 @@ export function deleteChild(collection: string, child: string) {
 }
 
 export function resetCollection(cy: Cypress.cy, rootCollection: string) {
-  const url = `${getDomain({ app: 'media-collections' })}/collections`;
+  const url = `${getDomain('media-collections')}/collections`;
   // Delete collection
   const rootCollectionUrl = `${url}/${encodeURIComponent(rootCollection)}`;
   cy.request({
     method: 'DELETE',
     url: rootCollectionUrl,
     headers: {
-      Origin: getDomain({ app: 'integration-tests' }),
+      Origin: getDomain('integration-tests'),
     },
   });
   cy.request({
@@ -68,7 +68,7 @@ export function resetCollection(cy: Cypress.cy, rootCollection: string) {
     body: JSON.stringify({ data: rootCollection }),
     headers: {
       'Content-Type': 'application/json',
-      Origin: getDomain({ app: 'integration-tests' }),
+      Origin: getDomain('integration-tests'),
     },
   });
 }

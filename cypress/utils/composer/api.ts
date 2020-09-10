@@ -1,6 +1,7 @@
 import { getDomain } from '../networking';
 import env from '../../../env.json';
 import { WorkflowResponse } from '../workflow/interfaces';
+import { apps } from '../values';
 
 interface Content {
   data: {
@@ -22,26 +23,26 @@ interface Content {
 }
 
 function deleteContent(id: string) {
-  const apiBaseUrl = `${getDomain({ app: 'composer' })}/api`;
+  const apiBaseUrl = `${getDomain(apps.composer)}/api`;
   const url = `${apiBaseUrl}/content/${id}`;
 
   cy.request({
     url,
     method: 'DELETE',
     headers: {
-      Origin: getDomain({ app: 'integration-tests' }),
+      Origin: getDomain('integration-tests'),
     },
   });
 }
 
 export const deleteAllArticles = () => {
-  const apiBaseUrl = `${getDomain({ app: 'composer' })}/api`;
+  const apiBaseUrl = `${getDomain(apps.composer)}/api`;
 
   cy.request({
     url: `${apiBaseUrl}/content?collaboratorEmail=${env.user.email}`,
     method: 'GET',
     headers: {
-      Origin: getDomain({ app: 'integration-tests' }),
+      Origin: getDomain('integration-tests'),
     },
   }).then(({ body: { data: contents } }: { body: { data: Content[] } }) => {
     const deletable = contents.filter(
@@ -60,13 +61,13 @@ export const deleteAllArticles = () => {
 };
 
 export const deleteArticlesFromWorkflow = (contentPrefix: string) => {
-  const workflowBaseUrl = `${getDomain({ app: 'workflow' })}/api/content`;
+  const workflowBaseUrl = `${getDomain(apps.workflow)}/api/content`;
 
   const urlWithParams = `${workflowBaseUrl}?text=${contentPrefix.replace(
     /\s/g,
     '+'
   )}`;
-  const origin = getDomain({ app: 'integration-tests' });
+  const origin = getDomain('integration-tests');
 
   cy.request({
     url: urlWithParams,

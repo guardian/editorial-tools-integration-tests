@@ -1,12 +1,13 @@
 import { getDomain } from '../networking';
 import { defaultQueryString } from '../../integration/workflow/integration';
+import { apps } from '../values';
 
 export const visitWorkflow = (params = '') => {
   const waitAlias =
     '@content' +
     (params === `/dashboard${defaultQueryString}` ? 'WithDefaultQuery' : '');
 
-  cy.visit(getDomain({ app: 'workflow' }) + params)
+  cy.visit(getDomain(apps.workflow) + params)
     .wait(waitAlias)
     .get('.wf-loader', { timeout: 30000 })
     .should('not.exist');

@@ -1,8 +1,9 @@
 import { getDomain } from '../networking';
+import { apps } from '../values';
 
 export function deleteArticle(
   id: string,
-  options?: { app?: string; stage?: string }
+  options: { app: string; stage?: string }
 ) {
   clickIntoArticle(id);
   deleteArticleFromManagement(id, options);
@@ -14,7 +15,7 @@ function clickIntoArticle(id: string) {
 
 export function deleteArticleFromManagement(
   id: string,
-  options?: { app?: string; stage?: string }
+  options: { app: string; stage?: string }
 ) {
   cy.get('#js-management-edit')
     .click()
@@ -23,5 +24,5 @@ export function deleteArticleFromManagement(
     .get('#js-content-information-delete')
     .click({ force: true })
     .url()
-    .should('equal', `${getDomain(options)}/`);
+    .should('equal', `${getDomain(apps.composer, options)}/`);
 }
