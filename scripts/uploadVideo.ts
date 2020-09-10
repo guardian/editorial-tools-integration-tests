@@ -5,81 +5,85 @@ import { Logger } from '../src/utils/logger';
 import { uploadVideoToS3 } from '../src/utils/s3';
 import config from '../env.json';
 
-const suite = process.env.SUITE;
-
 const logFile = 'tests.json.log';
 const logDir = path.join(__dirname, '../logs');
-const failuresFile = path.join(__dirname, `../${suite}.failures.txt`);
-const idFile = path.join(__dirname, `../${suite}.id.txt`);
-const videoDir = path.join(__dirname, `../cypress/videos/${suite}`);
 
 const now = new Date();
 const year = now.getFullYear();
 const month = now.getMonth() + 1;
 const date = now.getDate();
 
-(async function f() {
-  const logger = new Logger({ logDir, logFile });
-  let uid: string | null = null;
+(async function uploadVideos() {
+  const videosDir = path.join(__dirname, `../cypress/videos`);
+  const suites = fs.readdirSync(videosDir);
+  await Promise.all(
+    suites.map((suite) => {
+      const failuresFile = path.join(__dirname, `../${suite}.failures.txt`);
+      const idFile = path.join(__dirname, `../${suite}.id.txt`);
 
-  try {
-    uid = fs.readFileSync(idFile, { encoding: 'utf8' });
-  } catch (e) {
-    logger.error({
-      error: e.message,
-      message: `Failure to upload video ${videoDir}: Error reading UID file from ${idFile}: ${e.message}`,
-      stackTrace: e.stack,
-      uid,
-    });
-    return;
-  }
+      const logger = new Logger({ logDir, logFile });
+      let uid: string | null = null;
 
-  try {
-    const failures = Number(
-      fs.readFileSync(failuresFile, { encoding: 'utf8' })
-    );
+      try {
+        uid = fs.readFileSync(idFile, { encoding: 'utf8' });
+      } catch (e) {
+        logger.error({
+          error: e.message,
+          message: `Failure to upload video ${videosDir}: Error reading UID file from ${idFile}: ${e.message}`,
+          stackTrace: e.stack,
+          uid,
+        });
+        return;
+      }
 
-    if (failures > 0) {
-      const credentials = config.isDev
-        ? new AWS.SharedIniFileCredentials({
-            profile: config.aws.profile,
-          })
-        : undefined;
+      try {
+        const failures = Number(
+          fs.readFileSync(failuresFile, { encoding: 'utf8' })
+        );
 
-      const videos = fs.readdirSync(videoDir);
+        if (failures > 0) {
+          const credentials = config.isDev
+            ? new AWS.SharedIniFileCredentials({
+                profile: config.aws.profile,
+              })
+            : undefined;
 
-      await Promise.all(
-        videos.map(async (video) => {
-          // Videos run every 5 minutes, so adding anything past the minute is unnecessary
+          const videos = fs.readdirSync(videosDir);
 
-          const key = `videos/${year}/${month}/${date}/${uid}-${suite}-${video}`;
+          Promise.all(
+            videos.map(async (video) => {
+              // Videos run every 5 minutes, so adding anything past the minute is unnecessary
 
-          await uploadVideoToS3({
-            credentials,
-            file: `${videoDir}/${video}`,
-            bucket: config.videoBucket,
-            key,
-          });
+              const key = `videos/${year}/${month}/${date}/${uid}-${suite}-${video}`;
 
+              await uploadVideoToS3({
+                credentials,
+                file: `${videosDir}/${video}`,
+                bucket: config.videoBucket,
+                key,
+              });
+
+              logger.log({
+                uid,
+                message: `Video [${key}] uploaded to ${config.videoBucket}`,
+              });
+            })
+          );
+        } else {
           logger.log({
             uid,
-            message: `Video [${key}] uploaded to ${config.videoBucket}`,
+            message: `No failures for suite ${suite}, not uploading video`,
           });
-        })
-      );
-    } else {
-      logger.log({
-        uid,
-        message: `No failures for suite ${suite}, not uploading video`,
-      });
-    }
-  } catch (e) {
-    logger.error({
-      uid,
-      message: `Error when attempting to upload video {${uid}} from [${videoDir}]: ${e.message}`,
-      stackTrace: e.stack,
-      error: e.message,
-    });
-    console.error(e);
-  }
+        }
+      } catch (e) {
+        logger.error({
+          uid,
+          message: `Error when attempting to upload video {${uid}} from [${videosDir}]: ${e.message}`,
+          stackTrace: e.stack,
+          error: e.message,
+        });
+        console.error(e);
+      }
+    })
+  );
 })();
