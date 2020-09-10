@@ -17,13 +17,14 @@ import { resetCollection } from '../../utils/grid/collections';
 import { createAndEditArticle } from '../../utils/composer/createArticle';
 import { getId } from '../../utils/composer/getId';
 import { deleteArticleFromManagement } from '../../utils/composer/deleteArticle';
+import { APPS } from '../../utils/values';
 
 // ID of `cypress/fixtures/GridmonTestImage.png`
 const dragImageID = getImageHash();
 const rootCollection = 'Cypress Integration Testing';
 const date = Date.now().toString();
 const waits = { createCrop: 1000 };
-const app = 'media';
+const app = APPS.grid;
 const stage = getGridStage();
 
 function setupAliases() {
@@ -201,7 +202,7 @@ describe('Grid Key User Journeys', function () {
         ? 'code'
         : Cypress.env('STAGE');
     const composerUrl = getDomain({
-      app: 'composer',
+      app: APPS.composer,
       stage: composerStage,
     });
 
@@ -221,7 +222,7 @@ describe('Grid Key User Journeys', function () {
 
     createAndEditArticle();
     cy.url().then(async (url) => {
-      const id = getId(url, { app: 'composer', stage: composerStage });
+      const id = getId(url, { app: APPS.composer, stage: composerStage });
       cy.log('Article id is ', id);
 
       // Click on Add Image button
@@ -262,7 +263,7 @@ describe('Grid Key User Journeys', function () {
         .click({ force: true }); // Confirm delete by clicking twice
 
       deleteArticleFromManagement(id, {
-        app: 'composer',
+        app: APPS.composer,
         stage: composerStage,
       });
     });

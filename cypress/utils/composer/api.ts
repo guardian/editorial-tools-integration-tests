@@ -1,6 +1,7 @@
 import { getDomain } from '../networking';
 import env from '../../../env.json';
 import { WorkflowResponse } from '../workflow/interfaces';
+import { APPS } from '../values';
 
 interface Content {
   data: {
@@ -21,8 +22,10 @@ interface Content {
   };
 }
 
+const app = APPS.composer;
+
 function deleteContent(id: string) {
-  const apiBaseUrl = `${getDomain({ app: 'composer' })}/api`;
+  const apiBaseUrl = `${getDomain({ app })}/api`;
   const url = `${apiBaseUrl}/content/${id}`;
 
   cy.request({
@@ -35,7 +38,7 @@ function deleteContent(id: string) {
 }
 
 export const deleteAllArticles = () => {
-  const apiBaseUrl = `${getDomain({ app: 'composer' })}/api`;
+  const apiBaseUrl = `${getDomain({ app })}/api`;
 
   cy.request({
     url: `${apiBaseUrl}/content?collaboratorEmail=${env.user.email}`,

@@ -3,6 +3,8 @@ import { stopEditingAndClose } from './stopEditingAndClose';
 import { deleteArticle } from './deleteArticle';
 import { getId } from './getId';
 import { startEditing } from './startEditing';
+import { APPS } from '../values';
+const app = APPS.composer;
 
 type fnArg = (id: string) => void;
 
@@ -22,7 +24,7 @@ export function inATemporaryArticle(
       cy.log('Closed the article');
       assertFn(id);
       // Go ahead and delete the article
-      deleteArticle(id, { app: 'composer' });
+      deleteArticle(id, { app });
     });
   });
 }

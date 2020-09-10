@@ -88,3 +88,5 @@ const date = now.getDate();
     })
   );
 })();
+
+console.log(new Date().toISOString());
