@@ -7,7 +7,7 @@ export function createAndEditArticle() {
     'apiCollaborator'
   );
 
-  cy.visit(getDomain()).wait('@apiCollaborator');
+  cy.visit(getDomain({ app: 'composer' })).wait('@apiCollaborator');
   cy.get('#js-dashboard-create-dropdown')
     .click()
     .get('#js-dashboard-create-article')

@@ -1,7 +1,7 @@
 import { getDomain } from '../networking';
 
 export function expectPreview(id: string, regex: RegExp) {
-  const url = `${getDomain()}/api/content/${id}/preview`;
+  const url = `${getDomain({ app: 'composer' })}/api/content/${id}/preview`;
   cy.request('GET', url).then((res) => {
     const content1 = res.body;
     expect(content1, 'the json content').to.not.be.undefined;

@@ -14,7 +14,7 @@ export function inATemporaryArticle(
   it(`(In a temporary article) ${title}`, () => {
     createAndEditArticle();
     cy.url().then((url) => {
-      const id = getId(url);
+      const id = getId(url, { app: 'composer' });
       startEditing();
       cy.log('Article id is ', id);
       editFn(id);
@@ -22,7 +22,7 @@ export function inATemporaryArticle(
       cy.log('Closed the article');
       assertFn(id);
       // Go ahead and delete the article
-      deleteArticle(id);
+      deleteArticle(id, { app: 'composer' });
     });
   });
 }

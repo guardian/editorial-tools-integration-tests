@@ -6,30 +6,23 @@ STAGE=${1:-PROD}
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 function runTests() {
-    SUITE=$1
     FAILURES_FILE="${DIR}/../${SUITE}.failures.txt"
     rm "${FAILURES_FILE}" || true
 
-    if [[ $SUITE == "grid" && ($STAGE == "CODE" || $STAGE == "code")]]; then
-      REALSTAGE="test"
+    if [[ $STAGE == "CODE" || $STAGE == "code" ]]; then
+      GRID_STAGE="test"
     else
-      REALSTAGE=$STAGE
+      GRID_STAGE=$STAGE
     fi
 
-    SUITE=${SUITE} STAGE="${REALSTAGE}" npm run --silent cy:live || true
-    SUITE=${SUITE} STAGE="${REALSTAGE}" npm run upload-video
+    STAGE="${STAGE}" GRID_STAGE="${GRID_STAGE}" npm run --silent cy:live || true
+    STAGE="${STAGE}" npm run upload-video
 }
 
+
 "${DIR}"/setup.sh "${STAGE}"
-
 echo "$(date): Running integration tests"
-
 pushd "${DIR}"/../ > /dev/null
-
-# To make a test suite run in prod, add it here
-# runTests <APP>
-runTests grid
-runTests composer
-runTests workflow
+runTests
 
 popd > /dev/null

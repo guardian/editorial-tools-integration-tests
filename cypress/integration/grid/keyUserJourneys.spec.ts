@@ -1,7 +1,12 @@
 import 'cypress-file-upload';
 import 'cypress-iframe';
 
-import { getDomain, fetchAndSetCookie } from '../../utils/networking';
+import {
+  getDomain,
+  fetchAndSetCookie,
+  getGridStage,
+  getGridDomain,
+} from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
 import { deleteImages, getImageHash, getImageURL } from '../../utils/grid/api';
 import * as uploads from '../../utils/grid/upload';
@@ -18,6 +23,8 @@ const dragImageID = getImageHash();
 const rootCollection = 'Cypress Integration Testing';
 const date = Date.now().toString();
 const waits = { createCrop: 1000 };
+const app = 'media';
+const stage = getGridStage();
 
 function setupAliases() {
   cy.server();
@@ -29,24 +36,27 @@ function setupAliases() {
 describe('Grid Key User Journeys', function () {
   before(() => {
     checkVars();
-    fetchAndSetCookie({ visitDomain: false });
+    fetchAndSetCookie({ stage });
     deleteImages(cy, [getImageHash()]);
     resetCollection(cy, rootCollection);
   });
 
   beforeEach(() => {
-    fetchAndSetCookie({ visitDomain: false });
+    fetchAndSetCookie({ stage });
     setupAliases();
   });
 
   after(() => {
-    fetchAndSetCookie({ visitDomain: false });
+    fetchAndSetCookie({ stage });
     deleteImages(cy, [getImageHash()]);
     resetCollection(cy, rootCollection);
   });
 
   it('Upload image, set rights, set metadata, create crop, delete all crops', function () {
-    const imageUrl = `${getDomain({ prefix: 'api' })}/images/${dragImageID}`;
+    const imageUrl = `${getGridDomain({
+      prefix: 'api',
+      app,
+    })}/images/${dragImageID}`;
     const crop = {
       width: '900',
       height: '540',
@@ -54,13 +64,14 @@ describe('Grid Key User Journeys', function () {
       yValue: '581',
     };
 
-    const cropsUrl = `${getDomain({
+    const cropsUrl = `${getGridDomain({
       prefix: 'cropper',
+      app,
     })}/crops/${getImageHash()}`;
 
     const cropID = `${crop.xValue}_${crop.yValue}_${crop.width}_${crop.height}`;
 
-    cy.visit(getDomain(), {
+    cy.visit(getGridDomain({ app }), {
       onBeforeLoad(win) {
         cy.stub(win, 'prompt').returns('DELETE');
       },
@@ -87,7 +98,7 @@ describe('Grid Key User Journeys', function () {
     uploads.addImageToCollection('Cypress Integration Testing');
 
     cy.get(`ui-upload-jobs [href="/images/${dragImageID}"] img`).click();
-    cy.url().should('equal', `${getDomain()}/images/${dragImageID}`);
+    cy.url().should('equal', `${getGridDomain({ app })}/images/${dragImageID}`);
 
     cy.request('GET', imageUrl).then((res) => {
       // Assert that image is usable after rights are added
@@ -116,7 +127,10 @@ describe('Grid Key User Journeys', function () {
       `${getImageURL()}?crop=${cropID}`
     );
 
-    const url = `${getDomain({ prefix: 'cropper' })}/crops/${getImageHash()}`;
+    const url = `${getGridDomain({
+      prefix: 'cropper',
+      app,
+    })}/crops/${getImageHash()}`;
     cy.request('GET', url).then((res) => {
       const cropsBeforeDelete = res.body.data;
       expect(
@@ -157,7 +171,7 @@ describe('Grid Key User Journeys', function () {
   it('User can create a child collection and delete it', () => {
     const childName = Date.now().toString();
 
-    cy.visit(getDomain());
+    cy.visit(getGridDomain({ app }));
 
     // Click on collections panel
     cy.get('[data-cy=show-collections-panel]').should('exist').click();
@@ -191,7 +205,7 @@ describe('Grid Key User Journeys', function () {
       stage: composerStage,
     });
 
-    cy.visit(getDomain());
+    cy.visit(getGridDomain({ app }));
 
     uploads.dragImageToGrid('GridmonTestImage.png');
     uploads.ensureImageUploadedCorrectly();
@@ -202,7 +216,7 @@ describe('Grid Key User Journeys', function () {
 
     uploads.setRights('screengrab', Date.now().toString());
 
-    fetchAndSetCookie({ stage: composerStage, visitDomain: false });
+    fetchAndSetCookie({ stage: composerStage });
     cy.visit(composerUrl);
 
     createAndEditArticle();
@@ -214,7 +228,7 @@ describe('Grid Key User Journeys', function () {
       cy.get('.add-item__icon__svg--image').should('exist').click();
 
       // Check Grid iframe is loaded
-      cy.frameLoaded('.embedded-grid-iframe', { url: getDomain() });
+      cy.frameLoaded('.embedded-grid-iframe', { url: getGridDomain({ app }) });
 
       const imageID = getImageHash();
 

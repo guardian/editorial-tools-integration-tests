@@ -12,7 +12,7 @@
     "composer-code": "APP=composer STAGE=code yarn start",
     "composer-local": "APP=composer STAGE=local yarn start",
     "start": "cypress run --reporter spec --env APP=$APP,STAGE=$STAGE --spec cypress/integration/$APP/*",
-    "cy:live": "cypress run --env APP=$SUITE,STAGE=$STAGE --spec cypress/integration/$SUITE/*",
+    "cy:live": "cypress run --env STAGE=$STAGE",
     "cy:run-dev": "cypress run --reporter spec",
     "cy:run": "cypress run",
     "cy:open": "cypress open --env APP=$APP,STAGE=$STAGE",

@@ -2,7 +2,7 @@ import { getDomain } from '../networking';
 
 export function deleteArticle(
   id: string,
-  options?: { app?: string; stage?: string }
+  options: { app: string; stage?: string }
 ) {
   clickIntoArticle(id);
   deleteArticleFromManagement(id, options);
@@ -14,7 +14,7 @@ function clickIntoArticle(id: string) {
 
 export function deleteArticleFromManagement(
   id: string,
-  options?: { app?: string; stage?: string }
+  options: { app: string; stage?: string }
 ) {
   cy.get('#js-management-edit')
     .click()

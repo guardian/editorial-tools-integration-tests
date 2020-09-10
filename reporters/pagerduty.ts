@@ -5,14 +5,9 @@ import fetch from 'node-fetch';
 
 import { Logger } from '../src/utils/logger';
 import env from '../env.json';
-const suite = process.env.SUITE;
-
 const logDir = path.join(__dirname, '../logs');
 const logFile = 'tests.json.log';
-const failuresFile = path.join(__dirname, `../${suite}.failures.txt`);
-const runIDFile = path.join(__dirname, `../${suite}.id.txt`);
-// Yields `YYYY-DD-MMTHH-MM`
-const uid = new Date().toISOString().substr(0, 16);
+const timestamp = new Date().toISOString().substr(0, 16); // Yields `YYYY-DD-MMTHH-MM`
 
 const routingKey = env.pagerduty.routingKey;
 const logger = new Logger({ logDir, logFile });
@@ -23,44 +18,63 @@ function generateMessage(state: string, test: Mocha.Test) {
   return `${state} - ${test.titlePath().join(' - ')}`;
 }
 
-function getVideoName(parent: Mocha.Suite): string {
-  if (parent.root && parent.file) {
-    const testFile = parent.file.split('/');
-    return testFile[testFile.length - 1]; // yields <filename>.ts
-  } else {
-    return getVideoName(parent.parent);
-  }
+function getRootSuite(parent: Mocha.Suite): Mocha.Suite {
+  return parent.root ? parent : getRootSuite(<Mocha.Suite>parent.parent);
 }
 
-function Pagerduty(runner: Mocha.Runner) {
+function getAppName(parent: Mocha.Suite): string {
+  const rootSuite = getRootSuite(parent);
+  const testFile = rootSuite.file.split('/');
+  return testFile[testFile.length - 2]; // yields folder (suite) containing test file
+}
+
+function getVideoName(parent: Mocha.Suite): string {
+  const rootSuite = getRootSuite(parent);
+  const testFile = rootSuite.file.split('/');
+  return testFile[testFile.length - 1]; // yields <filename>.ts
+}
+
+// `scripts/run.sh` is responsible for cleaning up the failures file
+// If one exists on start, it's because a
+// previous test suite in the same app has run before this
+function getFailuresFile(failuresFile: string, failures: number) {
+  if (fs.existsSync(failuresFile)) {
+    failures = Number(fs.readFileSync(failuresFile));
+  } else {
+    fs.writeFileSync(failuresFile, '0');
+  }
+  return failures;
+}
+
+const getUID = (suite: Mocha.Suite, timestamp: string) =>
+  `${getAppName(suite)}-${timestamp}`;
+
+function Pagerduty(this: any, runner: Mocha.Runner) {
   mocha.reporters.Base.call(this, runner);
   let passes = 0;
   let failures = 0;
 
+  const app = getAppName(this.runner.suite);
+  const uid = getUID(this.runner.suite, timestamp);
+  const failuresFile = path.join(__dirname, `../${app}.failures.txt`);
+  const runIDFile = path.join(__dirname, `../${app}.id.txt`);
+  getFailuresFile(failuresFile, failures);
+  fs.writeFileSync(runIDFile, uid); // Create run ID file that can be used by `uploadVideo.ts`
+
   try {
     runner.on('start', async function () {
-      // `scripts/run.sh` is responsible for cleaning up the failures file
-      // If one exists on start, it's because a
-      // previous test suite in the same app has run before this
-      if (fs.existsSync(failuresFile)) {
-        failures = Number(fs.readFileSync(failuresFile));
-      } else {
-        fs.writeFileSync(failuresFile, '0');
-      }
-
-      // Create run ID file that can be used by `uploadVideo.ts`
-      fs.writeFileSync(runIDFile, uid);
-      logger.log({
-        message: `Started - ${suite} with uid ${uid}`,
-        uid,
-      });
+      const message = `Started - ${app} with uid ${uid}`;
+      console.log(message);
+      logger.log({ message, uid });
     });
 
     runner.on('pending', async function (test) {
       const message = generateMessage('Pending', test);
+
       passes++;
       console.log('Pending:', test.fullTitle());
       logger.log({
+        testSuite: app,
         uid,
         testTitle: test.title,
         message,
@@ -75,6 +89,7 @@ function Pagerduty(runner: Mocha.Runner) {
       passes++;
       console.log('Pass:', test.fullTitle());
       logger.log({
+        testSuite: app,
         uid,
         testTitle: test.title,
         message,
@@ -86,6 +101,7 @@ function Pagerduty(runner: Mocha.Runner) {
 
     runner.on('fail', async function (test, err) {
       const message = generateMessage('Failure', test);
+      const video = getVideoName(<Mocha.Suite>test.parent);
       const now = new Date();
       const region = 'eu-west-1';
       const year = now.getFullYear();
@@ -95,6 +111,7 @@ function Pagerduty(runner: Mocha.Runner) {
       console.error('Failure:', test.fullTitle(), err.message, '\n');
       logger.error({
         uid,
+        testSuite: app,
         testTitle: test.title,
         message,
         testContext: test.titlePath()[0],
@@ -102,12 +119,11 @@ function Pagerduty(runner: Mocha.Runner) {
         error: err.message,
       });
 
-      const video = getVideoName(test.parent);
       await callPagerduty(test, 'trigger', {
         error: err.message,
         videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
         videosAccount: env.aws.profile,
-        video: `https://s3.console.aws.amazon.com/s3/object/${env.videoBucket}/videos/${year}/${month}/${date}/${uid}-${suite}-${video}.mp4`,
+        video: `https://s3.console.aws.amazon.com/s3/object/${env.videoBucket}/videos/${year}/${month}/${date}/${uid}-${app}-${video}.mp4`,
         uid,
       });
     });
@@ -116,13 +132,13 @@ function Pagerduty(runner: Mocha.Runner) {
       console.log('end: %d/%d', passes, passes + failures);
       fs.writeFileSync(failuresFile, failures.toString());
       logger.log({
-        message: `Ended - ${suite} with uid ${uid}`,
+        message: `Ended - ${app} with uid ${uid}`,
         uid,
       });
     });
   } catch (e) {
     logger.error({
-      message: `Error - ${suite} [${uid}]: ${e.message}`,
+      message: `Error - ${app} [${uid}]: ${e.message}`,
       stackTrace: e.stack,
       uid,
     });
@@ -161,7 +177,7 @@ async function callPagerduty(test: mocha.Test, action: string, details = {}) {
       message: `PagerdutyReportError: ${json.message}`,
       error: json.errors,
       data,
-      uid,
+      uid: getUID,
     });
   }
 }

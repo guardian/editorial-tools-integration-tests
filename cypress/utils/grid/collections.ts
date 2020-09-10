@@ -1,4 +1,4 @@
-import { getDomain } from '../networking';
+import { getGridDomain } from '../networking';
 
 export function createChild(collection: string, name: string) {
   // Click on edit collections button
@@ -52,14 +52,14 @@ export function deleteChild(collection: string, child: string) {
 }
 
 export function resetCollection(cy: Cypress.cy, rootCollection: string) {
-  const url = `${getDomain({ app: 'media-collections' })}/collections`;
+  const url = `${getGridDomain({ app: 'media-collections' })}/collections`;
   // Delete collection
   const rootCollectionUrl = `${url}/${encodeURIComponent(rootCollection)}`;
   cy.request({
     method: 'DELETE',
     url: rootCollectionUrl,
     headers: {
-      Origin: getDomain({ app: 'integration-tests' }),
+      Origin: getGridDomain({ app: 'integration-tests' }),
     },
   });
   cy.request({
@@ -68,7 +68,7 @@ export function resetCollection(cy: Cypress.cy, rootCollection: string) {
     body: JSON.stringify({ data: rootCollection }),
     headers: {
       'Content-Type': 'application/json',
-      Origin: getDomain({ app: 'integration-tests' }),
+      Origin: getGridDomain({ app: 'integration-tests' }),
     },
   });
 }
