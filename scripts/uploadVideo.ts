@@ -9,8 +9,9 @@ const suite = process.env.SUITE;
 
 const logFile = 'tests.json.log';
 const logDir = path.join(__dirname, '../logs');
-const failuresFile = path.join(__dirname, `../${suite}.failures.txt`);
-const idFile = path.join(__dirname, `../${suite}.id.txt`);
+const tmpDir = path.join(__dirname, '../tmp');
+const failuresFile = path.join(`${tmpDir}/${suite}.failures.txt`);
+const idFile = path.join(`${tmpDir}/${suite}.id.txt`);
 const videoDir = path.join(__dirname, `../cypress/videos/${suite}`);
 
 const now = new Date();

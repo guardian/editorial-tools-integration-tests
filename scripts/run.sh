@@ -4,11 +4,16 @@ set -e
 
 STAGE=${1:-PROD}
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+ROOT_DIR="${DIR}/.."
+
+function resetTmpFiles() {
+    TMP_DIR="${ROOT_DIR}/tmp"
+    rm -r "${TMP_DIR}" || true
+    mkdir "${TMP_DIR}"
+}
 
 function runTests() {
     SUITE=$1
-    FAILURES_FILE="${DIR}/../${SUITE}.failures.txt"
-    rm "${FAILURES_FILE}" || true
 
     if [[ $SUITE == "grid" && ($STAGE == "CODE" || $STAGE == "code")]]; then
       REALSTAGE="test"
@@ -19,6 +24,8 @@ function runTests() {
     SUITE=${SUITE} STAGE="${REALSTAGE}" npm run --silent cy:live || true
     SUITE=${SUITE} STAGE="${REALSTAGE}" npm run upload-video
 }
+
+resetTmpFiles
 
 "${DIR}"/setup.sh "${STAGE}"
 

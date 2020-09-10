@@ -8,9 +8,10 @@ import env from '../env.json';
 const suite = process.env.SUITE;
 
 const logDir = path.join(__dirname, '../logs');
+const tmpDir = path.join(__dirname, '../tmp');
 const logFile = 'tests.json.log';
-const failuresFile = path.join(__dirname, `../${suite}.failures.txt`);
-const runIDFile = path.join(__dirname, `../${suite}.id.txt`);
+const failuresFile = `${tmpDir}/${suite}.failures.txt`;
+const runIDFile = `${tmpDir}/${suite}.id.txt`;
 // Yields `YYYY-DD-MMTHH-MM`
 const uid = new Date().toISOString().substr(0, 16);
 
