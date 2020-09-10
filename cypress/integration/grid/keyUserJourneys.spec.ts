@@ -29,18 +29,18 @@ function setupAliases() {
 describe('Grid Key User Journeys', function () {
   before(() => {
     checkVars();
-    fetchAndSetCookie({ visitDomain: false });
+    fetchAndSetCookie();
     deleteImages(cy, [getImageHash()]);
     resetCollection(cy, rootCollection);
   });
 
   beforeEach(() => {
-    fetchAndSetCookie({ visitDomain: false });
+    fetchAndSetCookie();
     setupAliases();
   });
 
   after(() => {
-    fetchAndSetCookie({ visitDomain: false });
+    fetchAndSetCookie();
     deleteImages(cy, [getImageHash()]);
     resetCollection(cy, rootCollection);
   });
@@ -202,7 +202,7 @@ describe('Grid Key User Journeys', function () {
 
     uploads.setRights('screengrab', Date.now().toString());
 
-    fetchAndSetCookie({ stage: composerStage, visitDomain: false });
+    fetchAndSetCookie(composerStage);
     cy.visit(composerUrl);
 
     createAndEditArticle();

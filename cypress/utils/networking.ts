@@ -21,31 +21,19 @@ export function getDomain(options?: GetDomainOptions) {
     : `https://${subdomain}.${stage}.dev-gutools.co.uk`;
 }
 
-export function setCookie(
-  cy: Cypress.cy & EventEmitter,
-  cookie: Cookie,
-  visitDomain = true
-) {
+export function setCookie(cy: Cypress.cy & EventEmitter, cookie: Cookie) {
   cy.setCookie('gutoolsAuth-assym', cookie.cookie, {
     domain: `.${cookie.domain}`,
     path: '/',
     secure: true,
     httpOnly: true,
   });
-
-  if (visitDomain) {
-    cy.visit(getDomain());
-    cy.wait(2);
-  }
 }
 
-export function fetchAndSetCookie({
-  visitDomain = true,
-  stage = Cypress.env('STAGE'),
-}) {
+export function fetchAndSetCookie(stage = Cypress.env('STAGE')) {
   return cy.task('getCookie', stage).then((cookie) => {
     expect(cookie).to.have.property('cookie');
     expect(cookie).to.have.property('domain');
-    return setCookie(cy, (cookie as unknown) as Cookie, visitDomain);
+    return setCookie(cy, (cookie as unknown) as Cookie);
   });
 }

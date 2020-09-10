@@ -44,11 +44,11 @@ describe('Workflow Integration Tests', () => {
     uniqueContentTitle = `${contentTitlePrefix} ${Date.now()}`;
     setupRoutes(uniqueContentTitle);
     checkVars();
-    fetchAndSetCookie({ visitDomain: false });
+    fetchAndSetCookie();
   });
 
   after(() => {
-    fetchAndSetCookie({ visitDomain: false });
+    fetchAndSetCookie();
     deleteArticlesFromWorkflow(contentTitlePrefix);
   });
 
