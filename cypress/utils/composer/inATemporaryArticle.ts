@@ -16,7 +16,7 @@ export function inATemporaryArticle(
   it(`(In a temporary article) ${title}`, () => {
     createAndEditArticle();
     cy.url().then((url) => {
-      const id = getId(url, { app: 'composer' });
+      const id = getId(url, { app });
       startEditing();
       cy.log('Article id is ', id);
       editFn(id);

@@ -1,5 +1,4 @@
 import { baseUrls } from '../../cypress.env.json';
-import { isBoolean } from 'util';
 
 interface Cookie {
   cookie: string;
