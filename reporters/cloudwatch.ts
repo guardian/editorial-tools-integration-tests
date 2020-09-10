@@ -87,16 +87,18 @@ function Pagerduty(runner: mocha.Runner) {
       const message = generateMessage('Failure', test);
       failures++;
       console.error('Failure:', test.fullTitle(), err.message, '\n');
+      const video = getVideoName(<Mocha.Suite>test.parent);
       logger.error({
         uid,
-        testTitle: test.title,
+        video,
         message,
+        videosAccount: env.aws.profile,
+        testTitle: test.title,
         testContext: test.titlePath()[0],
         testState: 'failure',
         error: err.message,
       });
 
-      const video = getVideoName(test.parent);
       await putMetric(test, 'fail', { video: video });
     });
 
