@@ -87,7 +87,7 @@ function Pagerduty(runner: mocha.Runner) {
       const message = generateMessage('Failure', test);
       failures++;
       console.error('Failure:', test.fullTitle(), err.message, '\n');
-      const video = getVideoName(<Mocha.Suite>test.parent);
+      const video = getVideoName(<Mocha.Suite>test.parent); // TODO: Think of a way to surface this information in CW so that we can correlate alarms, logs and metrics
       logger.error({
         uid,
         video,
@@ -139,16 +139,11 @@ async function putMetric(
       {
         MetricName: 'Test Result',
         Dimensions: [
-          { Name: 'uid', Value: uid },
+          { Name: 'uid', Value: `${suite}-${testContext}-${test.title}` },
           { Name: 'suite', Value: suite ?? 'suite-missing' },
           { Name: 'testName', Value: test.title },
           { Name: 'testContext', Value: testContext },
           { Name: 'testState', Value: result },
-          ...(details &&
-            Object.keys(details).map((d) => ({
-              Name: d,
-              Value: details[d].toString(),
-            }))),
         ],
         Timestamp: new Date(),
         Value: metricValue,
