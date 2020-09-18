@@ -9,11 +9,12 @@ import { getS3Client } from './s3';
 const user = { ...env.user, expires: Date.now() + 1800000 };
 
 async function getCookie(domain: string) {
-  const credentials = env.isDev
-    ? new AWS.SharedIniFileCredentials({
-        profile: env.aws.profile,
-      })
-    : undefined;
+  const credentials =
+    env.isDev && !process.env.GITHUB_ACTIONS // We use the box's credentials if GH Action
+      ? new AWS.SharedIniFileCredentials({
+          profile: env.aws.profile,
+        })
+      : undefined;
 
   const s3 = await getS3Client(credentials);
 
