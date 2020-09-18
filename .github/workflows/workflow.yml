@@ -1,4 +1,4 @@
-name: Run tests
+name: Workflow Integration Tests
 on:
   push:
   repository_dispatch:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Run tests
+    name: Checkout and run tests
     runs-on: ubuntu-16.04
     steps:
       - name: Checkout repository

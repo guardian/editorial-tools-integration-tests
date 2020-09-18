@@ -1,4 +1,4 @@
-name: Run tests
+name: Grid Integration Tests
 on:
   push:
   repository_dispatch:
