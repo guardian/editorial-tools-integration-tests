@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-16.04
     steps:
       - name: Fetch config
-        run: ./cypress/scripts/fetch-config.sh
+        run: ./scripts/fetch-config.sh
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
