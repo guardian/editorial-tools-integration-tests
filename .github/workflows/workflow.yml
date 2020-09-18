@@ -2,7 +2,7 @@ name: Workflow Integration Tests
 on:
   push:
   repository_dispatch:
-    types: [composer]
+    types: [workflow]
 
 jobs:
   build:

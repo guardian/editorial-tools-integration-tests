@@ -2,7 +2,7 @@ name: Grid Integration Tests
 on:
   push:
   repository_dispatch:
-    types: [composer]
+    types: [grid]
 
 jobs:
   build:
