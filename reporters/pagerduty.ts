@@ -46,6 +46,7 @@ function Pagerduty(runner: Mocha.Runner) {
       if (fs.existsSync(failuresFile)) {
         failures = Number(fs.readFileSync(failuresFile));
       } else {
+        fs.mkdirSync(tmpDir);
         fs.writeFileSync(failuresFile, '0');
       }
 
