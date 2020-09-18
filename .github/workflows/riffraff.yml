@@ -9,6 +9,8 @@ jobs:
     name: Run tests
     runs-on: ubuntu-16.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
       - name: Fetch config
         run: ./scripts/fetch-config.sh
         env:
