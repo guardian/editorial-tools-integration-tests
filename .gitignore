@@ -20,6 +20,10 @@ env.json
 # Logging
 logs
 debug.log
+yarn-error.log
 
 # Generated from editing images with exiftool
 assets/*.xmp
+
+# Gemerated CFN
+cloudformation/cdk
