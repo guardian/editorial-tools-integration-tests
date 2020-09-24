@@ -41,7 +41,7 @@ else
   # runTests <APP>
   runTests workflow
   runTests grid
-  runTests
+  runTests composer
 fi
 
 popd >/dev/null
