@@ -7,7 +7,7 @@ ROOT_DIR="${DIR}/.."
 OUTPUT_DIR="${ROOT_DIR}/cloudformation/cdk"
 
 pushd "${ROOT_DIR}"/cdk || exit
-yarn
+yarn --silent
 rm "${OUTPUT_DIR}" || true
 yarn cdk synth -o "${OUTPUT_DIR}"
 popd

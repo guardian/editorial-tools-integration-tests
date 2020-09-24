@@ -9,6 +9,7 @@ import path from 'path';
 const logDir = path.join(__dirname, '../logs');
 const logFile = 'tests.json.log';
 const routingKey = env.pagerduty.routingKey;
+const stage = process.env.STAGE;
 
 const logger = new Logger({ logDir, logFile });
 
@@ -53,6 +54,7 @@ export async function putMetric({
           { Name: 'testName', Value: test.title },
           { Name: 'testContext', Value: testContext },
           { Name: 'testState', Value: result },
+          { Name: 'stage', Value: stage?.toUpperCase() || 'UNKNOWN' },
         ],
         Timestamp: new Date(),
         Value: metricValue,

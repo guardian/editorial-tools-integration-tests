@@ -1,5 +1,5 @@
 import * as cdk from '@aws-cdk/core';
-import { Fn, Stack, Tags } from '@aws-cdk/core';
+import { Fn, Stack, Tags, Duration } from '@aws-cdk/core';
 import {
   CfnInstanceProfile,
   Effect,
@@ -13,6 +13,7 @@ import {
   CfnLaunchConfiguration,
 } from '@aws-cdk/aws-autoscaling';
 import { CfnSecurityGroup } from '@aws-cdk/aws-ec2';
+import { Alarm, Metric } from '@aws-cdk/aws-cloudwatch';
 
 const SUITES = ['Grid', 'Composer', 'Workflow'];
 const DIST_BUCKET = 'editorial-tools-integration-tests-dist';
@@ -290,6 +291,24 @@ systemctl start logstash
         ],
       });
       asg.addDependsOn(launchConfiguration);
+
+      const metric = new Metric({
+        namespace: 'editorial-tools-integration-tests',
+        metricName: 'Test Result',
+        dimensions: {
+          suite: suite.toLowerCase(),
+          stage: 'PROD',
+        },
+        period: Duration.minutes(4),
+      });
+
+      new Alarm(this, `failures-alarm-${suite.toLowerCase()}`, {
+        alarmDescription: `More than 3 failures out of 10 for ${suite}`,
+        datapointsToAlarm: 3,
+        evaluationPeriods: 10,
+        metric: metric,
+        threshold: 1,
+      });
     });
   }
 }
