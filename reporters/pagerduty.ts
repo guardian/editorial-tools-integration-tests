@@ -13,7 +13,7 @@ import {
 const suite = process.env.SUITE;
 
 if (!suite) {
-  throw new Error('No suite passed into pagerduty.js as envar');
+  throw new Error(`No suite passed into ${process.argv[1]} as envar`);
 }
 
 const logDir = path.join(__dirname, '../logs');
