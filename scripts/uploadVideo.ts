@@ -4,6 +4,7 @@ import fs from 'fs';
 import { Logger } from '../src/utils/logger';
 import { uploadVideoToS3 } from '../src/utils/s3';
 import config from '../env.json';
+import env from '../env.json';
 
 const suite = process.env.SUITE;
 
@@ -65,6 +66,7 @@ const date = now.getDate();
           logger.log({
             uid,
             message: `Video [${key}] uploaded to ${config.videoBucket}`,
+            video: `https://s3.console.aws.amazon.com/s3/object/${env.videoBucket}/${key}.mp4`,
           });
         })
       );
