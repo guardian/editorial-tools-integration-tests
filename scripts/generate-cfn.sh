@@ -11,3 +11,5 @@ yarn --silent
 rm "${OUTPUT_DIR}" || true
 yarn cdk synth -o "${OUTPUT_DIR}" > /dev/null
 popd
+
+echo "New Cloudformation file located in ${OUTPUT_DIR}"
