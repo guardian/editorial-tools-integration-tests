@@ -49,11 +49,7 @@ export async function putMetric({
       {
         MetricName: 'Test Result',
         Dimensions: [
-          { Name: 'uid', Value: `${suite}-${testContext}-${test.title}` },
           { Name: 'suite', Value: suite ?? 'suite-missing' },
-          { Name: 'testName', Value: test.title },
-          { Name: 'testContext', Value: testContext },
-          { Name: 'testState', Value: result },
           { Name: 'stage', Value: stage?.toUpperCase() || 'UNKNOWN' },
         ],
         Timestamp: new Date(),
