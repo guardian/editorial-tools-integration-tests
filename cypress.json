@@ -1,6 +1,6 @@
 {
   "video": true,
-  "reporter": "reporters/cloudwatch.ts",
+  "reporter": "reporters/pagerduty.ts",
   "viewportWidth": 1280,
   "viewportHeight": 720,
   "videoCompression": false,
