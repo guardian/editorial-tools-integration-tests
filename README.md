@@ -16,6 +16,10 @@ $ yarn # Fetches the node modules
 $ ./scripts/setup.sh # Fetches config
 ```
 
+## Cloudformation / how to deploy
+
+You can find information on how to deploy this to AWS in the [AWS CDK directory](./cdk)
+
 ## Run against remote service
 
 ```shell script

@@ -3,14 +3,19 @@
   "vcsURL": "https://github.com/guardian/editorial-tools-integration-tests",
   "actions": [
     {
-      "action": "editorial-tools-integration-tests",
+      "action": "editorial-tools-integration-tests-grid",
       "path": "./",
       "compress": "zip"
     },
     {
-      "action": "cloudformation",
-      "path": "cloudformation/cfn.yaml",
-      "compress": false
+      "action": "editorial-tools-integration-tests-workflow",
+      "path": "./",
+      "compress": "zip"
+    },
+    {
+      "action": "editorial-tools-integration-tests-composer",
+      "path": "./",
+      "compress": "zip"
     }
   ]
 }
