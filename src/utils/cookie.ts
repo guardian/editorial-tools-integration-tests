@@ -8,7 +8,7 @@ import { getS3Client } from './s3';
 
 const user = { ...env.user, expires: Date.now() + 1800000 };
 
-async function getCookie(domain: string) {
+async function getCookie(domain: string | undefined = undefined) {
   const credentials = env.isDev
     ? new AWS.SharedIniFileCredentials({
         profile: env.aws.profile,
