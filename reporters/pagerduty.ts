@@ -65,7 +65,7 @@ function Pagerduty(runner: Mocha.Runner) {
         testState: 'pending',
       });
       await putMetric({ suite, test, result: 'pending' });
-      await callPagerduty(test, 'resolve');
+      await callPagerduty({ test, action: 'resolve', uid });
     });
 
     runner.on('pass', async function (test) {
@@ -80,7 +80,7 @@ function Pagerduty(runner: Mocha.Runner) {
         testState: 'pass',
       });
       await putMetric({ suite, test, result: 'pass' });
-      await callPagerduty(test, 'resolve');
+      await callPagerduty({ test, action: 'resolve', uid });
     });
 
     runner.on('fail', async function (test, err) {
@@ -103,12 +103,17 @@ function Pagerduty(runner: Mocha.Runner) {
 
       const video = getVideoName(<Mocha.Suite>test.parent); // TODO: Think of a way to surface this information in CW so that we can correlate alarms, logs and metrics
       await putMetric({ suite, test, result: 'fail' });
-      await callPagerduty(test, 'trigger', {
-        error: err.message,
-        videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
-        videosAccount: env.aws.profile,
-        video: `https://s3.console.aws.amazon.com/s3/object/${env.videoBucket}/videos/${year}/${month}/${date}/${uid}-${suite}-${video}.mp4`,
+      await callPagerduty({
         uid,
+        test,
+        action: 'trigger',
+        details: {
+          error: err.message,
+          videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
+          videosAccount: env.aws.profile,
+          video: `https://s3.console.aws.amazon.com/s3/object/${env.videoBucket}/videos/${year}/${month}/${date}/${uid}-${suite}-${video}.mp4`,
+          uid,
+        },
       });
     });
 
