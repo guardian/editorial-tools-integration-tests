@@ -13,6 +13,8 @@ const stage = process.env.STAGE;
 
 const logger = new Logger({ logDir, logFile });
 
+const logger = new Logger({ logDir, logFile });
+
 export const generateMessage = (state: string, test: Mocha.Test) =>
   `${state} - ${test.titlePath().join(' - ')}`;
 
