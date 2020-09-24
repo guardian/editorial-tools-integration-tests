@@ -40,7 +40,7 @@ function Pagerduty(runner: Mocha.Runner) {
       // If one exists on start, it's because a
       // previous test suite in the same app has run before this
       if (fs.existsSync(failuresFile)) {
-        failures = Number(fs.readFileSync(failuresFile));
+        failures = Number(fs.readFileSync(failuresFile, { encoding: 'utf8' }));
       } else {
         fs.writeFileSync(failuresFile, '0');
       }

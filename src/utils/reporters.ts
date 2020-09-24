@@ -3,7 +3,14 @@ import { PutMetricDataInput } from 'aws-sdk/clients/cloudwatch';
 import mocha from 'mocha';
 import fetch from 'node-fetch';
 import env from '../../env.json';
+import { Logger } from './logger';
+import path from 'path';
+
+const logDir = path.join(__dirname, '../logs');
+const logFile = 'tests.json.log';
 const routingKey = env.pagerduty.routingKey;
+
+const logger = new Logger({ logDir, logFile });
 
 export const generateMessage = (state: string, test: Mocha.Test) =>
   `${state} - ${test.titlePath().join(' - ')}`;
