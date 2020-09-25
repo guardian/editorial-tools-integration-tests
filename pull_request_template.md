@@ -4,6 +4,6 @@
 
 ## Do the relevant integration tests still pass?
 
-[ ] Tested against <STAGE>
+- [ ] Tested against <STAGE> <APP|APPS>
 
 ## Images
