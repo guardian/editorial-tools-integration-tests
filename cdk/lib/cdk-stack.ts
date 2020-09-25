@@ -24,7 +24,8 @@ import { SnsAction } from '@aws-cdk/aws-cloudwatch-actions';
 import { UrlSubscription } from '@aws-cdk/aws-sns-subscriptions';
 
 const SUITES = ['Grid', 'Composer', 'Workflow'];
-const DIST_BUCKET = 'editorial-tools-integration-tests-dist';
+const APP_NAME = 'editorial-tools-integration-tests';
+const DIST_BUCKET = `${APP_NAME}-dist`;
 
 export class CdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -135,7 +136,7 @@ export class CdkStack extends cdk.Stack {
         new PolicyStatement({
           effect: Effect.ALLOW,
           actions: ['s3:putObject'],
-          resources: ['arn:aws:s3::*:editorial-tools-integration-tests/*'],
+          resources: [`arn:aws:s3::*:${APP_NAME}/*`],
         }),
         new PolicyStatement({
           effect: Effect.ALLOW,
@@ -206,7 +207,7 @@ export class CdkStack extends cdk.Stack {
     const snsAction = new SnsAction(pagerdutyTopic);
 
     SUITES.map((suite) => {
-      const appName = `editorial-tools-integration-tests-${suite.toLowerCase()}`;
+      const appName = `${APP_NAME}-${suite.toLowerCase()}`;
       const userData = Fn.base64(`#!/bin/bash -ev
 
 cfn-init -s ${stack.stackId} -r LaunchConfig${suite} --region ${stack.region} || error_exit ''Failed to run cfn-init''
@@ -317,17 +318,18 @@ systemctl start logstash
       asg.addDependsOn(launchConfiguration);
 
       const metric = new Metric({
-        namespace: 'editorial-tools-integration-tests',
+        namespace: APP_NAME,
         metricName: 'Test Result',
         dimensions: {
           suite: suite.toLowerCase(),
           stage: 'PROD',
         },
         period: Duration.minutes(4),
+        statistic: 'Maximum',
       });
 
       const alarm = new Alarm(this, `failures-alarm-${suite.toLowerCase()}`, {
-        alarmDescription: `More than 3 failures out of 10 for ${suite}`,
+        alarmDescription: `More than 3 integration test failures out of 10 for ${suite}. Check logs for more information`,
         datapointsToAlarm: 3,
         evaluationPeriods: 10,
         comparisonOperator:
@@ -335,7 +337,7 @@ systemctl start logstash
         metric: metric,
         threshold: 1,
         actionsEnabled: true,
-        treatMissingData: TreatMissingData.BREACHING,
+        treatMissingData: TreatMissingData.MISSING,
       });
       alarm.addAlarmAction(snsAction);
       alarm.addOkAction(snsAction);
