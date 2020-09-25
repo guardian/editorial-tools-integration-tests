@@ -324,10 +324,11 @@ systemctl start logstash
           stage: 'PROD',
         },
         period: Duration.minutes(4),
+        statistic: 'Maximum',
       });
 
       const alarm = new Alarm(this, `failures-alarm-${suite.toLowerCase()}`, {
-        alarmDescription: `More than 3 failures out of 10 for ${suite}`,
+        alarmDescription: `More than 3 integration test failures out of 10 for ${suite}`,
         datapointsToAlarm: 3,
         evaluationPeriods: 10,
         comparisonOperator:
