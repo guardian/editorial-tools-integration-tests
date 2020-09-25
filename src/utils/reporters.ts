@@ -9,6 +9,7 @@ import path from 'path';
 const logDir = path.join(__dirname, '../logs');
 const logFile = 'tests.json.log';
 const routingKey = env.pagerduty.routingKey;
+const stage = process.env.STAGE;
 
 const logger = new Logger({ logDir, logFile });
 
@@ -25,7 +26,6 @@ export function getVideoName(parent: Mocha.Suite): string {
 }
 
 export async function putMetric({
-  test,
   suite,
   result,
 }: {
@@ -33,7 +33,6 @@ export async function putMetric({
   suite: string | undefined;
   result: string;
 }) {
-  const testContext = test.titlePath()[0];
   const metricValue = result === 'fail' ? 1 : 0;
   const credentials = env.isDev
     ? new AWS.SharedIniFileCredentials({
@@ -48,11 +47,8 @@ export async function putMetric({
       {
         MetricName: 'Test Result',
         Dimensions: [
-          { Name: 'uid', Value: `${suite}-${testContext}-${test.title}` },
           { Name: 'suite', Value: suite ?? 'suite-missing' },
-          { Name: 'testName', Value: test.title },
-          { Name: 'testContext', Value: testContext },
-          { Name: 'testState', Value: result },
+          { Name: 'stage', Value: stage?.toUpperCase() || 'UNKNOWN' },
         ],
         Timestamp: new Date(),
         Value: metricValue,
@@ -72,11 +68,17 @@ export async function getCloudWatchClient(
     : new AWS.CloudWatch({ region: 'eu-west-1' });
 }
 
-export async function callPagerduty(
-  test: mocha.Test,
-  action: string,
-  details = {}
-) {
+export async function callPagerduty({
+  test,
+  action,
+  details,
+  uid,
+}: {
+  test: mocha.Test;
+  action: string;
+  uid: string;
+  details?: { [d: string]: string | number };
+}) {
   const url = 'https://events.pagerduty.com/v2/enqueue';
 
   const data = {
@@ -90,7 +92,7 @@ export async function callPagerduty(
       timestamp: new Date().toISOString(),
       component: 'Editorial Tools Integration Tests',
       links: 'https://gu.com',
-      custom_details: details,
+      custom_details: details || {},
     },
   };
 

@@ -1,5 +1,5 @@
 import * as cdk from '@aws-cdk/core';
-import { Fn, Stack, Tags } from '@aws-cdk/core';
+import { Duration, Fn, Stack, Tags } from '@aws-cdk/core';
 import {
   CfnInstanceProfile,
   Effect,
@@ -13,6 +13,15 @@ import {
   CfnLaunchConfiguration,
 } from '@aws-cdk/aws-autoscaling';
 import { CfnSecurityGroup } from '@aws-cdk/aws-ec2';
+import {
+  Alarm,
+  ComparisonOperator,
+  Metric,
+  TreatMissingData,
+} from '@aws-cdk/aws-cloudwatch';
+import { SubscriptionProtocol, Topic } from '@aws-cdk/aws-sns';
+import { SnsAction } from '@aws-cdk/aws-cloudwatch-actions';
+import { UrlSubscription } from '@aws-cdk/aws-sns-subscriptions';
 
 const SUITES = ['Grid', 'Composer', 'Workflow'];
 const DIST_BUCKET = 'editorial-tools-integration-tests-dist';
@@ -57,9 +66,15 @@ export class CdkStack extends cdk.Stack {
         description:
           'The name (NOT arn) of the Kinesis stream that logs should be shipped to',
       }),
+      alertWebhook: new cdk.CfnParameter(this, 'AlertWebhook', {
+        type: 'String',
+        description: 'The webhook for the SNS alert topic to send to Pagerduty',
+      }),
     };
 
-    Tags.of(this).add('Stage', params.stage.valueAsString);
+    const stage = params.stage.valueAsString;
+
+    Tags.of(this).add('Stage', stage);
     Tags.of(this).add('Stack', params.stack.valueAsString);
 
     const loggingRoleParam = new cdk.CfnParameter(
@@ -178,6 +193,18 @@ export class CdkStack extends cdk.Stack {
       { groupDescription: 'HTTP', vpcId: params.vpcId.valueAsString }
     );
 
+    const pagerdutyTopic = new Topic(this, 'pagerduty-sns', {
+      displayName: `pagerduty-integration-tests-${stage.toUpperCase()}`,
+    });
+
+    pagerdutyTopic.addSubscription(
+      new UrlSubscription(params.alertWebhook.valueAsString, {
+        protocol: SubscriptionProtocol.HTTPS,
+      })
+    );
+
+    const snsAction = new SnsAction(pagerdutyTopic);
+
     SUITES.map((suite) => {
       const appName = `editorial-tools-integration-tests-${suite.toLowerCase()}`;
       const userData = Fn.base64(`#!/bin/bash -ev
@@ -188,7 +215,7 @@ attach-ebs-volume -d k -m /data
 
 
 # Set up the tests and their dependencies
-aws s3 cp s3://${DIST_BUCKET}/media-service/${params.stage.valueAsString}/${appName}/${appName}.zip /tmp/${appName}.zip
+aws s3 cp s3://${DIST_BUCKET}/media-service/${stage}/${appName}/${appName}.zip /tmp/${appName}.zip
 unzip -q /tmp/${appName}.zip -d /data/${appName}
 
 # Install Cypress dependencies
@@ -228,9 +255,7 @@ systemctl start logstash
           files: {
             '/etc/cron.d/run-integration-tests': {
               content: `
-*/4 * * * * root /data/${appName}/scripts/run.sh ${
-                params.stage.valueAsString
-              } ${suite.toLowerCase()} >> /var/log/tests.log 2>&1
+*/4 * * * * root /data/${appName}/scripts/run.sh ${stage} ${suite.toLowerCase()} >> /var/log/tests.log 2>&1
 `,
             },
             '/etc/logstash/conf.d/logstash.conf': {
@@ -247,7 +272,7 @@ systemctl start logstash
           add_field => {
             "app" => "${appName}"
             "stack" => "media-service"
-            "stage" => "${params.stage.valueAsString}"
+            "stage" => "${stage}"
           }
         }
       }
@@ -275,7 +300,7 @@ systemctl start logstash
           {
             key: 'Stage',
             propagateAtLaunch: true,
-            value: params.stage.valueAsString,
+            value: stage,
           },
           {
             key: 'Stack',
@@ -290,6 +315,31 @@ systemctl start logstash
         ],
       });
       asg.addDependsOn(launchConfiguration);
+
+      const metric = new Metric({
+        namespace: 'editorial-tools-integration-tests',
+        metricName: 'Test Result',
+        dimensions: {
+          suite: suite.toLowerCase(),
+          stage: 'PROD',
+        },
+        period: Duration.minutes(4),
+      });
+
+      const alarm = new Alarm(this, `failures-alarm-${suite.toLowerCase()}`, {
+        alarmDescription: `More than 3 failures out of 10 for ${suite}`,
+        datapointsToAlarm: 3,
+        evaluationPeriods: 10,
+        comparisonOperator:
+          ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+        metric: metric,
+        threshold: 1,
+        actionsEnabled: true,
+        treatMissingData: TreatMissingData.BREACHING,
+      });
+      alarm.addAlarmAction(snsAction);
+      alarm.addOkAction(snsAction);
+      alarm.addInsufficientDataAction(snsAction);
     });
   }
 }
