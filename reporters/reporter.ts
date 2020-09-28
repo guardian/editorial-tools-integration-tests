@@ -23,7 +23,7 @@ const runIDFile = `${tmpDir}/${suite}.id.txt`;
 // Yields `YYYY-DD-MMTHH-MM`
 const uid = new Date().toISOString().substr(0, 16);
 
-const logger = new Logger({ logDir, logFile });
+const logger = new Logger({ logDir, logFile, uid, suite });
 
 module.exports = Reporter;
 
@@ -46,10 +46,7 @@ function Reporter(runner: Mocha.Runner) {
 
       // Create run ID file that can be used by `uploadVideo.ts`
       fs.writeFileSync(runIDFile, uid);
-      logger.log({
-        message: `Started - ${suite} with uid ${uid}`,
-        uid,
-      });
+      logger.log({ message: `Started - ${suite} with uid ${uid}` });
     });
 
     runner.on('pending', async function (test) {
@@ -57,7 +54,6 @@ function Reporter(runner: Mocha.Runner) {
       passes++;
       console.log('Pending:', test.fullTitle());
       logger.log({
-        uid,
         testTitle: test.title,
         message,
         testContext: test.titlePath()[0],
@@ -71,7 +67,6 @@ function Reporter(runner: Mocha.Runner) {
       passes++;
       console.log('Pass:', test.fullTitle());
       logger.log({
-        uid,
         testTitle: test.title,
         message,
         testContext: test.titlePath()[0],
@@ -86,7 +81,6 @@ function Reporter(runner: Mocha.Runner) {
       failures++;
       console.error('Failure:', test.fullTitle(), err.message, '\n');
       logger.error({
-        uid,
         video,
         message,
         testTitle: test.title,
@@ -101,16 +95,12 @@ function Reporter(runner: Mocha.Runner) {
     runner.on('end', async function () {
       console.log('end: %d/%d', passes, passes + failures);
       fs.writeFileSync(failuresFile, failures.toString());
-      logger.log({
-        message: `Ended - ${suite} with uid ${uid}`,
-        uid,
-      });
+      logger.log({ message: `Ended - ${suite} with uid ${uid}` });
     });
   } catch (e) {
     logger.error({
       message: `Error - ${suite} [${uid}]: ${e.message}`,
       stackTrace: e.stack,
-      uid,
     });
   }
 }

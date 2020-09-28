@@ -5,11 +5,29 @@ type LogData = { [key: string]: any };
 
 export class Logger {
   file: string;
-  constructor({ logDir, logFile }: { logDir: string; logFile: string }) {
+  private uid: string | undefined;
+  private suite: string | undefined;
+  constructor({
+    logDir,
+    logFile,
+    uid,
+    suite,
+  }: {
+    logDir: string;
+    logFile: string;
+    uid?: string;
+    suite?: string;
+  }) {
+    this.uid = uid;
+    this.suite = suite;
     this.file = path.join(logDir, logFile);
     if (!fs.existsSync(logDir)) {
       fs.mkdirSync(logDir, { recursive: true });
     }
+  }
+
+  setUid(uid: string) {
+    this.uid = uid;
   }
 
   executionDate() {
@@ -20,6 +38,8 @@ export class Logger {
     return JSON.stringify({
       level,
       ...json,
+      suite: process.env.SUITE || this.suite || 'unknown',
+      uid: process.env.UID || this.uid || 'unknown',
       testExecutionTime: this.executionDate(),
     });
   }
