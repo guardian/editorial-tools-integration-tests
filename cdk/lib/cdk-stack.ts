@@ -323,7 +323,7 @@ systemctl start logstash
           suite: suite.toLowerCase(),
           stage: 'PROD',
         },
-        period: Duration.minutes(4),
+        period: Duration.minutes(CRON_FREQUENCY),
         statistic: 'Maximum',
       });
 
