@@ -26,6 +26,7 @@ import { UrlSubscription } from '@aws-cdk/aws-sns-subscriptions';
 const SUITES = ['Grid', 'Composer', 'Workflow'];
 const APP_NAME = 'editorial-tools-integration-tests';
 const DIST_BUCKET = `${APP_NAME}-dist`;
+const CRON_FREQUENCY = 3; // number in minutes
 
 export class CdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -254,7 +255,7 @@ systemctl start logstash
           files: {
             '/etc/cron.d/run-integration-tests': {
               content: `
-*/4 * * * * root /data/${enrichedAppName}/scripts/run.sh ${stage} ${suite.toLowerCase()} >> /var/log/tests.log 2>&1
+*/${CRON_FREQUENCY} * * * * root /data/${enrichedAppName}/scripts/run.sh ${stage} ${suite.toLowerCase()} >> /var/log/tests.log 2>&1
 `,
             },
             '/etc/logstash/conf.d/logstash.conf': {
@@ -322,7 +323,7 @@ systemctl start logstash
           suite: suite.toLowerCase(),
           stage: 'PROD',
         },
-        period: Duration.minutes(4),
+        period: Duration.minutes(CRON_FREQUENCY),
         statistic: 'Maximum',
       });
 
