@@ -207,34 +207,32 @@ export class CdkStack extends cdk.Stack {
     const snsAction = new SnsAction(pagerdutyTopic);
 
     SUITES.map((suite) => {
-      const appName = `${APP_NAME}-${suite.toLowerCase()}`;
+      const enrichedAppName = `${APP_NAME}-${suite.toLowerCase()}`;
+      const launchConfigName = `LaunchConfig${suite}`;
       const userData = Fn.base64(`#!/bin/bash -ev
 
-cfn-init -s ${stack.stackId} -r LaunchConfig${suite} --region ${stack.region} || error_exit ''Failed to run cfn-init''
+cfn-init -s ${stack.stackId} -r ${launchConfigName} --region ${stack.region} || error_exit ''Failed to run cfn-init''
 
 attach-ebs-volume -d k -m /data
 
-
 # Set up the tests and their dependencies
-aws s3 cp s3://${DIST_BUCKET}/media-service/${stage}/${appName}/${appName}.zip /tmp/${appName}.zip
-unzip -q /tmp/${appName}.zip -d /data/${appName}
+aws s3 cp s3://${DIST_BUCKET}/media-service/${stage}/${enrichedAppName}/${enrichedAppName}.zip /tmp/${enrichedAppName}.zip
+unzip -q /tmp/${enrichedAppName}.zip -d /data/${enrichedAppName}
 
 # Install Cypress dependencies
-apt install -y npm
 npm install --global yarn
-apt-get -y install libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-/data/${appName}/node_modules/cypress/bin/cypress install
+/data/${enrichedAppName}/node_modules/cypress/bin/cypress install
 
 
 # get envars
-aws s3 cp s3://${DIST_BUCKET}/env.json /data/${appName}/env.json
+aws s3 cp s3://${DIST_BUCKET}/env.json /data/${enrichedAppName}/env.json
 
 # Set up logstash
 systemctl start logstash
 `);
       const launchConfiguration = new CfnLaunchConfiguration(
         this,
-        `LaunchConfig${suite}`,
+        launchConfigName,
         {
           blockDeviceMappings: [
             {
@@ -256,14 +254,14 @@ systemctl start logstash
           files: {
             '/etc/cron.d/run-integration-tests': {
               content: `
-*/4 * * * * root /data/${appName}/scripts/run.sh ${stage} ${suite.toLowerCase()} >> /var/log/tests.log 2>&1
+*/4 * * * * root /data/${enrichedAppName}/scripts/run.sh ${stage} ${suite.toLowerCase()} >> /var/log/tests.log 2>&1
 `,
             },
             '/etc/logstash/conf.d/logstash.conf': {
               content: `
       input {
         file {
-          path => "/data/${appName}/logs/tests.json.log"
+          path => "/data/${enrichedAppName}/logs/tests.json.log"
           type => "application"
           codec => json
         }
@@ -271,7 +269,7 @@ systemctl start logstash
       filter {
         mutate {
           add_field => {
-            "app" => "${appName}"
+            "app" => "${APP_NAME}"
             "stack" => "media-service"
             "stage" => "${stage}"
           }
@@ -311,7 +309,7 @@ systemctl start logstash
           {
             key: 'App',
             propagateAtLaunch: true,
-            value: appName,
+            value: enrichedAppName,
           },
         ],
       });
