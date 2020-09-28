@@ -1,6 +1,6 @@
 # Integration Test AWS CDK
 
-** All scripts are located at the root directory of the project **
+**All scripts are located at the root directory of the project**
 
 To deploy new changes to the Cloudformation, you have two options:
 
