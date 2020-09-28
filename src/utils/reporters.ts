@@ -1,17 +1,8 @@
 import AWS from 'aws-sdk';
 import { PutMetricDataInput } from 'aws-sdk/clients/cloudwatch';
 import mocha from 'mocha';
-import fetch from 'node-fetch';
 import env from '../../env.json';
-import { Logger } from './logger';
-import path from 'path';
-
-const logDir = path.join(__dirname, '../logs');
-const logFile = 'tests.json.log';
-const routingKey = env.pagerduty.routingKey;
 const stage = process.env.STAGE;
-
-const logger = new Logger({ logDir, logFile });
 
 export const generateMessage = (state: string, test: Mocha.Test) =>
   `${state} - ${test.titlePath().join(' - ')}`;
@@ -66,51 +57,4 @@ export async function getCloudWatchClient(
   return credentials
     ? new AWS.CloudWatch({ credentials, region: 'eu-west-1' })
     : new AWS.CloudWatch({ region: 'eu-west-1' });
-}
-
-export async function callPagerduty({
-  test,
-  action,
-  details,
-  uid,
-}: {
-  test: mocha.Test;
-  action: string;
-  uid: string;
-  details?: { [d: string]: string | number };
-}) {
-  const url = 'https://events.pagerduty.com/v2/enqueue';
-
-  const data = {
-    routing_key: routingKey,
-    event_action: action,
-    dedup_key: test.title,
-    payload: {
-      summary: `${test.titlePath()[0]} - ${test.title}`,
-      source: 'https://github.com/guardian/editorial-tools-integration-tests',
-      severity: 'critical',
-      timestamp: new Date().toISOString(),
-      component: 'Editorial Tools Integration Tests',
-      links: 'https://gu.com',
-      custom_details: details || {},
-    },
-  };
-
-  const params = {
-    method: 'POST',
-    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  };
-
-  const response = await fetch(url, params);
-  const json = await response.json();
-  if (!response.ok) {
-    console.error('PagerdutyReportError:', JSON.stringify(json));
-    logger.error({
-      message: `PagerdutyReportError: ${json.message}`,
-      error: json.errors,
-      data,
-      uid,
-    });
-  }
 }

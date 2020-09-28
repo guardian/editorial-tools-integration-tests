@@ -8,7 +8,6 @@ import {
   generateMessage,
   putMetric,
   getVideoName,
-  callPagerduty,
 } from '../src/utils/reporters';
 const suite = process.env.SUITE;
 
