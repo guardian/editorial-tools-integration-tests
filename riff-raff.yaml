@@ -31,5 +31,5 @@ deployments:
     parameters:
       prependStackToCloudFormationStackName: false
       cloudFormationStackName: editorial-tools-integration-tests
-      templatePath: cloudformation.json
+      templatePath: CdkStack.template.json
       cloudFormationStackByTags: false
