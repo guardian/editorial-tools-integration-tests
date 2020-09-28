@@ -26,7 +26,7 @@ import { UrlSubscription } from '@aws-cdk/aws-sns-subscriptions';
 const SUITES = ['Grid', 'Composer', 'Workflow'];
 const APP_NAME = 'editorial-tools-integration-tests';
 const DIST_BUCKET = `${APP_NAME}-dist`;
-const CRON_FREQUENCY = 4; // number in minutes
+const CRON_FREQUENCY = 3; // number in minutes
 
 export class CdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {

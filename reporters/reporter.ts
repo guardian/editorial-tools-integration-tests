@@ -20,7 +20,8 @@ const logFile = 'tests.json.log';
 const failuresFile = `${tmpDir}/${suite}.failures.txt`;
 const runIDFile = `${tmpDir}/${suite}.id.txt`;
 // Yields `YYYY-DD-MMTHH-MM`
-const uid = new Date().toISOString().substr(0, 16);
+const start = new Date();
+const uid = start.toISOString().substr(0, 16);
 
 const logger = new Logger({ logDir, logFile, uid, suite });
 
@@ -92,9 +93,16 @@ function Reporter(runner: Mocha.Runner) {
     });
 
     runner.on('end', async function () {
+      const end = new Date();
+      const diffInSeconds = (
+        Math.abs(end.getTime() - start.getTime()) / 1000
+      ).toFixed(2);
       console.log('end: %d/%d', passes, passes + failures);
       fs.writeFileSync(failuresFile, failures.toString());
-      logger.log({ message: `Ended - ${suite} with uid ${uid}` });
+      logger.log({
+        message: `Ended - ${suite} with uid ${uid} (took ${diffInSeconds} seconds)`,
+        testRuntime: diffInSeconds,
+      });
     });
   } catch (e) {
     logger.error({
