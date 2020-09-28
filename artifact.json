@@ -16,6 +16,11 @@
       "action": "editorial-tools-integration-tests-composer",
       "path": "./",
       "compress": "zip"
+    },
+    {
+      "action": "cloudformation",
+      "path": "cloudformation/cdk/CdkStack.template.json",
+      "compress": false
     }
   ]
 }
