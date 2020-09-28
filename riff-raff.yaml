@@ -25,3 +25,11 @@ deployments:
         Recipe: editorial-tools-cypress-integration-tests
         AmigoStage: PROD
         BuiltBy: amigo
+  cloudformation:
+    type: cloud-formation
+    app: editorial-tools-integration-tests
+    parameters:
+      prependStackToCloudFormationStackName: false
+      cloudFormationStackName: editorial-tools-integration-tests
+      templatePath: CdkStack.template.json
+      cloudFormationStackByTags: false
