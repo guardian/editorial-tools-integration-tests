@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 
 import { Logger } from '../src/utils/logger';
-import env from '../env.json';
 import {
   generateMessage,
   putMetric,
