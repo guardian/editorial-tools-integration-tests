@@ -8,7 +8,6 @@ import {
   generateMessage,
   putMetric,
   getVideoName,
-  callPagerduty,
 } from '../src/utils/reporters';
 const suite = process.env.SUITE;
 
@@ -26,9 +25,9 @@ const uid = new Date().toISOString().substr(0, 16);
 
 const logger = new Logger({ logDir, logFile });
 
-module.exports = Pagerduty;
+module.exports = Reporter;
 
-function Pagerduty(runner: Mocha.Runner) {
+function Reporter(runner: Mocha.Runner) {
   // @ts-ignore
   mocha.reporters.Base.call(this, runner);
   let passes = 0;
@@ -65,7 +64,6 @@ function Pagerduty(runner: Mocha.Runner) {
         testState: 'pending',
       });
       await putMetric({ suite, test, result: 'pending' });
-      await callPagerduty({ test, action: 'resolve', uid });
     });
 
     runner.on('pass', async function (test) {
@@ -80,41 +78,24 @@ function Pagerduty(runner: Mocha.Runner) {
         testState: 'pass',
       });
       await putMetric({ suite, test, result: 'pass' });
-      await callPagerduty({ test, action: 'resolve', uid });
     });
 
     runner.on('fail', async function (test, err) {
       const message = generateMessage('Failure', test);
-      const now = new Date();
-      const region = 'eu-west-1';
-      const year = now.getFullYear();
-      const month = now.getMonth() + 1;
-      const date = now.getDate();
+      const video = getVideoName(<Mocha.Suite>test.parent); // TODO: Think of a way to surface this information in CW so that we can correlate alarms, logs and metrics
       failures++;
       console.error('Failure:', test.fullTitle(), err.message, '\n');
       logger.error({
         uid,
-        testTitle: test.title,
+        video,
         message,
+        testTitle: test.title,
         testContext: test.titlePath()[0],
         testState: 'failure',
         error: err.message,
       });
 
-      const video = getVideoName(<Mocha.Suite>test.parent); // TODO: Think of a way to surface this information in CW so that we can correlate alarms, logs and metrics
       await putMetric({ suite, test, result: 'fail' });
-      await callPagerduty({
-        uid,
-        test,
-        action: 'trigger',
-        details: {
-          error: err.message,
-          videosFolder: `https://s3.console.aws.amazon.com/s3/buckets/${env.videoBucket}/videos/${year}/${month}/${date}/?region=${region}&tab=overview`,
-          videosAccount: env.aws.profile,
-          video: `https://s3.console.aws.amazon.com/s3/object/${env.videoBucket}/videos/${year}/${month}/${date}/${uid}-${suite}-${video}.mp4`,
-          uid,
-        },
-      });
     });
 
     runner.on('end', async function () {
@@ -135,4 +116,4 @@ function Pagerduty(runner: Mocha.Runner) {
 }
 
 // @ts-ignore
-mocha.utils.inherits(Pagerduty, mocha.reporters.Spec);
+mocha.utils.inherits(Reporter, mocha.reporters.Spec);
