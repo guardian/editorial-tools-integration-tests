@@ -20,7 +20,7 @@ const month = now.getMonth() + 1;
 const date = now.getDate();
 
 (async function f() {
-  const logger = new Logger({ logDir, logFile });
+  const logger = new Logger({ logDir, logFile, suite });
   let uid: string | null = null;
 
   try {
@@ -34,6 +34,8 @@ const date = now.getDate();
     });
     return;
   }
+
+  logger.setUid(uid);
 
   try {
     const failures = Number(
