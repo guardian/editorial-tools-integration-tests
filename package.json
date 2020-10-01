@@ -4,13 +4,6 @@
   "description": "",
   "scripts": {
     "test": "./scripts/setup.sh $ENV && yarn cy:run-dev",
-    "grid-prod": "APP=grid STAGE=prod yarn start",
-    "grid-code": "APP=grid STAGE=test yarn start",
-    "grid-test": "APP=grid STAGE=test yarn start",
-    "grid-local": "APP=grid STAGE=local yarn start",
-    "composer-prod": "APP=composer STAGE=prod yarn start",
-    "composer-code": "APP=composer STAGE=code yarn start",
-    "composer-local": "APP=composer STAGE=local yarn start",
     "start": "cypress run --reporter spec --env APP=$APP,STAGE=$STAGE --spec cypress/integration/$APP/*",
     "cy:live": "cypress run --env APP=$SUITE,STAGE=$STAGE --spec cypress/integration/$SUITE/*",
     "cy:run-dev": "cypress run --reporter spec",
