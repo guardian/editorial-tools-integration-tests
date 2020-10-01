@@ -6,6 +6,7 @@ This repository currently includes testing for:
 
   * Grid
   * Composer
+  * Workflow
 
 For more Composer and Workflow testing, see [editorial-tools-production-monitoring](git@github.com:guardian/editorial-tools-production-monitoring.git).
 
