@@ -32,7 +32,7 @@ export class CdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const stack = Stack.of(this);
+    const cfnStack = Stack.of(this);
     const params = {
       stack: new cdk.CfnParameter(this, 'Stack', {
         type: 'String',
@@ -75,9 +75,10 @@ export class CdkStack extends cdk.Stack {
     };
 
     const stage = params.stage.valueAsString;
+    const stack = params.stack.valueAsString;
 
     Tags.of(this).add('Stage', stage);
-    Tags.of(this).add('Stack', params.stack.valueAsString);
+    Tags.of(this).add('Stack', stack);
 
     const loggingRoleParam = new cdk.CfnParameter(
       this,
@@ -183,7 +184,7 @@ export class CdkStack extends cdk.Stack {
           effect: Effect.ALLOW,
           actions: ['kinesis:Describe*', 'kinesis:Put*'],
           resources: [
-            `arn:aws:kinesis:${stack.region}:${stack.account}:stream/${params.kinesisStreamName.valueAsString}`,
+            `arn:aws:kinesis:${cfnStack.region}:${cfnStack.account}:stream/${params.kinesisStreamName.valueAsString}`,
           ],
         }),
       ],
@@ -212,12 +213,12 @@ export class CdkStack extends cdk.Stack {
       const launchConfigName = `LaunchConfig${suite}`;
       const userData = Fn.base64(`#!/bin/bash -ev
 
-cfn-init -s ${stack.stackId} -r ${launchConfigName} --region ${stack.region} || error_exit ''Failed to run cfn-init''
+cfn-init -s ${cfnStack.stackId} -r ${launchConfigName} --region ${cfnStack.region} || error_exit ''Failed to run cfn-init''
 
 attach-ebs-volume -d k -m /data
 
 # Set up the tests and their dependencies
-aws s3 cp s3://${DIST_BUCKET}/media-service/${stage}/${enrichedAppName}/${enrichedAppName}.zip /tmp/${enrichedAppName}.zip
+aws s3 cp s3://${DIST_BUCKET}/${stack}/${stage}/${enrichedAppName}/${enrichedAppName}.zip /tmp/${enrichedAppName}.zip
 unzip -q /tmp/${enrichedAppName}.zip -d /data/${enrichedAppName}
 
 # Install Cypress dependencies
@@ -271,7 +272,7 @@ systemctl start logstash
         mutate {
           add_field => {
             "app" => "${APP_NAME}"
-            "stack" => "media-service"
+            "stack" => "${stack}"
             "stage" => "${stage}"
           }
         }
@@ -281,7 +282,7 @@ systemctl start logstash
           role_arn => "${loggingRoleParam.valueAsString}"
           stream_name => "${loggingStreamParam.valueAsString}"
           randomized_partition_key => true
-          region => "${stack.region}"
+          region => "${cfnStack.region}"
         }
       }
 `,
@@ -305,7 +306,7 @@ systemctl start logstash
           {
             key: 'Stack',
             propagateAtLaunch: true,
-            value: params.stack.valueAsString,
+            value: stack,
           },
           {
             key: 'App',
