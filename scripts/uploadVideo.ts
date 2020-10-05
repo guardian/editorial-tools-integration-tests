@@ -5,8 +5,6 @@ import { Logger } from '../src/utils/logger';
 import { uploadVideoToS3 } from '../src/utils/s3';
 import config from '../env.json';
 
-const suite = process.env.SUITE;
-
 const logFile = 'tests.json.log';
 const logDir = path.join(__dirname, '../logs');
 const tmpDir = path.join(__dirname, '../tmp');
@@ -19,21 +17,28 @@ const year = now.getFullYear();
 const month = now.getMonth() + 1;
 const date = now.getDate();
 
-(async function f() {
-  const logger = new Logger({ logDir, logFile, suite });
-  let uid: string | null = null;
+(async function uploadVideos() {
+  const videosDir = path.join(__dirname, `../cypress/videos`);
+  const suites = fs.readdirSync(videosDir);
+  await Promise.all(
+    suites.map((suite) => {
+      const failuresFile = `${tmpDir}/${suite}.failures.txt`;
+      const idFile = `${tmpDir}/${suite}.id.txt`;
 
-  try {
-    uid = fs.readFileSync(idFile, { encoding: 'utf8' });
-  } catch (e) {
-    logger.error({
-      error: e.message,
-      message: `Failure to upload video ${videoDir}: Error reading UID file from ${idFile}: ${e.message}`,
-      stackTrace: e.stack,
-      uid,
-    });
-    return;
-  }
+      const logger = new Logger({ logDir, logFile });
+      let uid: string | null = null;
+
+      try {
+        uid = fs.readFileSync(idFile, { encoding: 'utf8' });
+      } catch (e) {
+        logger.error({
+          error: e.message,
+          message: `Failure to upload video ${videosDir}: Error reading UID file from ${idFile}: ${e.message}`,
+          stackTrace: e.stack,
+          uid,
+        });
+        return;
+      }
 
   logger.setUid(uid);
 
@@ -42,27 +47,27 @@ const date = now.getDate();
       fs.readFileSync(failuresFile, { encoding: 'utf8' })
     );
 
-    if (failures > 0) {
-      const credentials = config.isDev
-        ? new AWS.SharedIniFileCredentials({
-            profile: config.aws.profile,
-          })
-        : undefined;
+        if (failures > 0) {
+          const credentials = config.isDev
+            ? new AWS.SharedIniFileCredentials({
+                profile: config.aws.profile,
+              })
+            : undefined;
 
-      const videos = fs.readdirSync(videoDir);
+          const videos = fs.readdirSync(videosDir);
 
-      await Promise.all(
-        videos.map(async (video) => {
-          // Videos run every 5 minutes, so adding anything past the minute is unnecessary
+          Promise.all(
+            videos.map(async (video) => {
+              // Videos run every 5 minutes, so adding anything past the minute is unnecessary
 
-          const key = `videos/${year}/${month}/${date}/${uid}-${suite}-${video}`;
+              const key = `videos/${year}/${month}/${date}/${uid}-${suite}-${video}`;
 
-          await uploadVideoToS3({
-            credentials,
-            file: `${videoDir}/${video}`,
-            bucket: config.videoBucket,
-            key,
-          });
+              await uploadVideoToS3({
+                credentials,
+                file: `${videosDir}/${video}`,
+                bucket: config.videoBucket,
+                key,
+              });
 
           logger.log({
             uid,
