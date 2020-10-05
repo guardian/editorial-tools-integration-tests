@@ -7,28 +7,37 @@ import {
   generateMessage,
   putMetric,
   getVideoName,
+  getAppName,
+  getUID,
+  getFailuresFile,
 } from '../src/utils/reporters';
 
 const logDir = path.join(__dirname, '../logs');
 const tmpDir = path.join(__dirname, '../tmp');
 const logFile = 'tests.json.log';
-const failuresFile = `${tmpDir}/${suite}.failures.txt`;
-const runIDFile = `${tmpDir}/${suite}.id.txt`;
+const timestamp = new Date().toISOString().substr(0, 16); // Yields `YYYY-DD-MMTHH-MM`
+
 // Yields `YYYY-DD-MMTHH-MM`
 const start = new Date();
-const uid = start.toISOString().substr(0, 16);
-
-const logger = new Logger({ logDir, logFile, uid, suite });
+const logger = new Logger({ logDir, logFile });
 
 module.exports = Reporter;
 
-function Reporter(runner: Mocha.Runner) {
+function Reporter(this: any, runner: Mocha.Runner) {
   // @ts-ignore
   mocha.reporters.Base.call(this, runner);
   let passes = 0;
   let failures = 0;
+  const suite = getAppName(this.runner.suite);
+  const uid = getUID(this.runner.suite, timestamp);
 
   try {
+    logger.setSuite(suite);
+    logger.setUid(uid);
+
+    const failuresFile = `${tmpDir}/${suite}.failures.txt`;
+    const runIDFile = `${tmpDir}/${suite}.id.txt`;
+    getFailuresFile(failuresFile, failures);
     runner.on('start', async function () {
       // `scripts/run.sh` is responsible for cleaning up the failures file
       // If one exists on start, it's because a

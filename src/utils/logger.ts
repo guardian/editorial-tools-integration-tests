@@ -30,6 +30,10 @@ export class Logger {
     this.uid = uid;
   }
 
+  setSuite(suite: string) {
+    this.suite = suite;
+  }
+
   executionDate() {
     return new Date().toISOString();
   }

@@ -2,6 +2,7 @@ import AWS from 'aws-sdk';
 import { PutMetricDataInput } from 'aws-sdk/clients/cloudwatch';
 import mocha from 'mocha';
 import env from '../../env.json';
+import fs from 'fs';
 const stage = process.env.STAGE;
 
 export const generateMessage = (state: string, test: Mocha.Test) =>
@@ -58,3 +59,41 @@ export async function getCloudWatchClient(
     ? new AWS.CloudWatch({ credentials, region: 'eu-west-1' })
     : new AWS.CloudWatch({ region: 'eu-west-1' });
 }
+
+export function generateMessage(state: string, test: Mocha.Test) {
+  return `${state} - ${test.titlePath().join(' - ')}`;
+}
+
+export function getRootSuite(parent: Mocha.Suite): Mocha.Suite {
+  return parent.root ? parent : getRootSuite(<Mocha.Suite>parent.parent);
+}
+
+export function getAppName(parent: Mocha.Suite): string {
+  const rootSuite = getRootSuite(parent);
+  const testFile = rootSuite.file.split('/');
+  return testFile[testFile.length - 2]; // yields folder (suite) containing test file
+}
+
+export function getVideoName(parent: Mocha.Suite): string {
+  const rootSuite = getRootSuite(parent);
+  const testFile = rootSuite.file.split('/');
+  return testFile[testFile.length - 1]; // yields <filename>.ts
+}
+
+// `scripts/run.sh` is responsible for cleaning up the failures file
+// If one exists on start, it's because a
+// previous test suite in the same app has run before this
+export function getFailuresFile(failuresFile: string, failures: number) {
+  if (fs.existsSync(failuresFile)) {
+    failures = Number(fs.readFileSync(failuresFile));
+  } else {
+    if (!fs.existsSync(tmpDir)) {
+      fs.mkdirSync(tmpDir);
+    }
+    fs.writeFileSync(failuresFile, '0');
+  }
+  return failures;
+}
+
+export const getUID = (suite: Mocha.Suite, timestamp: string) =>
+  `${getAppName(suite)}-${timestamp}`;
