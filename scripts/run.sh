@@ -22,7 +22,7 @@ function runTests() {
     REALSTAGE=$STAGE
   fi
 
-  SUITE=${SUITE} STAGE="${REALSTAGE}" npm run --silent cy:live || true
+  SUITE=${SUITE} STAGE="${REALSTAGE}" npm run --silent cy:live-suite || true
   SUITE=${SUITE} STAGE="${REALSTAGE}" npm run upload-video
 }
 
@@ -37,11 +37,8 @@ if [[ $SUITE ]]; then
   runTests "${SUITE}"
 else
   echo "$(date): Running all integration tests"
-  # To make a test suite run in prod, add it here
-  # runTests <APP>
-  runTests workflow
-  runTests grid
-  runTests composer
+  STAGE="${REALSTAGE}" npm run --silent cy:live || true
+  STAGE="${REALSTAGE}" npm run upload-video
 fi
 
 popd >/dev/null

@@ -8,11 +8,6 @@ import {
   putMetric,
   getVideoName,
 } from '../src/utils/reporters';
-const suite = process.env.SUITE;
-
-if (!suite) {
-  throw new Error(`No suite passed into ${process.argv[1]} as envar`);
-}
 
 const logDir = path.join(__dirname, '../logs');
 const tmpDir = path.join(__dirname, '../tmp');

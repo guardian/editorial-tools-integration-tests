@@ -40,12 +40,12 @@ const date = now.getDate();
         return;
       }
 
-  logger.setUid(uid);
+      logger.setUid(uid);
 
-  try {
-    const failures = Number(
-      fs.readFileSync(failuresFile, { encoding: 'utf8' })
-    );
+      try {
+        const failures = Number(
+          fs.readFileSync(failuresFile, { encoding: 'utf8' })
+        );
 
         if (failures > 0) {
           const credentials = config.isDev
@@ -69,26 +69,28 @@ const date = now.getDate();
                 key,
               });
 
+              logger.log({
+                uid,
+                message: `Video [${key}] uploaded to ${config.videoBucket}`,
+                video: `https://s3.console.aws.amazon.com/s3/object/${config.videoBucket}/${key}.mp4`,
+              });
+            })
+          );
+        } else {
           logger.log({
             uid,
-            message: `Video [${key}] uploaded to ${config.videoBucket}`,
-            video: `https://s3.console.aws.amazon.com/s3/object/${config.videoBucket}/${key}.mp4`,
+            message: `No failures for suite ${suite}, not uploading video`,
           });
-        })
-      );
-    } else {
-      logger.log({
-        uid,
-        message: `No failures for suite ${suite}, not uploading video`,
-      });
-    }
-  } catch (e) {
-    logger.error({
-      uid,
-      message: `Error when attempting to upload video {${uid}} from [${videoDir}]: ${e.message}`,
-      stackTrace: e.stack,
-      error: e.message,
-    });
-    console.error(e);
-  }
+        }
+      } catch (e) {
+        logger.error({
+          uid,
+          message: `Error when attempting to upload video {${uid}} from [${videoDir}]: ${e.message}`,
+          stackTrace: e.stack,
+          error: e.message,
+        });
+        console.error(e);
+      }
+    })
+  );
 })();
