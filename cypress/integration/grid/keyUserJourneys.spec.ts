@@ -1,7 +1,10 @@
 import 'cypress-file-upload';
 import 'cypress-iframe';
 
-import { getDomain, fetchAndSetCookie } from '../../utils/networking';
+import {
+  getGridDomain as getDomain,
+  gridFetchAndSetCookie as fetchAndSetCookie,
+} from '../../utils/networking';
 import { checkVars } from '../../utils/vars';
 import { deleteImages, getImageHash, getImageURL } from '../../utils/grid/api';
 import * as uploads from '../../utils/grid/upload';

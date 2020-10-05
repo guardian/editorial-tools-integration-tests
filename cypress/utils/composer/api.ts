@@ -23,8 +23,7 @@ interface Content {
 }
 
 function deleteContent(id: string) {
-  const apiBaseUrl = `${getDomain(apps.composer)}/api`;
-  const url = `${apiBaseUrl}/content/${id}`;
+  const url = `${getDomain(apps.composer)}/api/content/${id}`;
 
   cy.request({
     url,

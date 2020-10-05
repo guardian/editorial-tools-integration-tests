@@ -1,4 +1,4 @@
-import { getDomain } from '../networking';
+import { getGridDomain as getDomain } from '../networking';
 import { apps } from '../values';
 const { grid } = apps;
 

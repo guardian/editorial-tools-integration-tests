@@ -1,4 +1,4 @@
-import { getDomain } from '../networking';
+import { getGridDomain as getDomain } from '../networking';
 
 export function createChild(collection: string, name: string) {
   // Click on edit collections button

@@ -19,6 +19,11 @@ export function getDomain(app: string, options?: GetDomainOptions) {
     : `https://${subdomain}.${stage}.dev-gutools.co.uk`;
 }
 
+export function getGridDomain(app: string, options?: GetDomainOptions) {
+  const stage = options?.stage || Cypress.env('STAGE').toLowerCase();
+  return getDomain(app, { ...options, stage: getGridStage(stage) });
+}
+
 export function setCookie(cy: Cypress.cy & EventEmitter, cookie: Cookie) {
   cy.setCookie('gutoolsAuth-assym', cookie.cookie, {
     domain: `.${cookie.domain}`,
@@ -35,3 +40,9 @@ export function fetchAndSetCookie(stage = Cypress.env('STAGE')) {
     return setCookie(cy, (cookie as unknown) as Cookie);
   });
 }
+
+export const gridFetchAndSetCookie = (stage = Cypress.env('STAGE')) =>
+  fetchAndSetCookie(getGridStage(stage));
+
+const getGridStage = (stage: string) =>
+  stage.toLowerCase() === 'code' ? 'test' : stage;
