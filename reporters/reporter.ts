@@ -37,7 +37,7 @@ function Reporter(this: any, runner: Mocha.Runner) {
 
     const failuresFile = `${tmpDir}/${suite}.failures.txt`;
     const runIDFile = `${tmpDir}/${suite}.id.txt`;
-    getFailuresFile(failuresFile, failures);
+    getFailuresFile({ failuresFile, failures, tmpDir });
     runner.on('start', async function () {
       // `scripts/run.sh` is responsible for cleaning up the failures file
       // If one exists on start, it's because a

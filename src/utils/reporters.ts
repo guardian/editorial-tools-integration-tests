@@ -60,10 +60,6 @@ export async function getCloudWatchClient(
     : new AWS.CloudWatch({ region: 'eu-west-1' });
 }
 
-export function generateMessage(state: string, test: Mocha.Test) {
-  return `${state} - ${test.titlePath().join(' - ')}`;
-}
-
 export function getRootSuite(parent: Mocha.Suite): Mocha.Suite {
   return parent.root ? parent : getRootSuite(<Mocha.Suite>parent.parent);
 }
@@ -74,16 +70,18 @@ export function getAppName(parent: Mocha.Suite): string {
   return testFile[testFile.length - 2]; // yields folder (suite) containing test file
 }
 
-export function getVideoName(parent: Mocha.Suite): string {
-  const rootSuite = getRootSuite(parent);
-  const testFile = rootSuite.file.split('/');
-  return testFile[testFile.length - 1]; // yields <filename>.ts
-}
-
 // `scripts/run.sh` is responsible for cleaning up the failures file
 // If one exists on start, it's because a
 // previous test suite in the same app has run before this
-export function getFailuresFile(failuresFile: string, failures: number) {
+export function getFailuresFile({
+  failuresFile,
+  failures,
+  tmpDir,
+}: {
+  failuresFile: string;
+  failures: number;
+  tmpDir: string;
+}) {
   if (fs.existsSync(failuresFile)) {
     failures = Number(fs.readFileSync(failuresFile));
   } else {

@@ -8,9 +8,6 @@ import config from '../env.json';
 const logFile = 'tests.json.log';
 const logDir = path.join(__dirname, '../logs');
 const tmpDir = path.join(__dirname, '../tmp');
-const failuresFile = path.join(`${tmpDir}/${suite}.failures.txt`);
-const idFile = path.join(`${tmpDir}/${suite}.id.txt`);
-const videoDir = path.join(__dirname, `../cypress/videos/${suite}`);
 
 const now = new Date();
 const year = now.getFullYear();
@@ -24,6 +21,7 @@ const date = now.getDate();
     suites.map((suite) => {
       const failuresFile = `${tmpDir}/${suite}.failures.txt`;
       const idFile = `${tmpDir}/${suite}.id.txt`;
+      const videoDir = path.join(__dirname, `../cypress/videos/${suite}`);
 
       const logger = new Logger({ logDir, logFile });
       let uid: string | null = null;
