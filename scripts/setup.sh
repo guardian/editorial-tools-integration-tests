@@ -34,5 +34,5 @@ fetchEnv() {
 }
 
 checkIfAbleToTalkToAWS
-yarn --silent # install node dependencies
+/usr/local/bin/yarn --silent # install node dependencies
 fetchEnv
