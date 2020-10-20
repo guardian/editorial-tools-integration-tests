@@ -7,7 +7,7 @@ templates:
     parameters:
       bucket: editorial-tools-integration-tests-dist
     dependencies:
-      - update-ami
+      - cloudformation
 
 deployments:
   editorial-tools-integration-tests-grid:
@@ -16,15 +16,6 @@ deployments:
     template: autoscaling
   editorial-tools-integration-tests-workflow:
     template: autoscaling
-  update-ami:
-    type: ami-cloudformation-parameter
-    app: editorial-tools-integration-tests
-    parameters:
-      amiEncrypted: true
-      amiTags:
-        Recipe: editorial-tools-cypress-integration-tests
-        AmigoStage: PROD
-        BuiltBy: amigo
   cloudformation:
     type: cloud-formation
     app: editorial-tools-integration-tests
@@ -33,3 +24,8 @@ deployments:
       cloudFormationStackName: editorial-tools-integration-tests
       templatePath: CdkStack.template.json
       cloudFormationStackByTags: false
+      amiEncrypted: true
+      amiTags:
+        Recipe: editorial-tools-cypress-integration-tests
+        AmigoStage: PROD
+        BuiltBy: amigo
