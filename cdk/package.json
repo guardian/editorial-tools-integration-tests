@@ -4,6 +4,7 @@
   "bin": {
     "cdk": "bin/cdk.js"
   },
+  "license": "MIT",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",

@@ -77,8 +77,16 @@ export class CdkStack extends cdk.Stack {
     const stage = params.stage.valueAsString;
     const stack = params.stack.valueAsString;
 
-    Tags.of(this).add('Stage', stage);
-    Tags.of(this).add('Stack', stack);
+    const tags = [
+      { name: 'Stack', value: stack },
+      { name: 'Stage', value: stage },
+      { name: 'App', value: 'editorial-tools-integration-tests' },
+    ];
+
+    tags.forEach((t) => {
+      Tags.of(this).add(t.name, t.value);
+      cfnStack.tags.setTag(t.name, t.value);
+    });
 
     const loggingRoleParam = new cdk.CfnParameter(
       this,
