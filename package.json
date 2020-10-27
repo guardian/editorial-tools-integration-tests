@@ -34,7 +34,7 @@
     "ts-node": "^9.0.0"
   },
   "dependencies": {
-    "aws-sdk": "^2.752.0",
+    "aws-sdk": "^2.768.0",
     "iniparser": "^1.0.5",
     "node-fetch": "^2.6.1",
     "typescript": "^3.9.6"
