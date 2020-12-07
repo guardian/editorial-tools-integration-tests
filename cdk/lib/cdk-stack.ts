@@ -337,7 +337,7 @@ systemctl start logstash
         metric: metric,
         threshold: 1,
         actionsEnabled: true,
-        treatMissingData: TreatMissingData.MISSING,
+        treatMissingData: TreatMissingData.IGNORE,
       });
       alarm.addAlarmAction(snsAction);
       alarm.addOkAction(snsAction);
