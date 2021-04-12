@@ -149,6 +149,19 @@ export class CdkStack extends cdk.Stack {
       roles: [edToolsIntegrationTestsRole],
     });
 
+    new Policy(this, 'DescribeEC2Policy', {
+      policyName: 'describe-ec2-policy',
+      statements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: ['ec2:DescribeTags', 'ec2:DescribeInstances',
+           'autoscaling:DescribeAutoScalingGroups','autoscaling:DescribeAutoScalingInstances'],
+          resources: ['*'],
+        }),
+      ],
+      roles: [edToolsIntegrationTestsRole],
+    });
+
     new Policy(this, 'SSMCommandPolicy', {
       policyName: 'ssm-run-command-policy',
       roles: [edToolsIntegrationTestsRole],
