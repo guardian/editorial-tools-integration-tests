@@ -63,11 +63,6 @@ export class CdkStack extends cdk.Stack {
           'Subnets to use in VPC for private EC2 instances eg. subnet-abcd1234',
         type: 'String', // TODO: Replace with 'List<AWS::EC2::Subnet::Id>'
       }),
-      kinesisStreamName: new cdk.CfnParameter(this, 'KinesisStreamName', {
-        type: 'String',
-        description:
-          'The name (NOT arn) of the Kinesis stream that logs should be shipped to',
-      }),
       alertWebhook: new cdk.CfnParameter(this, 'AlertWebhook', {
         type: 'String',
         description: 'The webhook for the SNS alert topic to send to Pagerduty',
@@ -185,20 +180,6 @@ export class CdkStack extends cdk.Stack {
             'ssmmessages:OpenDataChannel',
           ],
           resources: ['*'],
-        }),
-      ],
-    });
-
-    new Policy(this, 'LogShippingPolicy', {
-      policyName: 'log-shipping-policy',
-      roles: [edToolsIntegrationTestsRole],
-      statements: [
-        new PolicyStatement({
-          effect: Effect.ALLOW,
-          actions: ['kinesis:Describe*', 'kinesis:Put*'],
-          resources: [
-            `arn:aws:kinesis:${cfnStack.region}:${cfnStack.account}:stream/${params.kinesisStreamName.valueAsString}`,
-          ],
         }),
       ],
     });
