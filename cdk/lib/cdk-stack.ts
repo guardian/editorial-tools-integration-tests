@@ -243,6 +243,8 @@ npm install --global yarn
 aws s3 cp s3://${DIST_BUCKET}/env.json /data/${enrichedAppName}/env.json
 
 # Set up logstash
+# https://discuss.elastic.co/t/apache-log4j2-remote-code-execution-rce-vulnerability-cve-2021-44228-esa-2021-31/291476
+zip -q -d /usr/share/logstash/logstash-core/lib/jars/log4j-core-2.* org/apache/logging/log4j/core/lookup/JndiLookup.class
 systemctl start logstash
 `);
       const launchConfiguration = new CfnLaunchConfiguration(
