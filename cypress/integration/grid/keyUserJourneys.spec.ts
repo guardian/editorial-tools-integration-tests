@@ -154,7 +154,9 @@ describe('Grid Key User Journeys', function () {
     image.editRights('screengrab', date);
     image.editDescription(date);
     image.editByline(date);
-    image.editCredit(date);
+    // TODO credit is already `date` and UI regression means that no-op edits will break image page
+    // when regression is fixed remove this `+ '1'`
+    image.editCredit(date + '1');
     image.editCopyright(date);
     image.addLabel(date);
     image.removeLabel(date);
