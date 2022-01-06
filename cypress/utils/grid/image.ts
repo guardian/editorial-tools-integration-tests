@@ -11,7 +11,7 @@ export function editRights(rightsType: string, usage: string) {
 
 export function editDescription(description: string) {
   cy.get('[data-cy=it-edit-description-button]').click({ force: true });
-  cy.get('[data-cy=metadata-description] .editable-has-buttons')
+  cy.get('[data-cy=metadata-description] .editable-input')
     .clear()
     .type(description);
   cy.get('[data-cy=metadata-description] .editable-buttons > .button-save')
@@ -55,11 +55,11 @@ export function addLabel(name: string) {
   cy.get('.gr-add-label__form__buttons__button-save')
     .click()
     .should('not.exist');
-  cy.get('.labeller').contains(name, { timeout: 10000 }).should('exist');
+  cy.get('.labels').contains(name, { timeout: 10000 }).should('exist');
 }
 
 export function removeLabel(date: string) {
-  cy.get('.labeller')
+  cy.get('.labels')
     .contains(date)
     .parent()
     .find('[data-cy=it-remove-label-button]')
