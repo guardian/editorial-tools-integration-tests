@@ -22,8 +22,8 @@ function runTests() {
     REALSTAGE=$STAGE
   fi
 
-  SUITE=${SUITE} STAGE="${REALSTAGE}" npm run --silent cy:live || true
-  SUITE=${SUITE} STAGE="${REALSTAGE}" npm run upload-video
+  SUITE=${SUITE} STAGE="${REALSTAGE}" /usr/local/node/yarn run --silent cy:live || true
+  SUITE=${SUITE} STAGE="${REALSTAGE}" /usr/local/node/yarn run upload-video
 }
 
 resetTmpFiles
