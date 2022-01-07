@@ -1,29 +1,20 @@
-import AWS from 'aws-sdk';
-import { PutMetricDataInput } from 'aws-sdk/clients/cloudwatch';
-import mocha from 'mocha';
-import env from '../../env.json';
+const AWS = require('aws-sdk');
+const env = require('../../env.json');
 const stage = process.env.STAGE;
 
-export const generateMessage = (state: string, test: Mocha.Test) =>
+const generateMessage = (state, test) =>
   `${state} - ${test.titlePath().join(' - ')}`;
 
-export function getVideoName(parent: Mocha.Suite): string {
+function getVideoName(parent) {
   if (parent.root && parent.file) {
     const testFile = parent.file.split('/');
     return testFile[testFile.length - 1]; // yields <filename>.ts
   } else {
-    return getVideoName(<Mocha.Suite>parent.parent);
+    return getVideoName(parent.parent);
   }
 }
 
-export async function putMetric({
-  suite,
-  result,
-}: {
-  test: mocha.Test;
-  suite: string | undefined;
-  result: string;
-}) {
+async function putMetric({ suite, result }) {
   const metricValue = result === 'fail' ? 1 : 0;
   const credentials = env.isDev
     ? new AWS.SharedIniFileCredentials({
@@ -33,7 +24,7 @@ export async function putMetric({
   const cw = await getCloudWatchClient(credentials);
 
   // TODO: Make one big request at `runner.on('end')` with all results
-  const metric: PutMetricDataInput = {
+  const metric = {
     MetricData: [
       {
         MetricName: 'Test Result',
@@ -51,10 +42,13 @@ export async function putMetric({
   await cw.putMetricData(metric).promise();
 }
 
-export async function getCloudWatchClient(
-  credentials: AWS.SharedIniFileCredentials | undefined
-) {
+async function getCloudWatchClient(credentials) {
   return credentials
     ? new AWS.CloudWatch({ credentials, region: 'eu-west-1' })
     : new AWS.CloudWatch({ region: 'eu-west-1' });
+}
+
+module.exports = {
+  generateMessage,
+  putMetric
 }

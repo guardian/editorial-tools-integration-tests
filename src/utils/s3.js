@@ -1,22 +1,15 @@
-import AWS from 'aws-sdk';
-import fs from 'fs';
+const AWS = require('aws-sdk');
+const fs = require('fs');
 
-type MaybeCredentials = AWS.SharedIniFileCredentials | undefined;
-
-export async function getS3Client(credentials: MaybeCredentials) {
+async function getS3Client(credentials) {
   return credentials ? new AWS.S3({ credentials }) : new AWS.S3();
 }
 
-export async function uploadVideoToS3({
+async function uploadVideoToS3({
   credentials,
   file,
   bucket,
   key,
-}: {
-  credentials: MaybeCredentials;
-  file: string;
-  bucket: string;
-  key: string;
 }) {
   const s3 = await getS3Client(credentials);
   const videoData = fs.readFileSync(file);
@@ -28,4 +21,9 @@ export async function uploadVideoToS3({
     })
     .promise()
     .catch((err) => console.error(err));
+}
+
+module.exports = {
+  getS3Client,
+  uploadVideoToS3
 }
