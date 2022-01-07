@@ -50,5 +50,6 @@ async function getCloudWatchClient(credentials) {
 
 module.exports = {
   generateMessage,
-  putMetric
+  putMetric,
+  getVideoName
 }
