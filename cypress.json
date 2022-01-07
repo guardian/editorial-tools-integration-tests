@@ -1,6 +1,6 @@
 {
   "video": true,
-  "reporter": "reporters/reporter.ts",
+  "reporter": "reporters/reporter.js",
   "viewportWidth": 1280,
   "viewportHeight": 720,
   "videoCompression": false,

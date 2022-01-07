@@ -2,6 +2,8 @@
 
 set -e
 
+PATH=/usr/local/node:$PATH
+
 STAGE=${1:-LOCAL}
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 ACCOUNT="media-service"
@@ -34,5 +36,5 @@ fetchEnv() {
 }
 
 checkIfAbleToTalkToAWS
-/usr/local/bin/yarn --silent # install node dependencies
+yarn --silent # install node dependencies
 fetchEnv

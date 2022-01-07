@@ -2,6 +2,8 @@
 
 set -e
 
+PATH=/usr/local/node:$PATH
+
 STAGE=${1:-PROD}
 SUITE=$2
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
@@ -22,8 +24,8 @@ function runTests() {
     REALSTAGE=$STAGE
   fi
 
-  SUITE=${SUITE} STAGE="${REALSTAGE}" npm run --silent cy:live || true
-  SUITE=${SUITE} STAGE="${REALSTAGE}" npm run upload-video
+  SUITE=${SUITE} STAGE="${REALSTAGE}" yarn run --silent cy:live || true
+  SUITE=${SUITE} STAGE="${REALSTAGE}" yarn run upload-video
 }
 
 resetTmpFiles

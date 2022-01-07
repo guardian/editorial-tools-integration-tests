@@ -235,7 +235,6 @@ aws s3 cp s3://${DIST_BUCKET}/${stack}/${stage}/${enrichedAppName}/${enrichedApp
 unzip -q /tmp/${enrichedAppName}.zip -d /data/${enrichedAppName}
 
 # Install Cypress dependencies
-npm install --global yarn
 /data/${enrichedAppName}/node_modules/cypress/bin/cypress install
 
 

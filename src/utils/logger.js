@@ -1,22 +1,16 @@
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
-type LogData = { [key: string]: any };
+class Logger {
+  file;
+  uid;
+  suite;
 
-export class Logger {
-  file: string;
-  private uid: string | undefined;
-  private suite: string | undefined;
   constructor({
     logDir,
     logFile,
     uid,
     suite,
-  }: {
-    logDir: string;
-    logFile: string;
-    uid?: string;
-    suite?: string;
   }) {
     this.uid = uid;
     this.suite = suite;
@@ -26,7 +20,7 @@ export class Logger {
     }
   }
 
-  setUid(uid: string) {
+  setUid(uid) {
     this.uid = uid;
   }
 
@@ -34,7 +28,7 @@ export class Logger {
     return new Date().toISOString();
   }
 
-  prepopulated(json: LogData, level: string) {
+  prepopulated(json, level) {
     return JSON.stringify({
       level,
       ...json,
@@ -44,13 +38,15 @@ export class Logger {
     });
   }
 
-  log(json: LogData) {
+  log(json) {
     const data = this.prepopulated(json, 'INFO');
     fs.appendFileSync(this.file, data + '\n');
   }
 
-  error(json: LogData) {
+  error(json) {
     const data = this.prepopulated(json, 'ERROR');
     fs.appendFileSync(this.file, data + '\n');
   }
 }
+
+module.exports = { Logger }

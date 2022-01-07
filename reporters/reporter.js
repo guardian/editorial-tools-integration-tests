@@ -1,13 +1,13 @@
-import mocha from 'mocha';
-import fs from 'fs';
-import path from 'path';
+const mocha = require('mocha');
+const fs = require('fs');
+const path = require('path');
 
-import { Logger } from '../src/utils/logger';
-import {
+const { Logger } = require('../src/utils/logger');
+const {
   generateMessage,
   putMetric,
   getVideoName,
-} from '../src/utils/reporters';
+} = require('../src/utils/reporters');
 const suite = process.env.SUITE;
 
 if (!suite) {
@@ -27,7 +27,7 @@ const logger = new Logger({ logDir, logFile, uid, suite });
 
 module.exports = Reporter;
 
-function Reporter(runner: Mocha.Runner) {
+function Reporter(runner) {
   // @ts-ignore
   mocha.reporters.Base.call(this, runner);
   let passes = 0;
@@ -77,7 +77,7 @@ function Reporter(runner: Mocha.Runner) {
 
     runner.on('fail', async function (test, err) {
       const message = generateMessage('Failure', test);
-      const video = getVideoName(<Mocha.Suite>test.parent); // TODO: Think of a way to surface this information in CW so that we can correlate alarms, logs and metrics
+      const video = getVideoName(test.parent); // TODO: Think of a way to surface this information in CW so that we can correlate alarms, logs and metrics
       failures++;
       console.error('Failure:', test.fullTitle(), err.message, '\n');
       logger.error({
@@ -112,5 +112,4 @@ function Reporter(runner: Mocha.Runner) {
   }
 }
 
-// @ts-ignore
 mocha.utils.inherits(Reporter, mocha.reporters.Spec);
