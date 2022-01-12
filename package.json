@@ -36,7 +36,7 @@
   "dependencies": {
     "aws-sdk": "^2.752.0",
     "iniparser": "^1.0.5",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.2",
     "typescript": "^3.9.6"
   }
 }
