@@ -54,7 +54,7 @@ describe('Grid Key User Journeys', function () {
     const crop = {
       width: '900',
       height: '540',
-      xValue: '1020',
+      xValue: '500',
       yValue: '581',
     };
 
